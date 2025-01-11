@@ -1,0 +1,825 @@
+stack traceback:
+	[string "-- pico-8 header..."]:542: in function 'select_row'
+	[string "-- pico-8 header..."]:614: in function <[string "-- pico-8 header..."]:595>
+stack traceback:
+	[string "-- pico-8 header..."]:542: in function 'select_row'
+	[string "-- pico-8 header..."]:614: in function <[string "-- pico-8 header..."]:595>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:562: in function <[string "-- pico-8 header..."]:543>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+	[string "-- pico-8 header..."]:707: in function 'get_defender'
+	[string "-- pico-8 header..."]:551: in function 'select_row'
+	[string "-- pico-8 header..."]:613: in function <[string "-- pico-8 header..."]:594>
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:592: in function 'select_row'
+	[string "-- pico-8 header..."]:621: in function <[string "-- pico-8 header..."]:602>
+stack traceback:
+	[string "-- pico-8 header..."]:594: in function 'select_row'
+	[string "-- pico-8 header..."]:623: in function <[string "-- pico-8 header..."]:604>
+stack traceback:
+	[string "-- pico-8 header..."]:594: in function 'select_row'
+	[string "-- pico-8 header..."]:623: in function <[string "-- pico-8 header..."]:604>
+stack traceback:
+	[string "-- pico-8 header..."]:594: in function 'select_row'
+	[string "-- pico-8 header..."]:620: in function <[string "-- pico-8 header..."]:601>
+stack traceback:
+	[string "-- pico-8 header..."]:594: in function 'select_row'
+	[string "-- pico-8 header..."]:620: in function <[string "-- pico-8 header..."]:601>
+stack traceback:
+stack traceback:
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:566: in function <[string "-- pico-8 header..."]:547>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+stack traceback:
+	[string "-- pico-8 header..."]:867: in function 'select_row'
+	[string "-- pico-8 header..."]:567: in function <[string "-- pico-8 header..."]:548>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+cannot resume dead coroutine: stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:591: in function <[string "-- pico-8 header..."]:580>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:592: in function <[string "-- pico-8 header..."]:581>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:592: in function <[string "-- pico-8 header..."]:581>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:592: in function <[string "-- pico-8 header..."]:581>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:592: in function <[string "-- pico-8 header..."]:581>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:592: in function <[string "-- pico-8 header..."]:581>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:594: in function <[string "-- pico-8 header..."]:583>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:594: in function <[string "-- pico-8 header..."]:583>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to call method 'x' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:593: in function <[string "-- pico-8 header..."]:582>
+attempt to get length of local 'target_row' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:483: in function 'on_summon'
+	[string "-- pico-8 header..."]:694: in function 'gl_summon'
+	[string "-- pico-8 header..."]:616: in function <[string "-- pico-8 header..."]:594>
+attempt to get length of local 'target_row' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:483: in function 'on_summon'
+	[string "-- pico-8 header..."]:694: in function 'gl_summon'
+	[string "-- pico-8 header..."]:616: in function <[string "-- pico-8 header..."]:594>
+attempt to call global 'now' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:486: in function 'on_summon'
+	[string "-- pico-8 header..."]:694: in function 'gl_summon'
+	[string "-- pico-8 header..."]:616: in function <[string "-- pico-8 header..."]:594>
+attempt to get length of local 'target_row' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:494: in function 'ai_will_play'
+	[string "-- pico-8 header..."]:573: in function 'pick_card'
+	[string "-- pico-8 header..."]:612: in function <[string "-- pico-8 header..."]:601>
+attempt to get length of local 'target_row' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:494: in function 'ai_will_play'
+	[string "-- pico-8 header..."]:573: in function 'pick_card'
+	[string "-- pico-8 header..."]:612: in function <[string "-- pico-8 header..."]:601>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:960: in function 'knapsack'
+	[string "-- pico-8 header..."]:572: in function 'pick_card'
+	[string "-- pico-8 header..."]:603: in function <[string "-- pico-8 header..."]:592>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:959: in function 'knapsack'
+	[string "-- pico-8 header..."]:572: in function 'pick_card'
+	[string "-- pico-8 header..."]:603: in function <[string "-- pico-8 header..."]:592>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:959: in function 'knapsack'
+	[string "-- pico-8 header..."]:572: in function 'pick_card'
+	[string "-- pico-8 header..."]:603: in function <[string "-- pico-8 header..."]:592>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:959: in function 'knapsack'
+	[string "-- pico-8 header..."]:572: in function 'pick_card'
+	[string "-- pico-8 header..."]:603: in function <[string "-- pico-8 header..."]:592>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:959: in function 'knapsack'
+	[string "-- pico-8 header..."]:572: in function 'pick_card'
+	[string "-- pico-8 header..."]:603: in function <[string "-- pico-8 header..."]:592>
