@@ -4,6 +4,7 @@ __lua__
 health_x=0
 health_tx=0
 preview_c=nil
+no_wait=false
 
 function _init()
 	palt(14,true)
@@ -454,199 +455,401 @@ function draw_health(actor, y)
  print_centered(str, x + 10, y + 22, color)
 end
 -->8
---cards
+--util
+function lerp(tar,pos,perc)
+ return (1-perc)*tar + perc*pos;
+end
 
-types={
-	beast=3,
-	ghost=12,
-	object=4,
-	elemental=9,
-}
+function draw_pentagram(x1, y1, x2, y2, angle, col)
+ oval(x1, y1, x2, y2, col)
+ local cx, cy, w, h = (x1 + x2) / 2, (y1 + y2) / 2, (x2 - x1) / 2, (y2 - y1) / 2
+ local step = 2 / 5
+ for i = 0, 4 do
+  local a_a, a_b = angle + step * i, angle + step * (i - 1)
+  local x_a, y_a = sin(a_a) * w + cx, cos(a_a) * h + cy
+  local x_b, y_b = sin(a_b) * w + cx, cos(a_b) * h + cy
+  line(x_a, y_a, x_b, y_b, col)
+ end
+end
+function imut_add(list,value)
+	local result={}
+	for v in all(list) do
+		add(result, v)
+	end
+	add(result, value)
+	return result
+end
+function clamp(a,b,c)
+	if(a>c)return c
+	if(a<b)return b
+	return a
+end
+function lerp(from,to,p)
+	return from*(1-p)+to*p
+end
+function ease(t,p)
+	p=p or 3
+	if(t<.5)return t^p*2
+	t=1-t
+	return 1-t^p*p*2
+end
+function wait(s)
+	if no_wait then
+		return
+	end
+	for j=0,30*s do
+		yield()
+	end
+end
+-- parens-8 v3
+-- a lisp interpreter by three rodents
 
-function foreach_rc(f)
-	local acc=0
-	for i=1,3 do
-		for actor in all{player,opp} do	
-			local row = actor.rows[i]
-			for rc in all(row) do
-				acc+=(f(rc,actor,i) or 0)
+function parens8(code)
+	_pstr, _ppos = "id " .. code .. ")", 0
+	return compile({parse()}, function(name) return name, 1 end){{_ENV}}
+end
+
+function id(...) return ... end
+
+function consume(matches, inv)
+	local start = _ppos
+	while (function()
+		for m in all(matches) do
+			if (_pstr[_ppos] == m) return true
+		end
+	end)() == inv do _ppos += 1 end
+	return sub(_pstr, start, _ppos - 1)
+end
+
+function parse(off)
+	_ppos += off or 1
+	consume(' \n\t', true)
+	local c = _pstr[_ppos]
+	-- if (c == ';') consume'\n' return parse()  -- comments support
+	if (c == '(') return {parse()}, parse()
+	if (c == ')') return
+	if (c == '"' or c == "'") _ppos += 1 return {"quote", consume(c)}, parse()
+	local token = consume' \n\t()\'"'
+	return tonum(token) or token, parse(0)
+end
+
+builtin = {}
+
+function compile_n(lookup, exp, ...)
+	if (exp) return compile(exp, lookup), compile_n(lookup, ...)
+end
+
+function compile(exp, lookup)
+	if type(exp) == "string" then
+		local fields, variadic = split(exp, "."), exp == "..."
+		if (fields[2] and not variadic) return fieldview(lookup, deli(fields, 1), fields)
+		local idx, where = lookup(exp)
+		if variadic then
+			return where
+				and function(frame) return unpack(frame[1][where], idx) end
+				or function(frame) return unpack(frame, idx) end
+		end
+		return where
+			and function(frame) return frame[1][where][idx] end
+			or function(frame) return frame[idx] end
+	end
+	if (type(exp) == "number") return function() return exp end
+
+	local op = deli(exp, 1)
+	if (builtin[op]) return builtin[op](lookup, unpack(exp))
+
+	local function ret(s1, ...)
+		local s2 = ... and ret(...)
+		return s2 and function(frame)
+			return s1(frame), s2(frame)
+		end or s1
+	end
+	local fun, args =
+		compile(op, lookup), ret(compile_n(lookup, unpack(exp)))
+		return args and function(frame)
+			local f = fun(frame)
+			if(f) return f(args(frame))
+			printh(op .. " was nil", "debug.txt")
+		end or function(frame)
+			local f = fun(frame)
+			if(f) return f()
+			printh(op .. " was nil", "debug.txt")
+		end
+	
+end
+
+function builtin:quote(exp2) return function() return exp2 end end
+
+function builtin:fn(exp1, exp2)
+	local locals, captures, key, close =
+		parens8[[(quote ()) (quote ()) (quote ())]]
+	for i,v in inext, exp1 do locals[v] = i end
+	local body = compile(exp2, function(name)
+		local idx = locals[name]
+		if (idx) return idx + 1, false
+		local idx, where = self(name)
+		if where then captures[where] = true
+		else close = true end
+		return idx, where or key
+	end)
+	return close
+		and function(frame)
+			local upvals = {[key] = frame}
+			for where in next, captures do
+				upvals[where] = frame[1][where]
+			end
+			return function(...)
+				return body{upvals, ...}
 			end
 		end
-	end
-	return acc
+		or function(frame)
+			return function(...)
+				return body{frame[1], ...}
+			end
+		end
 end
-local stone={name="stone",s=59,atk=1,def=5,cost=0,type="object"}
 
-local bones={name="bones",s=23,atk=1,def=6,cost=2, type="ghost"}
-goblin={
-	name="goblin",s=53,atk=3,def=5,cost=6,type="beast",
-	desc="summon goblin in every row", on_summon=function(actor,rc,row_i)
- 	local rows={}
- 	for i=1,3 do
- 		if #actor.rows[i]<5 and i!=abs(row_i) then
- 			gl_summon(actor, goblin, i, true)
- 		end
- 	end
- end
-	}
+parens8[[
+(fn (closure) (rawset builtin "when" (fn (lookup e1 e2 e3)
+	(closure (compile_n lookup e1 e2 e3))
+)))
+]](function(a1, a2, a3) return
+	function(frame)
+		if (a1(frame)) return a2(frame)
+		if (a3) return a3(frame)
+	end
+end)
 
-cards={
-    {name="devil",s=1,atk=1,def=5,cost=1, type="beast"},
-    {name="spirit",s=3,atk=1,def=5,cost=2, type="ghost"},
-    {name="blade",s=5,atk=3,def=4,cost=2, type="object"},
-    {name="orb",s=7,atk=2,def=6,cost=1, type="object"},
-    {name="golem",s=9,atk=3,def=12,cost=3, type="object"},
-    {name="swarm",s=11,atk=2,def=2,cost=1, type="beast", desc="may draw swarm", on_summon=function(actor) 
-        if(rnd()>.5)add_to_hand(actor.hand, cards[6])
-    end},
-    {name="jelpi",s=13,atk=1,def=8,cost=3, type="beast", desc="heal 4", on_summon=function(actor)
-    actor.hp+=4
-    end },
-    {name="imp",s=17,atk=2,def=3,cost=1, type="beast"},
-    {name="bat",s=19,atk=3,def=2,cost=2, type="beast"},
-    {name="wil'o",s=21,atk=3,def=8,cost=4, type="ghost"},
-    bones,
-    {name="furniture",s=25,atk=1,def=6,cost=0, type="object"},
-    {name="'geist",s=27,atk=3,def=10,cost=5, type="ghost"},
-    {name="skelly",s=29,atk=2,def=8,cost=5, type="ghost", desc="summon bones", on_summon=function(actor)
-        local rows={}
-        for i=1,3 do
-            if #actor.rows[i]<5 then
-                add(rows,i)
-            end
-        end
-        local row=rnd(rows)
-        if(row)gl_summon(actor, bones, row, true)
-    end},
-   
-    {name="slime",s=33,atk=1,def=8,cost=2, type="beast"},
-    {name="blinky",s=35,atk=1,def=8,cost=3, type="ghost"},
-    {name="candle",s=37,atk=2,def=2,cost=2, type="object", desc="+1 mana", on_summon=function(actor) if(actor.mana+actor.used_mana <6)actor.mana+=1 end},
-    {name="snake",s=39,atk=3,def=3,cost=2, type="beast"},
-    {name="'shroom",s=41,atk=1,def=6,cost=2, type="beast"},
-    {name="lich",s=43,atk=3,def=14,cost=6, type="ghost"},
-    {name="zap",s=45,atk=3,def=1,cost=3, type="elemental",
-     desc="clear row",
-     on_summon=function(actor,this,row_i)
-       foreach_rc(function(rc, owner, i)
-           if(i!=abs(row_i))return
-           if(rc==this)return
-           rc.hp = 0
-           rc.damaged_at = time()
-           sfx(11)
-           for j = 1, 24 do yield() end
-       end)  
-       clear_dead()
-   end,
-    ai_will_play=function(actor)
-       return 	foreach_rc(function(rc, owner, i)
-           local mult=owner==actor and- 1 or 1
-           return mult*rc.c.cost*rc.hp/rc.c.def
-       end) >= 3
-    end},
-    {name="eye",s=49,atk=2,def=6,cost=4, type="beast", desc="animates all your objects", on_summon=function(actor)
-       foreach_rc(function(rc, owner, i)
-       if(owner!=actor or rc.c.type != "object" or rc.possessed ) return
-        rc.possessed =true
-        rc.possessed_at = time()
-        sfx(14)
-        for j = 1, 15 do yield() end
-       end)
-    end,
-    ai_will_play=function(actor)
-        return foreach_rc(function(rc, owner, i)
-       if(owner!=actor or rc.c.type != "object" and  rc.possessed ) return
-       return 1 + rc.c.cost
-       end)>=3
-    end},
-   
-    {name="relic",s=51,atk=1,def=5,cost=3, type="object", desc="kill all ghosts", on_summon=function(actor)
-       foreach_rc(function(rc, owner, i)
-        if(rc.c.type != "ghost")return
-         rc.hp = 0
-         rc.damaged_at = time()
-         sfx(11)
-         for j = 1, 24 do yield() end
-         clear_dead()
-        end)
-    end,
-    ai_will_play=function(actor)
-       return foreach_rc(function(rc, owner, i)
-           if(rc.c.type != "ghost")return
-           local mult=actor==owner and -1 or 1
-           return mult*rc.c.cost*rc.hp/rc.c.def
-       end)>=3
-    end},
-       goblin,
-       {name="flame",s=55,atk=3,def=3,cost=2, type="elemental", desc="2 damage to all foes", on_summon=function(actor)
-           foreach_rc(function(rc, owner, i)
-               if(owner == actor)return
-               rc.hp -=2
-               rc.damaged_at = time()
-           end)
-           sfx(11)
-           for j = 1, 24 do yield() end
-           clear_dead()
-        end,
-        ai_will_play=function(actor)
-           return foreach_rc(function(rc, owner, i)
-               if(owner == actor)return
-               return (rc.hp<=2) and rc.c.cost or 1
-           end) >= 4
-    end},
-    {name="gorgon",s=57,atk=3,def=6,cost=6, type="beast",
-       desc="turn all foes to stone",
-       on_summon=function(actor,rc,row_i)
-           foreach_rc(function(rc, owner)
-               if(owner==actor) return
-               rc.c=stone
-               rc.hp=min(stone.def,rc.hp)
-               rc.possessed=false
-               rc.damaged_at = time()
-              end)
-           sfx(11)
-           for j = 1, 24 do yield() end
-           clear_dead()
-       end
-       },
-       {name="snail",s=61,atk=1,def=7,cost=2, type="beast",
-       desc="kill foe at front of snail's row",
-       on_summon=function(actor,rc,row_i)
-           local foe=actor==player and opp or player
-           local target_row=foe.rows[abs(row_i)]
-           local target=target_row[#target_row]
-           if(target==nil)return
-           target.hp=0
-           target.damaged_at=time()
-           sfx(11)
-           for j = 1, 24 do yield() end
-           clear_dead()
-       end,
-       ai_will_play=function(actor,rc,row_i)
-           local foe=actor==player and opp or player
-           local score=0
-           for target_row in all(foe.rows) do
-               local target=target_row[#target_row]
-               if target!=nil then
-                   score+= target.c.cost*target.hp/target.c.def 
-               end
-           end
-           return score/3>=2
-       end},
-	{name="cactus",s=68,atk=1,def=8,cost=3, type="elemental", desc="deal 3 damage to opponent", 
-	on_summon=function(actor)
-	 gl_damage_player(actor==player and opp or player, 3)
-	end},
-       {name="gargoyle",s=84,atk=3,def=14,cost=4, type="elemental", desc="costs 5 life", 
-       on_summon=function(actor)
-        gl_damage_player(actor, 5)
-       end,
-       ai_will_play=function(actor)
-        foe=actor==player and opp or player
-        return actor.hp > foe.hp and actor.hp > 10
-       end
-    },
-   }
+parens8[[
+(fn (closures) (rawset builtin "set" (fn (lookup exp1 exp2)
+	((fn (compiled fields) ((fn (head tail) (when tail
+		(select 3 (closures compiled tail (fieldview lookup head fields)))
+		((fn (idx where) (select (when where 1 2)
+			(closures compiled idx where)
+		)) (lookup head))
+	)) (deli fields 1) (deli fields))) (compile exp2 lookup) (split exp1 "."))
+)))
+]](function(compiled, idx, where) return
+	function(frame) frame[1][where][idx] = compiled(frame) end,
+	function(frame) frame[idx] = compiled(frame) end,
+	function(frame) where(frame)[idx] = compiled(frame) end
+end)
+
+parens8[[
+(fn (closure) (set fieldview (fn (lookup tab fields view) (select -1
+	(set view (fn (step i field) (when field (view
+		(closure step field)
+		(inext fields i)
+	) step)))
+	(view (compile tab lookup) (inext fields))
+))))
+]](function(step, field)
+	return function(frame)
+		return step(frame)[field]
+	end
+end)
+-- slightly simplified: {[0] = 1} works, {[foo] = 1} doesn't
+-- (table (foo 1) (0 2) 3 4 5 6)
+-- (table (x 1) (y 2))
+function builtin.table(...)
+	return parens8[[
+	(fn (exp) ((fn (closures lookup construct) (select -1
+		(set construct (fn (i elem) (when elem
+			((fn (step) (when (count elem)
+				(select 1 (closures
+					step (compile (rawget elem 2) lookup) (rawget elem 1)))
+				(select 2 (closures step (compile elem lookup)))
+			)) (construct (inext exp i)))
+			id
+		)))
+		(select 3 (closures (construct (inext exp))))
+	)) (deli exp 1) (deli exp 1)))
+	]]{function(step, elem, key) return
+		function(res, frame)
+			res[key] = elem(frame)
+			return step(res, frame)
+		end,
+		function(res, frame)
+			add(res, elem(frame))
+			return step(res, frame)
+		end,
+		function(frame)
+			return (step({}, frame))
+		end
+	end, ...}
+end
+-- inlined statement sequence, returns the last expression
+-- significantly improves performance compared to `(id s1 s2 s3 ...)`
+
+-- 39 tokens, inlines up to 3 before looping
+function builtin.seq(...)
+	return parens8[[
+		(fn (exp) ((fn (unroll lookup e1 e2 e3) 
+			((fn (s1 s2) (select (mid 3 (rawlen exp)) s1 (unroll s1 s2 (when e3
+				((rawget builtin "seq") lookup (unpack exp 3)))))
+			) (compile_n lookup e1 e2))
+		) (deli exp 1) (deli exp 1) (unpack exp)))
+	]]{function(s1, s2, s3)
+		return function(frame)
+			s1(frame)
+			return s2(frame)
+		end, function(frame)
+			s1(frame)
+			s2(frame)
+			return s3(frame)
+		end
+	end, ...}
+end
+
+-- 56 tokens, inlines up to 4 before looping
+-- function builtin.seq(...)
+-- 	return parens8[[
+-- 		(fn (exp) ((fn (unroll lookup e1 e2 e3 e4) 
+-- 			((fn (s1 s2 s3) (select (mid 4 (rawlen exp))
+-- 				s1 (unroll s1 s2 s3 (when e4
+-- 					((rawget builtin "seq") lookup (unpack exp 4)))))
+-- 			) (compile_n lookup e1 e2 e3))
+-- 		) (deli exp 1) (deli exp 1) (unpack exp)))
+-- 	]]{function(s1, s2, s3, s4)
+-- 		return function(frame)
+-- 			s1(frame)
+-- 			return s2(frame)
+-- 		end, function(frame)
+-- 			s1(frame)
+-- 			s2(frame)
+-- 			return s3(frame)
+-- 		end, function(frame)
+-- 			s1(frame)
+-- 			s2(frame)
+-- 			s3(frame)
+-- 			return s4(frame)
+-- 		end
+-- 	end, ...}
+-- end
+parens8[[
+(fn (closures) ((fn (ops loopfn) (select -1
+	(set loopfn (fn (i op) (when i (loopfn (select 2
+		(rawset builtin op (fn (lookup e1 e2 e3)
+			(select i (closures (compile_n lookup e1 e2 e3)))
+		))
+		(inext ops i)
+	)))))
+	(loopfn (inext ops))
+)) (split "+,-,*,/,\,%,^,<,>,==,~=,..,or,and,not,#,[]")))
+]](function(a1, a2, a3) return
+	function(f) return a1(f)+a2(f) end,
+	a2 and function(f) return a1(f)-a2(f) end
+		or function(f) return -a1(f) end,
+	function(f) return a1(f)*a2(f) end,
+	function(f) return a1(f)/a2(f) end,
+	function(f) return a1(f)\a2(f) end,
+	function(f) return a1(f)%a2(f) end,
+	function(f) return a1(f)^a2(f) end,
+	function(f) return a1(f)<a2(f) end,
+	function(f) return a1(f)>a2(f) end,
+	function(f) return a1(f)==a2(f) end,
+	function(f) return a1(f)~=a2(f) end,
+	function(f) return a1(f)..a2(f) end,
+	function(f) return a1(f) or a2(f) end,
+	function(f) return a1(f) and a2(f) end,
+	function(f) return not a1(f) end,
+	function(f) return #a1(f) end,
+	a3 and function(f) a1(f)[a2(f)] = a3(f) end
+		or function(f) return a1(f)[a2(f)] end
+end)
+
+parens8[[
+(foreach (split "+,-,*,/,\,%,^,..") (fn (op)
+	(rawset builtin (.. op "=") (fn (lookup e1 e2)
+		(compile (pack "set" e1 (pack op e1 e2)) lookup)
+	))
+))
+]]
+
+-- if you don't feel like writing IIFEs, this writes them for you
+-- (let ((a 42) (b "foo")) (print (.. b a)))
+parens8[[
+(rawset builtin "let" (fn (lookup exp2 exp3) (
+	(fn (names values) (select 2
+		(foreach exp2 (fn (binding) (id
+			(add names (rawget binding 1))
+			(add values (rawget binding 2))
+		)))
+		(compile (pack (pack "fn" names exp3) (unpack values)) lookup)
+	))
+	(pack) (pack)
+)))
+
+(rawset builtin "loop" (fn (lookup exp2 exp3) (compile
+	(pack (pack "fn" (pack "__ps8_loop") (pack "id"
+		(pack "set" "__ps8_loop" (pack "fn" (pack)
+			(pack "when" exp2 (pack "__ps8_loop" exp3))
+		))
+		(pack "__ps8_loop")
+	)))
+	lookup
+)))
+]]
+
+-- the "loop" builtin is a "poor man's while", implemented as a tail recursion.
+-- thanks to lua, such an implementation will not blow up the stack.
+-- if you're really strapped for tokens, it will at least save you the headache
+-- of implementing a tail recursion loop correctly yourself.
+
+-- this is what the generated code looks like:
+-- (fn (__ps8_loop) (id
+-- 	(set __ps8_loop (fn () 
+-- 		(when exp2 (__ps8_loop exp3))
+-- 	))
+-- 	(__ps8_loop)
+-- ))
+
+-- if you *really* need proper loops and can justify the token cost however...
+
+-- (while (< x 3) (set x (+ 1 x))
+parens8[[
+(fn (closure) (rawset builtin "while" (fn (lookup cond body)
+	(closure (compile_n lookup cond body))
+)))
+]](function(a1, a2) return function(frame)
+	while (a1(frame)) a2(frame)
+end end)
+
+-- `foreach` should take care of your collection traversal needs, but if for
+-- some reason you think doing numeric loops in parens-8 is a good idea (it
+-- usually isn't), there's a builtin for it:
+
+-- (for (i 1 10 2) (body))
+-- (for ((k v) (pairs foo)) (body))
+-- 79 tokens for the lot, each syntax can be disabled individually
+parens8[[
+(fn (closures) (rawset builtin "for" (fn (lookup args body)
+	(when (rawget args 3)
+		(select 1 (closures
+			(compile (pack "fn" (pack (rawget args 1)) body) lookup)
+			(compile_n lookup (unpack args 2))))
+		(select 2 (closures
+			(compile (pack "fn" (rawget args 1) body) lookup)
+			(compile (rawget args 2) lookup)))
+	)
+)))
+]](function(cbody, a, b, c) return
+	function(frame) -- numeric for loop (28 tokens)
+		local body = cbody(frame)
+		for i = a(frame), b(frame), c and c(frame) or 1 do
+			body(i)
+		end
+	end,
+	function(frame) -- generic for loop (41 tokens)
+		local body, next, state = cbody(frame), a(frame)
+		local function loop(var, ...)
+			if (var == nil) return
+			body(var, ...)
+			return loop(next(state, var))
+		end
+		return loop(next(state))
+	end
+end)
 -->8
 
 -->8
@@ -658,7 +861,10 @@ hand_i = 1
 function gl_new_game()
 	for i=1,6 do
 		yield()
-		add_to_hand(player.hand, rnd(cards))
+		-- add_to_hand(player.hand, rnd(cards))
+		local c = cards[#cards]
+		c.cost = 0
+		add_to_hand(player.hand, c)
 		add_to_hand(opp.hand, rnd(cards))
 	end
 end
@@ -776,8 +982,23 @@ function game_logic()
 	end
 end
 
+function get_doubler(actor, card)
+    -- Check all rows for ability doublers
+    for i=1,3 do
+        local row = actor.rows[i]
+        for _, rc in pairs(row) do
+            if rc.c.double_abilites_for and rc.c.double_abilites_for(card) then
+                return rc
+            end
+        end
+    end
+    return false
+end
 
 function gl_summon(actor,c,row_i, special)
+	if #actor.rows[abs(row_i)]>=5 then
+		return
+	end
 	yield()
 	if not special then
 		actor.mana-=c.cost
@@ -824,6 +1045,17 @@ function gl_summon(actor,c,row_i, special)
 		sfx(15)
 		wait(.5)
 		c.on_summon(actor, rc, row_i)
+		local doubler = get_doubler(actor, c)
+		if doubler then
+            wait(.5)
+			sfx(15)
+            doubler.ability_at=time()
+            wait(.5)
+            sfx(15)
+            rc.ability_at=time()
+            wait(.5)
+            c.on_summon(actor, rc, row_i)
+        end
 	end
 end
 
@@ -922,52 +1154,73 @@ function clear_dead()
 	end
 end
 -->8
---util
-function lerp(tar,pos,perc)
- return (1-perc)*tar + perc*pos;
-end
 
-function draw_pentagram(x1, y1, x2, y2, angle, col)
- oval(x1, y1, x2, y2, col)
- local cx, cy, w, h = (x1 + x2) / 2, (y1 + y2) / 2, (x2 - x1) / 2, (y2 - y1) / 2
- local step = 2 / 5
- for i = 0, 4 do
-  local a_a, a_b = angle + step * i, angle + step * (i - 1)
-  local x_a, y_a = sin(a_a) * w + cx, cos(a_a) * h + cy
-  local x_b, y_b = sin(a_b) * w + cx, cos(a_b) * h + cy
-  line(x_a, y_a, x_b, y_b, col)
- end
-end
-function imut_add(list,value)
-	local result={}
-	for v in all(list) do
-		add(result, v)
-	end
-	add(result, value)
-	return result
-end
-function clamp(a,b,c)
-	if(a>c)return c
-	if(a<b)return b
-	return a
-end
-function lerp(from,to,p)
-	return from*(1-p)+to*p
-end
-function ease(t,p)
-	p=p or 3
-	if(t<.5)return t^p*2
-	t=1-t
-	return 1-t^p*p*2
-end
-function wait(s)
-	if no_wait then
-		return
-	end
-	for j=0,30*s do
-		yield()
-	end
-end
+--cards
+
+types={
+	beast=3,
+	ghost=12,
+	object=4,
+	elemental=9,
+}
+cards={}
+parens8[[
+(set foreach_rc (fn (f)
+  (let ((acc 0))
+    (for (i 1 3)
+      (for ((actor) (all (table player opp)))
+        (for ((rc) (all (. actor.rows i)))
+          (set acc (+ acc (or (f rc actor i) 0))))))
+    acc)))
+
+(set goblin (table
+  (name "goblin") (s 53) (atk 3) (def 5) (cost 6) (type "beast")
+  (desc "summon goblin in every row")
+  (on_summon (fn (actor rc row_i)
+    (for (i 1 3)
+        (gl_summon actor goblin i 1))))))
+
+(set bones (table 
+  (name "bones") (s 23) (atk 1) (def 6) (cost 2) (type "ghost")))
+(set stone (table 
+  (name "stone") (s 59) (atk 1) (def 5) (cost 0) (type "object")))
+(set swarm (table 
+    (name "swarm") (s 11) (atk 2) (def 2) (cost 1) (type "beast")
+    (desc "50% chance to draw swarm")
+    (on_summon (fn (actor)
+      (when (> (rnd) 0.5)
+        (add_to_hand actor.hand swarm))))))
+
+(add cards bones)
+(add cards goblin)
+ (add cards (table (name "devil") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
+  (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost")))
+  (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object")))
+  (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 1) (type "object")))
+  (add cards (table (name "golem") (s 9) (atk 3) (def 12) (cost 3) (type "object")))
+  (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast")))
+  (add cards (table (name "bat") (s 19) (atk 3) (def 2) (cost 2) (type "beast")))
+  (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost")))
+  (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object")))
+  (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost")))
+  (add cards swarm)
+  (add cards  (table
+    (name "jelpi") (s 13) (atk 1) (def 8) (cost 3) (type "beast")
+    (desc "heal 4")
+    (on_summon (fn (actor)
+      (set actor.hp (+ actor.hp 4))
+	))
+))
+
+	(add cards (table
+		(name "wand") (s 72) (atk 1) (def 8) (cost 5) (type "object")
+		(desc "summon abilities trigger twice")
+		(double_abilites_for (fn (card) 1))
+	))
+
+
+]]
+
 -->8
 --ai
 
@@ -1156,21 +1409,21 @@ eeeeeeee077777000077700000077700000000000000700000000000000000000000000000777700
 00000000007777700070000007000070000770000077770000000000770077707777707000000000007000000777707007777070770707077707000000000000
 00000000000777000000000000077000000770000077770000777700770007707707007000777700000777000777707007777770077007070770707000000000
 00000000000000000000000000077000000000000070070000700700077000700700007000077000000770000777777000000000007777770077777000000000
-eee7770770777eeeee777777777777ee000770000007700000000000077700000000000000000000000000000000000000000000000000000000000000000000
-ee700078870007eee70000000000007e007777000077770007770000777770700000000000000000000000000000000000000000000000000000000000000000
-e70077077077007e7077777777777707707070000070700777777007777707700000000000000000000000000000000000000000000000000000000000000000
-70070000000070077070000000000707777777077077777777770777777777700000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070000000000707777707777777077777777777707077700000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070000000070707007777777777770070707777770777700000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070000000770707007777000077770077077007777770700000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070000007700707007777000077770007770000077700000000000000000000000000000000000000000000000000000000000000000000
+eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070000000000000000000000000000000000000000000000000
+ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000000000000000000000000000000000000000000000000000
+e70077077077007e7077777777777707707070000070700777777007777707700070070000700700000000000000000000000000000000000000000000000000
+70070000000070077070000000000707777777077077777777770777777777700007000000700707000000000000000000000000000000000000000000000000
+70700000000007077070000000000707777707777777077777777777707077700000700000070000000000000000000000000000000000000000000000000000
+70700000000007077070000000070707007777777777770070707777770777700000700070007070000000000000000000000000000000000000000000000000
+70700000000007077070000000770707007777000077770077077007777770700000700000007000000000000000000000000000000000000000000000000000
+70700000000007077070000007700707007777000077770007770000077700000000700000007000000000000000000000000000000000000000000000000000
 70700000000007077070700077000707000000000777777000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070770770000707077777707700700000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070077700000707770070007777777700070700000000000000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070007000000707777777777070707000707070000707000000000000000000000000000000000000000000000000000000000000000000
+70700000000007077070770770000707077777707700700000000000000000000077000000077000000000000000000000000000000000000000000000000000
+70700000000007077070077700000707770070007777777700070700000000000777770000777770000000000000000000000000000000000000000000000000
+70700000000007077070007000000707777777777070707000707070000707007777777777777777000000000000000000000000000000000000000000000000
 70070000000070077070000000000707707070707000000000777770007070700000000000000000000000000000000000000000000000000000000000000000
-e70077777777007e7077777777777707700000007000000007777770007777700000000000000000000000000000000000000000000000000000000000000000
-ee700000000007eee70000000000007e770707077707070770070070077777700000000000000000000000000000000000000000000000000000000000000000
+e70077777777007e7077777777777707700000007000000007777770007777700000770000077000000000000000000000000000000000000000000000000000
+ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700000000000000000000000000000000000000000000000000
 eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000000000000000000000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
