@@ -568,11 +568,11 @@ function compile(exp, lookup)
 		return args and function(frame)
 			local f = fun(frame)
 			if(f) return f(args(frame))
-			printh(op .. " was nil", "debug.txt")
+			assert(false, op .. " was nil")
 		end or function(frame)
 			local f = fun(frame)
 			if(f) return f()
-			printh(op .. " was nil", "debug.txt")
+			assert(false, op .. " was nil")
 		end
 	
 end
@@ -677,28 +677,28 @@ function builtin.table(...)
 		end
 	end, ...}
 end
--- inlined statement sequence, returns the last expression
--- significantly improves performance compared to `(id s1 s2 s3 ...)`
+function repack(f) return function(...) return f{...} end end
 
--- 39 tokens, inlines up to 3 before looping
-function builtin.seq(...)
-	return parens8[[
-		(fn (exp) ((fn (unroll lookup e1 e2 e3) 
-			((fn (s1 s2) (select (mid 3 (rawlen exp)) s1 (unroll s1 s2 (when e3
-				((rawget builtin "seq") lookup (unpack exp 3)))))
-			) (compile_n lookup e1 e2))
-		) (deli exp 1) (deli exp 1) (unpack exp)))
-	]]{function(s1, s2, s3)
-		return function(frame)
-			s1(frame)
-			return s2(frame)
-		end, function(frame)
-			s1(frame)
-			s2(frame)
-			return s3(frame)
-		end
-	end, ...}
-end
+parens8[[
+(fn (unroll) (rawset builtin "seq" (repack
+    (fn (args) ((fn (lookup e1 e2 e3) 
+        ((fn (s1 s2) (select (mid 3 (rawlen args)) s1 (unroll s1 s2 (when e3
+            ((rawget builtin "seq") lookup (unpack args 3)))))
+        ) (compile_n lookup e1 e2))
+    ) (deli args 1) (unpack args)))
+) ((fn (func) (rawset builtin "fn" (repack (fn (args)
+    (func (deli args 1) (deli args 1) (pack "seq" (unpack args)))
+)))) (rawget builtin "fn")) ))
+]](function(s1, s2, s3)
+    return function(frame)
+        s1(frame)
+        return s2(frame)
+    end, function(frame)
+        s1(frame)
+        s2(frame)
+        return s3(frame)
+    end
+end)
 
 -- 56 tokens, inlines up to 4 before looping
 -- function builtin.seq(...)
@@ -734,7 +734,7 @@ parens8[[
 		(inext ops i)
 	)))))
 	(loopfn (inext ops))
-)) (split "+,-,*,/,\,%,^,<,>,==,~=,..,or,and,not,#,[]")))
+)) (split "+,-,*,/,\,%,^,<,>,<=,>=,==,~=,..,or,and,not,#,[]")))
 ]](function(a1, a2, a3) return
 	function(f) return a1(f)+a2(f) end,
 	a2 and function(f) return a1(f)-a2(f) end
@@ -746,6 +746,8 @@ parens8[[
 	function(f) return a1(f)^a2(f) end,
 	function(f) return a1(f)<a2(f) end,
 	function(f) return a1(f)>a2(f) end,
+	function(f) return a1(f)<=a2(f) end,
+	function(f) return a1(f)>=a2(f) end,
 	function(f) return a1(f)==a2(f) end,
 	function(f) return a1(f)~=a2(f) end,
 	function(f) return a1(f)..a2(f) end,
@@ -895,6 +897,8 @@ deck_scene={
     end
   end
 }
+menuitem(1, "view deck", function() push_scene(deck_scene) end)
+
 -->8
 --scenes
 game_scene={
@@ -941,10 +945,11 @@ function gl_new_game()
 	for i=1,6 do
 		yield()
 		-- add_to_hand(player.hand, rnd(cards))
+		-- add_to_hand(opp.hand, rnd(cards))
 		local c = cards[#cards]
 		c.cost = 0
 		add_to_hand(player.hand, c)
-		add_to_hand(opp.hand, rnd(cards))
+		add_to_hand(opp.hand, c)
 	end
 end
 function init_players()
@@ -1013,11 +1018,16 @@ opp={
 	player.turn_1=true
 	add_to_hand(player.hand, "endturn")
 end
+
+function gl_draw_card(actor)
+	add_to_hand(actor.hand, rnd(cards))
+end
+
 function game_logic()
 	gl_new_game()
 	local actor=player
 	while true do
-		add_to_hand(actor.hand, rnd(cards))
+		gl_draw_card(actor)
 
 		if(actor.mana+actor.used_mana<6)actor.mana+=1
 		actor.mana+=actor.used_mana
@@ -1075,6 +1085,16 @@ function gl_summon(actor,c,row_i, special)
 	if #actor.rows[abs(row_i)]>=5 then
 		return
 	end
+
+	-- TODO remove this
+	if c.ai_will_play then
+		if c.ai_will_play(actor) then
+			log("ai would play "..c.name)
+		else
+			log("ai would not play "..c.name)
+		end
+	end
+
 	yield()
 	if not special then
 		actor.mana-=c.cost
@@ -1283,6 +1303,11 @@ parens8[[
   (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost")))
   (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object")))
   (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost")))
+  (add cards(table (name "snake") (s 39) (atk 3) (def 3) (cost 2) (type "beast")))
+  (add cards(table (name "'shroom") (s 41) (atk 1) (def 6) (cost 2) (type "beast")))
+  (add cards(table (name "lich") (s 43) (atk 3) (def 14) (cost 6) (type "ghost")))
+  (add cards(table (name "slime") (s 33) (atk 1) (def 8) (cost 2) (type "beast")))
+  (add cards(table (name "blinky") (s 35) (atk 1) (def 8) (cost 3) (type "ghost")))
   (add cards swarm)
   (add cards  (table
     (name "jelpi") (s 13) (atk 1) (def 8) (cost 3) (type "beast")
@@ -1299,7 +1324,7 @@ parens8[[
 	))
 	(add cards (table
 		(name "gorgon") (s 57) (atk 3) (def 6) (cost 6) (type "beast")
-		(desc "summon abilities trigger twice")
+		(desc "turn foes to stone")
 		(on_summon (fn (actor rc row_i)
 			(foreach_rc (fn (rc owner)
 				(when (~= owner actor)
@@ -1317,6 +1342,144 @@ parens8[[
 		))
 	))
 
+	(add cards (table 
+		(name "candle") (s 37) (atk 2) (def 2) (cost 2) (type "object")
+		(desc "+1 mana")
+		(on_summon (fn (actor)
+			(when (< (+ actor.mana actor.used_mana) 6)
+				(set actor.mana (+ actor.mana 1))
+			)
+		))
+	))
+
+	(add cards (table
+		(name "zap") (s 45) (atk 3) (def 1) (cost 3) (type "elemental")
+		(desc "clear row")
+		(on_summon (fn (actor rc row_i)
+			(foreach_rc (fn (target_rc owner row)
+				(when (and (== (abs row_i) (abs row)) (~= target_rc rc))
+					(seq 
+						(set target_rc.hp 0)
+						(set target_rc.damaged_at (time))
+					)
+				)
+			))
+			(sfx 11)
+			(for (j 1 24) (yield))
+			(clear_dead)
+		))
+	))
+
+	(add cards (table
+		(name "cactus") (s 68) (atk 1) (def 8) (cost 3) (type "elemental")
+		(desc "deal 3 damage to opponent")
+		(on_summon (fn (actor)
+			(gl_damage_player (when (== actor player) opp player) 3)
+		))
+	))
+
+	(add cards (table
+		(name "gargoyle") (s 84) (atk 3) (def 14) (cost 4) (type "elemental")
+		(desc "costs 5 life")
+		(on_summon (fn (actor)
+			(gl_damage_player actor 5)
+		))
+		(ai_will_play (fn (actor)
+			(let ((foe (when (== actor player) opp player)))
+				(and (>= actor.hp foe.hp) (>= actor.hp 10))
+			)
+		))
+	))
+	(add cards (table
+		(name "flame") (s 55) (atk 3) (def 3) (cost 2) (type "elemental")
+		(desc "2 damage to all foes")
+		(on_summon (fn (actor rc row_i)
+			(seq
+				(foreach_rc (fn (target_rc owner row)
+					(when (~= target_rc rc)
+						(seq 
+							(set target_rc.hp (- target_rc.hp 2))
+							(set target_rc.damaged_at (time))
+						)
+					)
+				))
+				(sfx 11)
+				(for (j 1 24) (yield))
+				(clear_dead)
+			)
+		))
+
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner)
+				(* (when (~= owner actor) 1 -1) (when (<= rc.hp 2) rc.c.cost 1))
+			)) 2 )
+		))
+	))
+
+
+	(add cards (table
+    	(name "relic") (s 51) (atk 1) (def 5) (cost 3) (type "object")
+    	(desc "kill all ghosts")
+    	(on_summon (fn (actor)
+      		(foreach_rc (fn (rc owner i)
+        		(when (== rc.c.type "ghost")
+					(seq
+						(set rc.hp 0)
+						(set rc.damaged_at (time))
+						(sfx 11)
+						(for (j 1 24) (yield))
+						(clear_dead)
+					)
+				)
+			))
+		))
+		(ai_will_play (fn (actor)
+			(log "thinking about relic")
+			(>= (foreach_rc (fn (rc owner i)
+				(when 
+					(== rc.c.type "ghost") 
+					(seq 
+						(log rc.c.name)
+						(log (* (when (~= owner actor) 1 -1) rc.c.cost))
+						(* (when (~= owner actor) 1 -1) rc.c.cost)
+					)
+					0
+				)
+			)) 3 )
+		))
+	))
+		
+	(add cards (table
+		(name "toad") (s 86) (atk 1) (def 4) (cost 2) (type "beast")
+		(desc "draw a card")
+		(on_summon (fn (actor)
+			(gl_draw_card actor)
+		))
+	))
+
+	(add cards (table
+		(name "smog") (s 88) (atk 1) (def 1) (cost 2) (type "elemental")
+		(desc "discard all cards, draw 5")
+		(on_summon (fn (actor)
+			(foreach actor.hand (fn (card)
+				(when (~= card.c "endturn")
+					(seq
+						(del actor.hand card)
+						(wait 0.1)
+					)
+				)
+			))
+			(for (i 1 5)
+				(seq
+					(gl_draw_card actor)
+					(wait 0.1)
+				)
+			)
+		))
+		(ai_will_play (fn (actor)
+			(>= (rawlen actor.hand) 5)
+		))
+	))
 ]]
 function log(msg)
 	printh(msg, "_ghosts.txt")
@@ -1512,22 +1675,22 @@ eeeeeeee077777000077700000077700000000000000700000000000000000000000000000777700
 00000000007777700070000007000070000770000077770000000000770077707777707000000000007000000777707007777070770707077707000000000000
 00000000000777000000000000077000000770000077770000777700770007707707007000777700000777000777707007777770077007070770707000000000
 00000000000000000000000000077000000000000070070000700700077000700700007000077000000770000777777000000000007777770077777000000000
-eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070000000000000000000000000000000000000000000000000
-ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000000000000000000000000000000000000000000000000000
-e70077077077007e7077777777777707707070000070700777777007777707700070070000700700000000000000000000000000000000000000000000000000
-70070000000070077070000000000707777777077077777777770777777777700007000000700707000000000000000000000000000000000000000000000000
-70700000000007077070000000000707777707777777077777777777707077700000700000070000000000000000000000000000000000000000000000000000
-70700000000007077070000000070707007777777777770070707777770777700000700070007070000000000000000000000000000000000000000000000000
-70700000000007077070000000770707007777000077770077077007777770700000700000007000000000000000000000000000000000000000000000000000
-70700000000007077070000007700707007777000077770007770000077700000000700000007000000000000000000000000000000000000000000000000000
-70700000000007077070700077000707000000000777777000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070770770000707077777707700700000000000000000000077000000077000000000000000000000000000000000000000000000000000
-70700000000007077070077700000707770070007777777700070700000000000777770000777770000000000000000000000000000000000000000000000000
-70700000000007077070007000000707777777777070707000707070000707007777777777777777000000000000000000000000000000000000000000000000
-70070000000070077070000000000707707070707000000000777770007070700000000000000000000000000000000000000000000000000000000000000000
-e70077777777007e7077777777777707700000007000000007777770007777700000770000077000000000000000000000000000000000000000000000000000
-ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700000000000000000000000000000000000000000000000000
-eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000000000000000000000000000000000000000000000000000
+eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070007777700007777700000000000000000000000000000000
+ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000070007700070007700000000000000000000000000000000
+e70077077077007e7077777777777707707070000070700777777007777707700070070000700700700077700700077700000000000000000000000000000000
+70070000000070077070000000000707777777077077777777770777777777700007000000700707700700000700700000000000000000000000000000000000
+70700000000007077070000000000707777707777777077777777777707077700000700000070000700700000700700000000000000000000000000000000000
+70700000000007077070000000070707007777777777770070707777770777700000700070007070700077700700077700000000000000000000000000000000
+70700000000007077070000000770707007777000077770077077007777770700000700000007000070007700070007700000000000000000000000000000000
+70700000000007077070000007700707007777000077770007770000077700000000700000007000007777700007777700000000000000000000000000000000
+70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000000000000000000000000000000000
+70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700000000000000000000000000000000
+70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700000000000000000000000000000000
+70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700700000000000000000000000000000000
+70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770700000000000000000000000000000000
+e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070700000000000000000000000000000000
+ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000700000000000000000000000000000000
+eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
