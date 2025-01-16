@@ -1109,3 +1109,6 @@ attempt to compare nil with number: stack traceback:
 [table]
 0
 [table]
+checking rc
+[nil]
+triggering summon ability

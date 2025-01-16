@@ -4,7 +4,6 @@ __lua__
 health_x=0
 health_tx=0
 preview_c=nil
-no_wait=false
 
 function _init()
 	palt(14,true)
@@ -12,7 +11,7 @@ function _init()
 	init_players()
 	c_game_logic=cocreate(game_logic)
 end
-function _draw()
+function _draw_game()
 	cls(0)	
 	camera()
 	local t=player.damaged_at and time()-player.damaged_at
@@ -48,7 +47,7 @@ function _draw()
 	end
 end
 
-function _update()
+function _update_game()
 	update_hand(player.hand,hand_i)
 	update_rows()
 	health_tx=(player_input!="hand" and -14 or 2)
@@ -70,7 +69,7 @@ function _update()
   if status=="dead" then
   	local trace=trace(c_game_logic)
   	if(trace and not game_over)then
-  		printh(err..": "..trace, "_ghosts.txt")
+  		log(err..": "..trace)
 	  	cls(0)
 	  	cursor()
 	  	stop(err..": "..trace)
@@ -87,10 +86,10 @@ function draw_card(c,x,y,actor)
 		spr(66,x,y,2,2)
 		return
 	end
-	local col  = (actor==opp or actor.mana>=c.cost) and 7 or 6
+	local col  = (actor==nil or actor==opp or actor.mana>=c.cost) and 7 or 6
 	pal(7,col)
 	spr(64,x,y,2,2)
-	if(actor==player)spr(c.s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+	if(actor!=opp)spr(c.s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
 	
 	pal(7,7)
 end
@@ -851,9 +850,89 @@ parens8[[
 	end
 end)
 -->8
+deck_scene={
+  init=function(self)
+    self.i=1
+	deck=cards
+  end,
 
+  update=function(self)
+    if btnp(⬅️) or btnp(⬆️) then
+      self.i-=1
+      if self.i<1 then
+        self.i=#deck
+      end
+      sfx(9)
+    end
+    if btnp(➡️) or btnp(⬇️) then
+      self.i+=1
+      if self.i>#deck then
+        self.i=1  
+      end
+      sfx(9)
+    end
+    if btnp(❎) then
+      pop_scene()
+    end
+  end,
+
+  draw=function(self)
+    cls(0)
+    
+    -- title
+    print("deck ("..self.i.."/"..#deck..")",4,4,7)
+    print("❎ back",90,4,13)
+    
+    -- current card
+    local c=deck[self.i]
+    draw_card(c,56,40)
+    
+    -- card info
+    print(c.name,4,90,7)
+    print(c.type.." "..c.atk.."/"..c.def,4,98,7)
+    if c.desc then
+      print(c.desc,4,106,6)
+    end
+  end
+}
 -->8
+--scenes
+game_scene={
+	draw=_draw_game,
+	update=_update_game
+}
+scenes={
+} -- scene stack
+current_scene=nil
 
+function push_scene(scene)
+ add(scenes,scene)
+ current_scene=scene
+ if scene.init then scene:init() end
+end
+
+function pop_scene()
+ del(scenes,current_scene)
+ current_scene=scenes[#scenes]
+ if current_scene.resume then 
+  current_scene:resume()
+ end
+end
+
+-- override pico-8 callbacks 
+function _update()
+ if current_scene then
+  current_scene:update()
+ end
+end
+
+function _draw()
+ if current_scene then
+  current_scene:draw()
+ end
+end
+
+push_scene(game_scene)
 -->8
 --game
 hand_i = 1
@@ -915,9 +994,6 @@ opp={
 	pick_card=function(self)
 			wait(.3)
 			local value,opts=knapsack(opp, opp.hand, opp.mana)
-			printh(value, "_ghosts.txt")
-			printh(opts, "_ghosts.txt")
-
 			return rnd(opts)
 	end,
 	select_row=ai_select_row
@@ -1163,16 +1239,20 @@ types={
 	object=4,
 	elemental=9,
 }
+function foreach_rc(f)
+	local acc=0
+	for i=1,3 do
+		for actor in all{player,opp} do	
+			local row = actor.rows[i]
+			for rc in all(row) do
+				acc+=(f(rc,actor,i) or 0)
+			end
+		end
+	end
+	return acc
+end
 cards={}
 parens8[[
-(set foreach_rc (fn (f)
-  (let ((acc 0))
-    (for (i 1 3)
-      (for ((actor) (all (table player opp)))
-        (for ((rc) (all (. actor.rows i)))
-          (set acc (+ acc (or (f rc actor i) 0))))))
-    acc)))
-
 (set goblin (table
   (name "goblin") (s 53) (atk 3) (def 5) (cost 6) (type "beast")
   (desc "summon goblin in every row")
@@ -1217,10 +1297,33 @@ parens8[[
 		(desc "summon abilities trigger twice")
 		(double_abilites_for (fn (card) 1))
 	))
-
+	(add cards (table
+		(name "gorgon") (s 57) (atk 3) (def 6) (cost 6) (type "beast")
+		(desc "summon abilities trigger twice")
+		(on_summon (fn (actor rc row_i)
+			(foreach_rc (fn (rc owner)
+				(when (~= owner actor)
+					(seq 
+						(set rc.c stone)
+						(set rc.hp (min stone.def rc.hp))
+						(set rc.possessed nil)
+						(set rc.damaged_at (time))
+					)
+				)
+			))
+			(sfx 11)
+			(for (j 1 24) (yield))
+			(clear_dead)
+		))
+	))
 
 ]]
+function log(msg)
+	printh(msg, "_ghosts.txt")
+end
+--[[
 
+					]]
 -->8
 --ai
 
