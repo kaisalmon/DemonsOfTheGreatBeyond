@@ -4,6 +4,7 @@ __lua__
 health_x=0
 health_tx=0
 preview_c=nil
+no_wait=false
 
 function _init()
 	palt(14,true)
@@ -80,7 +81,9 @@ function _update_game()
 		hit_frame+=1
 	end
 end
-
+function draw_sprite(s,x,y)
+	spr(s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+end
 function draw_card(c,x,y,actor)
 	if c=="endturn" then
 		spr(66,x,y,2,2)
@@ -89,7 +92,7 @@ function draw_card(c,x,y,actor)
 	local col  = (actor==nil or actor==opp or actor.mana>=c.cost) and 7 or 6
 	pal(7,col)
 	spr(64,x,y,2,2)
-	if(actor!=opp)spr(c.s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+	if(actor!=opp)draw_sprite(c.s,x,y)
 	
 	pal(7,7)
 end
@@ -123,11 +126,11 @@ function draw_player_hand()
 			local str = preview_c.type
 			rectfill(64-2*#str,106,64+2*#str,110,0)
 			print(str,64-2*#str,106,types[c.type])
-			str = c.cost.." mana"
+			str = c.cost.."✽, "..c.atk.."/"..c.def..""
 			rectfill(64-2*#str,106+7,64+2*#str,117,0)
 			print(str,64-2*#str,106+7,7)
-			str = c.atk.."/"..c.def..(
-				c.desc and ", "..c.desc or ""
+			str = (
+				c.desc or ""
 			)
 			clip(22,0,84,128)
 	
@@ -421,17 +424,17 @@ function draw_bar(x, y, p, primary_color, secondary_color, flash_condition, flas
  end
 end
 
-function print_centered(text, x, y, color)
- local tx= x- 2 * #tostr(text)
- local mx=128-4*#tostr(text)
- if tx<0 then
- 	tx=0
- elseif tx>mx then
- 	tx=mx
- end
- rectfill(-2+tx, y-1,
- x + 2 * #tostr(text), y+5, 0)
- print(text, tx, y, color or 7)
+function print_centered(text, x, y, color, w)
+	local w = w or 4* #tostr(text)
+	local tx= x- w/2
+	local mx=128-4*#tostr(text)
+	if tx<0 then
+		tx=0
+	elseif tx>mx then
+		tx=mx
+	end
+	rectfill(-2+tx, y-1, x +w/2, y+5, 0)
+	print(text, tx, y, color or 7)
 end
 
 function draw_health(actor, y)
@@ -449,9 +452,9 @@ function draw_health(actor, y)
  p = mana / 7
  local x = 128 - health_x - 20
  draw_bar(x, y, p, 12, 7, actor.mana_flash_at, 0.6, 10)
- local str = tostr(mana) .. "/" .. tostr(mana + used_mana)
+ local str = tostr(mana) .. "✽/" .. tostr(mana + used_mana)..'✽'
  local color = actor.mana_flash_at and time() - actor.mana_flash_at < 0.6 and 8 or 12
- print_centered(str, x + 10, y + 22, color)
+ print_centered(str, x+10, y + 22, color, 30)
 end
 -->8
 --util
@@ -855,20 +858,19 @@ end)
 deck_scene={
   init=function(self)
     self.i=1
-	deck=cards
   end,
 
   update=function(self)
     if btnp(⬅️) or btnp(⬆️) then
       self.i-=1
       if self.i<1 then
-        self.i=#deck
+        self.i=#player.deck
       end
       sfx(9)
     end
     if btnp(➡️) or btnp(⬇️) then
       self.i+=1
-      if self.i>#deck then
+      if self.i>#player.deck then
         self.i=1  
       end
       sfx(9)
@@ -878,24 +880,24 @@ deck_scene={
     end
   end,
 
-  draw=function(self)
-    cls(0)
-    
-    -- title
-    print("deck ("..self.i.."/"..#deck..")",4,4,7)
-    print("❎ back",90,4,13)
-    
-    -- current card
-    local c=deck[self.i]
-    draw_card(c,56,40)
-    
-    -- card info
-    print(c.name,4,90,7)
-    print(c.type.." "..c.atk.."/"..c.def,4,98,7)
-    if c.desc then
-      print(c.desc,4,106,6)
-    end
-  end
+  	draw=parens8[[(fn ()
+  		(cls 0)
+		(for ((k v) (pairs player.deck))
+  			(seq
+  				(draw_sprite v.s 0 (* k 10))
+  				(print v.name 18 (+ 5 (* k 10)) ([] types v.type))
+  				
+  					(print "★" (+ 19 (* (# v.name) 4)) (+ 5 (* k 10)) 7)
+				
+				(print 
+					(.. v.cost (.. '✽ ' (.. v.atk (.. '/' v.def)) ))
+					65 
+					(+ 5 (* k 10)) 
+					7
+				)
+			)
+		)
+  	)]]
 }
 menuitem(1, "view deck", function() push_scene(deck_scene) end)
 
@@ -944,18 +946,23 @@ hand_i = 1
 function gl_new_game()
 	for i=1,6 do
 		yield()
-		-- add_to_hand(player.hand, rnd(cards))
-		-- add_to_hand(opp.hand, rnd(cards))
-		local c = cards[#cards]
-		c.cost = 0
-		add_to_hand(player.hand, c)
-		add_to_hand(opp.hand, c)
+		gl_draw_card(player)
+		gl_draw_card(opp)
 	end
 end
+function map_to_cards(ids)
+	local result={}
+	for id in all(ids) do
+		add(result, cards[id])
+	end
+	return result
+end
+
 function init_players()
 player={
 	hand={},
 	rows={},
+	deck=map_to_cards(split"1,1,2,2,3,4,5,6,8,11,2,14,15,20,11"),
 	pick_card=function()
 			player_input="hand"
 			yield()
@@ -996,6 +1003,7 @@ player={
 opp={
 	hand={},
 	rows={},
+	deck=cards,
 	pick_card=function(self)
 			wait(.3)
 			local value,opts=knapsack(opp, opp.hand, opp.mana)
@@ -1016,11 +1024,27 @@ opp={
 	opp.used_mana=0
 	player.used_mana=0
 	player.turn_1=true
+	player.og_deck = shallow_copy(player.deck)
+	opp.og_deck = shallow_copy(opp.deck)
 	add_to_hand(player.hand, "endturn")
 end
 
+function shallow_copy(dict)
+	local result={}
+	for k,v in pairs(dict) do
+		result[k]=v
+	end
+	return result
+end
+
 function gl_draw_card(actor)
-	add_to_hand(actor.hand, rnd(cards))
+	if #actor.deck==0 then
+		add_to_hand(actor.hand, void)
+		return
+	end
+	local c = rnd(actor.deck)
+	del(actor.deck, c)
+	add_to_hand(actor.hand, c)
 end
 
 function game_logic()
@@ -1163,21 +1187,27 @@ function can_attack(rc, actor)
  return rc.possessed or rc.c.type!="object"
 end
 
+function can_defend(rc, attacker)
+	if attacker.c.type=="ghost" then
+		if rc.c.type=="beast" then
+			return false
+		end
+		if rc.c.type=="object" and not rc.possessed then
+			return false
+		end
+	end
+	if rc.c.can_defend then
+		return rc.c.can_defend(rc, attacker)
+	end
+	return true
+end
+
 function get_defender(row, attacker)
- if attacker.c.type!="ghost" then
- 	return row[#row]
- end
  local result=nil
  for _, rc in pairs(row) do
-   if rc.c.type=="beast" 
-   or (
-   	rc.c.type=="object" and
-   	not rc.possessed
-   ) then
-	--pass
-   else
-    result=rc
-   end
+	if can_defend(rc, attacker) then
+    	result=rc
+	end
  end
  return result
 end
@@ -1272,7 +1302,13 @@ function foreach_rc(f)
 	return acc
 end
 cards={}
+void={}
 parens8[[
+(set void (table 
+	(name "void") (s 78) (atk 1) (def 1) (cost 1) (type "elemental")
+	(desc "you ran out of cards...")
+))
+
 (set goblin (table
   (name "goblin") (s 53) (atk 3) (def 5) (cost 6) (type "beast")
   (desc "summon goblin in every row")
@@ -1458,7 +1494,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "smog") (s 88) (atk 1) (def 1) (cost 2) (type "elemental")
+		(name "gnome") (s 76) (atk 1) (def 1) (cost 4) (type "beast")
 		(desc "discard all cards, draw 5")
 		(on_summon (fn (actor)
 			(foreach actor.hand (fn (card)
@@ -1478,6 +1514,25 @@ parens8[[
 		))
 		(ai_will_play (fn (actor)
 			(>= (rawlen actor.hand) 5)
+		))
+	))
+
+	(add cards (table
+		(name "smog") (s 88) (atk 3) (def 1) (cost 3) (type "elemental")
+		(desc "can't block")
+		(can_defend (fn ()
+			false
+		))
+	))
+
+	(add cards (table
+		(name "bug") (s 92) (atk 1) (def 1) (cost 1) (type "beast")
+		(desc "can't block beasts or ghosts")
+		(can_defend (fn (rc attacker)
+			(when (== attacker.c.type "beast")
+				false
+				1
+			)
 		))
 	))
 ]]
@@ -1675,22 +1730,22 @@ eeeeeeee077777000077700000077700000000000000700000000000000000000000000000777700
 00000000007777700070000007000070000770000077770000000000770077707777707000000000007000000777707007777070770707077707000000000000
 00000000000777000000000000077000000770000077770000777700770007707707007000777700000777000777707007777770077007070770707000000000
 00000000000000000000000000077000000000000070070000700700077000700700007000077000000770000777777000000000007777770077777000000000
-eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070007777700007777700000000000000000000000000000000
-ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000070007700070007700000000000000000000000000000000
-e70077077077007e7077777777777707707070000070700777777007777707700070070000700700700077700700077700000000000000000000000000000000
-70070000000070077070000000000707777777077077777777770777777777700007000000700707700700000700700000000000000000000000000000000000
-70700000000007077070000000000707777707777777077777777777707077700000700000070000700700000700700000000000000000000000000000000000
-70700000000007077070000000070707007777777777770070707777770777700000700070007070700077700700077700000000000000000000000000000000
-70700000000007077070000000770707007777000077770077077007777770700000700000007000070007700070007700000000000000000000000000000000
-70700000000007077070000007700707007777000077770007770000077700000000700000007000007777700007777700000000000000000000000000000000
-70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000000000000000000000000000000000
-70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700000000000000000000000000000000
-70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700000000000000000000000000000000
-70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700700000000000000000000000000000000
-70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770700000000000000000000000000000000
-e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070700000000000000000000000000000000
-ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000700000000000000000000000000000000
-eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777000000000000000000000000000000000
+eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070007777700007777700077000000770000000000000077000
+ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000070007700070007700777700007777000007700000700700
+e70077077077007e7077777777777707707070000070700777777007777707700070070000700700700077700700077700707000000707000000000007777770
+70070000000070077070000000000707777777077077777777770777777777700007000000700707700700000700700000777700007777000707707070700707
+70700000000007077070000000000707777707777777077777777777707077700000700000070000700700000700700070000007000000000707707070700707
+70700000000007077070000000070707007777777777770070707777770777700000700070007070700077700700077700770700707707070000000007777770
+70700000000007077070000000770707007777000077770077077007777770700000700000007000070007700070007700777700007777000007700000700700
+70700000000007077070000007700707007777000077770007770000077700000000700000007000007777700007777700700700007007000000000000077000
+70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000700700000000000000000000000000
+70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700070070007007000000000000000000
+70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700777770000700700000000000000000
+70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700000000000000000
+70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770707700700077007000000000000000000
+e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000000000000000000
+ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700000000000000000
+eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
