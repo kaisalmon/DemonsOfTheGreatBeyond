@@ -226,3 +226,23 @@ lich
 bones
 2
 ai would play relic
+ai would not play gnome
+ai would not play gnome
+ai would not play gnome
+ai would play gnome
+ai would not play gnome
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1653: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1657: in function 'knapsack'
+	[string "-- pico-8 header..."]:1012: in function 'pick_card'
+	[string "-- pico-8 header..."]:1066: in function <[string "-- pico-8 header..."]:1055>
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1131: in function <[string "-- pico-8 header..."]:1125>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:1184: in function 'gl_summon'
+	[string "-- pico-8 header..."]:1079: in function <[string "-- pico-8 header..."]:1057>

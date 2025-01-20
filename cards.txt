@@ -1,0 +1,34 @@
+id,name,type,cost,atk,def,desc
+1,bones,ghost,2,1,6,
+2,goblin,beast,6,3,5,summon goblin in every row
+3,devil,beast,1,1,5,
+4,spirit,ghost,2,1,5,
+5,blade,object,2,3,4,
+6,orb,object,2,2,6,draw a card
+7,golem,object,3,3,12,
+8,imp,beast,1,2,3,
+9,bat,beast,2,3,2,
+10,wil'o,ghost,4,3,8,
+11,furniture,object,0,1,6,
+12,'geist,ghost,5,3,10,
+13,snake,beast,2,3,3,
+14,'shroom,beast,2,1,6,
+15,lich,ghost,6,3,14,
+16,slime,beast,2,1,8,
+17,blinky,ghost,3,1,8,
+18,swarm,beast,1,2,2,50% chance to draw swarm
+19,jelpi,beast,3,1,8,heal 4
+20,wand,object,5,1,8,summon abilities trigger twice
+21,gorgon,beast,6,3,6,turn foes to stone
+22,candle,object,2,2,2,+1 mana
+23,zap,elemental,3,3,1,clear row
+24,cactus,elemental,3,1,8,deal 3 damage to opponent
+25,gargoyle,elemental,4,3,14,costs 5 life
+26,flame,elemental,2,3,3,2 damage to all foes
+27,relic,object,3,1,5,kill all ghosts
+28,toad,beast,2,1,4,draw a card
+29,smog,elemental,3,3,1,can't block
+30,bug,beast,1,1,1,can't block beasts or ghosts
+31,gnome,beast,4,1,1,discard all cards, draw 5
+32,skelly,ghost,4,2,7,summon bones
+33,reaper,ghost,5,3,7,kill all injured

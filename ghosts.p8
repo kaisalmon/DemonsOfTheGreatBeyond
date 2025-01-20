@@ -9,7 +9,8 @@ no_wait=false
 function _init()
 	palt(14,true)
 	palt(0,false)
-	init_players()
+	current_enemy_index=1
+	start_new_game(enemies[1])
 	c_game_logic=cocreate(game_logic)
 end
 function _draw_game()
@@ -220,7 +221,8 @@ function move_view_board_cursor(x, y)
 	end
 	local actor=sgn(preview_i)==1 and player or opp
 	local row=actor.rows[row_i]
-	preview_c=row[abs(preview_i)].c
+	local preview=row and row[abs(preview_i)]
+	preview_c=preview and preview.c or nil
 end
 
 function update_hand()
@@ -228,6 +230,7 @@ function update_hand()
 		player_input == "hand" 
 		and hand_i 
 		or #player.hand/2+.5
+	if(hand_i >= #player.hand+1) hand_i = 1
 	if(player_input == "hand")preview_c=player.hand[hand_i].c
 	for i,hc in ipairs(player.hand) do
 			local p = (i-s_i)/#player.hand
@@ -444,7 +447,7 @@ function draw_health(actor, y)
 		health_x=106-health_x
 	end
  -- draw health bar
- local p = hp / 20
+ local p = hp / actor.max_hp
  draw_bar(health_x, y, p, 8, 7, actor.damaged_at, 1/30, nil)
  print_centered(flr(hp), health_x + 10, y + 22, 8)
 
@@ -884,16 +887,21 @@ deck_scene={
   		(cls 0)
 		(for ((k v) (pairs player.deck))
   			(seq
-  				(draw_sprite v.s 0 (* k 10))
-  				(print v.name 18 (+ 5 (* k 10)) ([] types v.type))
-  				
-  					(print "★" (+ 19 (* (# v.name) 4)) (+ 5 (* k 10)) 7)
-				
-				(print 
-					(.. v.cost (.. '✽ ' (.. v.atk (.. '/' v.def)) ))
-					65 
-					(+ 5 (* k 10)) 
-					7
+  				(let ((y (+ 5 (* k 10))))
+					(seq
+						(draw_sprite v.s 0 (* k 10))
+						(print v.name 18 y 7)
+						(when (~= nil v.desc)
+							(print "★" (+ 19 (* (# v.name) 4)) y 7)
+						)
+						(print v.type 62 y ([] types v.type))
+						(print 
+							(.. v.cost (.. '✽ ' (.. v.atk (.. '/' v.def)) ))
+							100 
+							(+ 5 (* k 10)) 
+							7
+						)
+					)
 				)
 			)
 		)
@@ -949,6 +957,9 @@ function gl_new_game()
 		gl_draw_card(player)
 		gl_draw_card(opp)
 	end
+	-- DEBUGGING THE LASTEST CARD
+	add_to_hand(player.hand, cards[#cards])
+	player.mana =  cards[#cards].cost
 end
 function map_to_cards(ids)
 	local result={}
@@ -958,11 +969,11 @@ function map_to_cards(ids)
 	return result
 end
 
-function init_players()
+function start_new_game(enemy)
 player={
 	hand={},
 	rows={},
-	deck=map_to_cards(split"1,1,2,2,3,4,5,6,8,11,2,14,15,20,11"),
+	og_deck=map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
 	pick_card=function()
 			player_input="hand"
 			yield()
@@ -1003,7 +1014,7 @@ player={
 opp={
 	hand={},
 	rows={},
-	deck=cards,
+	og_deck=map_to_cards(enemy.deck),
 	pick_card=function(self)
 			wait(.3)
 			local value,opts=knapsack(opp, opp.hand, opp.mana)
@@ -1016,7 +1027,9 @@ opp={
 	player.rows={{},{},{}}
 	opp.rows={{},{},{}}
 	player.hp=20
-	opp.hp=player.hp
+	opp.hp=enemy.max_hp
+	player.max_hp=20
+	opp.max_hp=enemy.max_hp
 	player.v_hp=player.hp
 	opp.v_hp=opp.hp
 	opp.mana=0
@@ -1024,8 +1037,9 @@ opp={
 	opp.used_mana=0
 	player.used_mana=0
 	player.turn_1=true
-	player.og_deck = shallow_copy(player.deck)
-	opp.og_deck = shallow_copy(opp.deck)
+	player.deck = shallow_copy(player.og_deck)
+	opp.deck = shallow_copy(opp.og_deck)
+	game_over=nil
 	add_to_hand(player.hand, "endturn")
 end
 
@@ -1080,8 +1094,18 @@ function game_logic()
 				return
 			end
 			if opp.hp<=0 then
-				game_over="you win"
-				return
+				if current_enemy_index < #enemies then
+					-- Progress to next enemy
+					current_enemy_index += 1
+					game_over = "victory!"
+					wait(1)
+					push_scene(reward_scene)
+					return
+				else
+					-- Player has defeated all enemies
+					game_over = "you won the game!"
+					return
+				end
 			end
 		end
 		
@@ -1110,7 +1134,7 @@ function gl_summon(actor,c,row_i, special)
 		return
 	end
 
-	-- TODO remove this
+	-- DEBUGGING AI CHOICES
 	if c.ai_will_play then
 		if c.ai_will_play(actor) then
 			log("ai would play "..c.name)
@@ -1303,7 +1327,18 @@ function foreach_rc(f)
 end
 cards={}
 void={}
+enemies={}
 parens8[[
+(set enemies (table))
+(add enemies (table 
+	(max_hp 8) 
+	(deck (split "30,30,30,30,30,14,14,14,8,8,3,4,6"))
+))
+(add enemies (table 
+	(max_hp 15) 
+	(deck (split "30,30,3,4,5,6,7,14,14,14,9,9,,8,8,3,4,6"))
+))
+
 (set void (table 
 	(name "void") (s 78) (atk 1) (def 1) (cost 1) (type "elemental")
 	(desc "you ran out of cards...")
@@ -1332,7 +1367,12 @@ parens8[[
  (add cards (table (name "devil") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
   (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost")))
   (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object")))
-  (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 1) (type "object")))
+  (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 2) (type "object")
+		(desc "draw a card")
+		(on_summon (fn (actor)
+			(gl_draw_card actor)
+		))
+  ))
   (add cards (table (name "golem") (s 9) (atk 3) (def 12) (cost 3) (type "object")))
   (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast")))
   (add cards (table (name "bat") (s 19) (atk 3) (def 2) (cost 2) (type "beast")))
@@ -1493,6 +1533,27 @@ parens8[[
 		))
 	))
 
+
+	(add cards (table
+		(name "smog") (s 88) (atk 3) (def 1) (cost 3) (type "elemental")
+		(desc "can't block")
+		(can_defend (fn ()
+			false
+		))
+	))
+
+	(add cards (table
+		(name "bug") (s 92) (atk 1) (def 1) (cost 1) (type "beast")
+		(desc "can't block beasts or ghosts")
+		(can_defend (fn (rc attacker)
+			(when (== attacker.c.type "beast")
+				false
+				1
+			)
+		))
+	))
+
+	
 	(add cards (table
 		(name "gnome") (s 76) (atk 1) (def 1) (cost 4) (type "beast")
 		(desc "discard all cards, draw 5")
@@ -1513,28 +1574,36 @@ parens8[[
 			)
 		))
 		(ai_will_play (fn (actor)
-			(>= (rawlen actor.hand) 5)
+			(and (<= (rawlen actor.hand) 3) (>= (rawlen actor.deck) 5))
 		))
 	))
 
 	(add cards (table
-		(name "smog") (s 88) (atk 3) (def 1) (cost 3) (type "elemental")
-		(desc "can't block")
-		(can_defend (fn ()
-			false
+		(name "skelly") (s 29) (atk 2) (def 7) (cost 4) (type "ghost")
+		(desc "summon bones")
+		(on_summon (fn (actor _rc i)
+			(gl_summon actor bones i 1)
 		))
 	))
 
 	(add cards (table
-		(name "bug") (s 92) (atk 1) (def 1) (cost 1) (type "beast")
-		(desc "can't block beasts or ghosts")
-		(can_defend (fn (rc attacker)
-			(when (== attacker.c.type "beast")
-				false
-				1
-			)
+		(name "reaper") (s 94) (atk 3) (def 7) (cost 5) (type "ghost")
+		(desc "kill all injured")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(when (< rc.hp rc.c.def)
+					(seq
+						(set rc.hp 0)
+						(set rc.damaged_at (time))
+						(sfx 11)
+						(wait 0.25)
+						(clear_dead)
+					)
+				)
+			))
 		))
 	))
+
 ]]
 function log(msg)
 	printh(msg, "_ghosts.txt")
@@ -1697,6 +1766,94 @@ function draw_hit_spark()
 	fillp(0)
 end
 
+-->8
+reward_scene = {
+  init = function(self)
+    -- pick 3 random unique cards as rewards
+    self.rewards = {}
+    local available = {}
+    for i=1,#cards do
+      add(available, cards[i])
+    end
+    
+    for i=1,3 do
+      local card = rnd(available)
+      del(available, card)
+      add(self.rewards, card)
+    end
+    
+    self.selected = 1
+    preview_c = self.rewards[self.selected]
+  end,
+
+  update = function(self)
+    if btnp(⬅️) then
+      self.selected -= 1
+      if self.selected < 1 then
+        self.selected = 3
+      end
+      preview_c = self.rewards[self.selected]
+      sfx(9)
+    end
+    
+    if btnp(➡️) then
+      self.selected += 1 
+      if self.selected > 3 then
+        self.selected = 1
+      end
+      preview_c = self.rewards[self.selected]
+      sfx(9)
+    end
+    
+    if btnp(❎) then
+      -- add selected card to deck
+      add(player.og_deck, self.rewards[self.selected])
+      sfx(13)
+      
+      -- start next battle
+      start_new_game(enemies[current_enemy_index])
+      c_game_logic = cocreate(game_logic)
+      pop_scene()
+    end
+  end,
+
+  draw = function(self)
+    cls(0)
+    
+    -- draw title
+    print("pick a reward", 16, 10, 7)
+    
+    -- draw the 3 card choices
+    for i=1,3 do
+      local x = 20 + (i-1)*40
+      local y = 40
+      
+      -- draw selection cursor
+      if i == self.selected then
+        spr(16, x+5, y-7)
+      end
+      
+      -- draw card
+      add(player.og_deck, self.rewards[i])
+    end
+    
+    -- preview text appears automatically through preview_c
+  end
+}
+-->8
+-- printh("id,name,type,cost,atk,def,desc", "cards.txt",true)
+
+-- for i,c in ipairs(cards) do
+-- 	printh(i..","
+-- 	..c.name..","
+-- 	..c.type..","
+-- 	..c.cost..","
+-- 	..c.atk..","
+-- 	..c.def..","
+-- 	..(c.desc or "")
+	
+-- 	, "cards.txt")
+-- end
 __gfx__
 00000000000707000000000000007770000000000000007700000000007777000077770000000000000000000770770000000000070007000070007000000000
 00000000007777700007070000077777000077700000070700000077070000700700007000000000000000000770000007707700077777700077777700000000
@@ -1738,14 +1895,14 @@ e70077077077007e7077777777777707707070000070700777777007777707700070070000700700
 70700000000007077070000000070707007777777777770070707777770777700000700070007070700077700700077700770700707707070000000007777770
 70700000000007077070000000770707007777000077770077077007777770700000700000007000070007700070007700777700007777000007700000700700
 70700000000007077070000007700707007777000077770007770000077700000000700000007000007777700007777700700700007007000000000000077000
-70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000700700000000000000000000000000
-70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700070070007007000000000000000000
-70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700777770000700700000000000000000
-70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700000000000000000
-70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770707700700077007000000000000000000
-e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000000000000000000
-ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700000000000000000
-eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700000000000000000
+70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000700700000000007707700000000000
+70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700070070007007000707070077077000
+70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700777770000700700077070007070700
+70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700707770000770700
+70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770707700700077007000770777007077700
+e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000777077007707770
+ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700777777007770770
+eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700777777077777777
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
