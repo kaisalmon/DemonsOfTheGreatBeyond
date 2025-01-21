@@ -246,3 +246,2370 @@ attempt to index local 'c' (a number value): stack traceback:
 	(...tail calls...)
 	[string "-- pico-8 header..."]:1184: in function 'gl_summon'
 	[string "-- pico-8 header..."]:1079: in function <[string "-- pico-8 header..."]:1057>
+x pressed
+[function]
+[function]
+[table]
+[function]
+[table]
+reward selected
+[function]
+[table]
+reward selected
+[function]
+[table]
+reward selected
+[function]
+[table]
+reward selected
+[function]
+[table]
+reward selected
+[function]
+[table]
+reward selected lich
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+[function]
+[table]
+attempt to index field 'h_manager' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1001: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:891: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1005: in function <[string "-- pico-8 header..."]:1004>
+attempt to index field 'h_manager' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1001: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:891: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1005: in function <[string "-- pico-8 header..."]:1004>
+attempt to index field 'h_manager' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1001: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:891: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1005: in function <[string "-- pico-8 header..."]:1004>
+attempt to index field 'h_manager' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1001: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:891: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1005: in function <[string "-- pico-8 header..."]:1004>
+attempt to index field 'h_manager' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1001: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:891: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1005: in function <[string "-- pico-8 header..."]:1004>
+[string "-- pico-8 header..."]:1745: bad argument #0 to 'add' (position out of bounds): stack traceback:
+	[C]: in function 'add'
+	[string "-- pico-8 header..."]:1745: in function 'add_to_hand'
+	[string "-- pico-8 header..."]:1004: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:890: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1008: in function <[string "-- pico-8 header..."]:1007>
+[string "-- pico-8 header..."]:1745: bad argument #0 to 'add' (position out of bounds): stack traceback:
+	[C]: in function 'add'
+	[string "-- pico-8 header..."]:1745: in function 'add_to_hand'
+	[string "-- pico-8 header..."]:1004: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:890: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1008: in function <[string "-- pico-8 header..."]:1007>
+[string "-- pico-8 header..."]:1745: bad argument #0 to 'add' (position out of bounds): stack traceback:
+	[C]: in function 'add'
+	[string "-- pico-8 header..."]:1745: in function 'add_to_hand'
+	[string "-- pico-8 header..."]:1004: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:890: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1008: in function <[string "-- pico-8 header..."]:1007>
+[string "-- pico-8 header..."]:1745: bad argument #0 to 'add' (position out of bounds): stack traceback:
+	[C]: in function 'add'
+	[string "-- pico-8 header..."]:1745: in function 'add_to_hand'
+	[string "-- pico-8 header..."]:1004: in function 'gl_draw_card'
+	[string "-- pico-8 header..."]:890: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1008: in function <[string "-- pico-8 header..."]:1007>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1025: in function <[string "-- pico-8 header..."]:1014>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1025: in function <[string "-- pico-8 header..."]:1014>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1025: in function <[string "-- pico-8 header..."]:1014>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1025: in function <[string "-- pico-8 header..."]:1014>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1025: in function <[string "-- pico-8 header..."]:1014>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:916: in function 'pick_card'
+	[string "-- pico-8 header..."]:1023: in function <[string "-- pico-8 header..."]:1012>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:917: in function 'pick_card'
+	[string "-- pico-8 header..."]:1024: in function <[string "-- pico-8 header..."]:1013>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:917: in function 'pick_card'
+	[string "-- pico-8 header..."]:1024: in function <[string "-- pico-8 header..."]:1013>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1031: in function <[string "-- pico-8 header..."]:1020>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1031: in function <[string "-- pico-8 header..."]:1020>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:918: in function 'pick_card'
+	[string "-- pico-8 header..."]:1031: in function <[string "-- pico-8 header..."]:1020>
+2
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:919: in function 'pick_card'
+	[string "-- pico-8 header..."]:1032: in function <[string "-- pico-8 header..."]:1021>
+attempt to index field '?' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:1761: in function 'get_card'
+	[string "-- pico-8 header..."]:917: in function 'pick_card'
+	[string "-- pico-8 header..."]:1030: in function <[string "-- pico-8 header..."]:1019>
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+[table]
+[nil]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+draw
+rewards
+[table]
+init
+[function]
+draw
+[function]
+update
+[function]
+init reward scene
+init reward scene
+init reward scene
+init reward scene
+init reward scene
+init reward scene
+a
+Creating hand manager
+Creating hand
+Creating hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+1
+[table]
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+opp picking card
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1591: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1611: in function 'select_row'
+	[string "-- pico-8 header..."]:1040: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+attempt to compare number with nil: stack traceback:
+	[string "-- pico-8 header..."]:1660: in function 'knapsack'
+	[string "-- pico-8 header..."]:958: in function 'pick_card'
+	[string "-- pico-8 header..."]:1033: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+attempt to compare number with nil: stack traceback:
+	[string "-- pico-8 header..."]:1660: in function 'knapsack'
+	[string "-- pico-8 header..."]:958: in function 'pick_card'
+	[string "-- pico-8 header..."]:1033: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+attempt to compare number with nil: stack traceback:
+	[string "-- pico-8 header..."]:1660: in function 'knapsack'
+	[string "-- pico-8 header..."]:958: in function 'pick_card'
+	[string "-- pico-8 header..."]:1033: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+attempt to compare number with nil: stack traceback:
+	[string "-- pico-8 header..."]:1660: in function 'knapsack'
+	[string "-- pico-8 header..."]:958: in function 'pick_card'
+	[string "-- pico-8 header..."]:1033: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1591: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1611: in function 'select_row'
+	[string "-- pico-8 header..."]:1040: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1591: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1611: in function 'select_row'
+	[string "-- pico-8 header..."]:1040: in function <[string "-- pico-8 header..."]:1022>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1589: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1609: in function 'select_row'
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+selcected card furniture
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+attempt to concatenate local 'c' (a table value): stack traceback:
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+attempt to concatenate local 'c' (a table value): stack traceback:
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+selcected card 
+selcected card's name imp
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+selcected card 
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1039: in function <[string "-- pico-8 header..."]:1020>
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+Defining hand.remove
+Defining hand.update
+Defining hand:draw
+initializing hand
+Created hand
+opp picking card
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+selcected card 
+1
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1040: in function <[string "-- pico-8 header..."]:1020>
+opp picking card
+knap [table]
+knap [table]
+knap [table]
+knap [table]
+knap [table]
+knap [table]
+knap [table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1586: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1606: in function 'select_row'
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+opp picking card
+on_summon: [function]
+def: 6
+desc: draw a card
+type: object
+name: orb
+s: 7
+atk: 2
+cost: 2
+cost: 1
+def: 1
+desc: can't block beasts or ghosts
+type: beast
+name: bug
+s: 92
+atk: 1
+can_defend: [function]
+def: 3
+type: beast
+name: imp
+s: 17
+atk: 2
+cost: 1
+def: 6
+type: beast
+name: 'shroom
+s: 41
+atk: 1
+cost: 2
+def: 5
+type: beast
+name: devil
+s: 1
+atk: 1
+cost: 1
+cost: 1
+def: 1
+desc: can't block beasts or ghosts
+type: beast
+name: bug
+s: 92
+atk: 1
+can_defend: [function]
+def: 5
+type: ghost
+name: spirit
+s: 3
+atk: 1
+cost: 2
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1586: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1606: in function 'select_row'
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+opp picking card
+c: 1
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1586: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1606: in function 'select_row'
+	[string "-- pico-8 header..."]:1038: in function <[string "-- pico-8 header..."]:1020>
+opp picking card
+summoning 2
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1587: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1606: in function 'select_row'
+	[string "-- pico-8 header..."]:1039: in function <[string "-- pico-8 header..."]:1020>
+opp picking card
+value: 1.1
+opts: [table]
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1588: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1607: in function 'select_row'
+	[string "-- pico-8 header..."]:1040: in function <[string "-- pico-8 header..."]:1022>
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: 2
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1589: in function 'get_pot_rc'
+	[string "-- pico-8 header..."]:1608: in function 'select_row'
+	[string "-- pico-8 header..."]:1041: in function <[string "-- pico-8 header..."]:1023>
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 3.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 3.3
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 4.4
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 3.3
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]

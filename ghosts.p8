@@ -20,10 +20,10 @@ function _draw_game()
 	if(t and t<0.5)camera(rnd(5),rnd(3))
 	t=opp.damaged_at and time()-opp.damaged_at
 	if(t and t<0.5)camera(rnd(5),rnd(3))
-	draw_player_hand()
-	draw_hand(opp)
 	draw_rows(player.rows)
 	draw_rows(opp.rows, true)
+	player.h_manager:draw()
+	opp.h_manager:draw()
 	if player.v_hp then
 		draw_health(player,100)
 		draw_health(opp,0)
@@ -50,7 +50,7 @@ function _draw_game()
 end
 
 function _update_game()
-	update_hand(player.hand,hand_i)
+	update_hands()
 	update_rows()
 	health_tx=(player_input!="hand" and -14 or 2)
 	if player.damaged_at and time()-player.damaged_at<1
@@ -70,12 +70,14 @@ function _update_game()
   local status=costatus(c_game_logic)
   if status=="dead" then
   	local trace=trace(c_game_logic)
-  	if(trace and not game_over)then
+  	if(trace and err)then
   		log(err..": "..trace)
 	  	cls(0)
 	  	cursor()
 	  	stop(err..": "..trace)
-	  end
+	elseif(err) then
+		log("no trace: "..err)
+	end
   end
 	end
 	if hit_frame then
@@ -86,9 +88,15 @@ function draw_sprite(s,x,y)
 	spr(s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
 end
 function draw_card(c,x,y,actor)
-	if c=="endturn" then
+	if c=="endturn" or c=="skip" then
 		spr(66,x,y,2,2)
+		spr(96,x+4,y+4)
 		return
+	else if c=="remove card" then
+		spr(66,x,y,2,2)
+		spr(97,x+4,y+4)
+		return
+	end
 	end
 	local col  = (actor==nil or actor==opp or actor.mana>=c.cost) and 7 or 6
 	pal(7,col)
@@ -98,20 +106,15 @@ function draw_card(c,x,y,actor)
 	pal(7,7)
 end
 
-function draw_hand(actor)
-	local hand=actor.hand
-	for i,hc in ipairs(hand) do
-			draw_card(hc.c,hc.x,hc.y,actor)
-	end
-end
+
 function draw_player_hand()
-	draw_hand(player)
+	player.h_manager:draw()
 	local s_i=
 		(player_input == "hand") 
-		and hand_i 
+		and player.h_manager.selected_index
 		or nil
 
-	local s_hc=player.hand[s_i]
+	local s_hc=s_i and player.h_manager.cards[s_i]
 	if s_hc then
 		local c = s_hc.c
 		draw_card(c,s_hc.x,s_hc.y,player)
@@ -148,19 +151,6 @@ function draw_player_hand()
 	end
 end
 
-function add_to_hand(hand,c)
-	sfx(9)
-	local i = #hand+1
-	if hand==player.hand then
-		i=#hand > 0 and #hand or 1
-	end
-	add(hand,{
-		c=c,
-		x=124,
-		y=64
-	}, i)
-	
-end
 
 function move_view_board_cursor(x, y)
 	preview_changed_at = time()
@@ -225,43 +215,10 @@ function move_view_board_cursor(x, y)
 	preview_c=preview and preview.c or nil
 end
 
-function update_hand()
-	local s_i=
-		player_input == "hand" 
-		and hand_i 
-		or #player.hand/2+.5
-	if(hand_i >= #player.hand+1) hand_i = 1
-	if(player_input == "hand")preview_c=player.hand[hand_i].c
-	for i,hc in ipairs(player.hand) do
-			local p = (i-s_i)/#player.hand
-			local cx=64-18/2
-			local w=18-#player.hand*.7
-			local show_hand = player_input == "hand" or player_input == "view_board"
-			w=max(8,w)
-			local tx,ty = 
-				cx+(i-s_i)*w,
-				89+p*p*50
-			if	not show_hand then
-				ty+=30
-			end
-	
-			hc.x=lerp(hc.x,tx,0.1)
-			hc.y=lerp(hc.y,ty,0.1)
-	end
-	for i,hc in ipairs(opp.hand) do
-				local p = (i-#opp.hand/2-.5)/#opp.hand
-				local cx=64-18/2
-				local w=18-#opp.hand*.7
-				w=max(8,w)
-				local tx,ty = 
-					cx+(i-#opp.hand/2)*w,
-					10-p*p*20
-				if	player_input != "hand" then
-					ty-=18
-				end
-				hc.x=lerp(hc.x,tx,0.1)
-				hc.y=lerp(hc.y,ty,0.1)
-		end
+function update_hands()
+	player.h_manager.enabled=player_input=="hand"
+	player.h_manager:update()
+	opp.h_manager:update()
 	if player_input=="view_board" then
 		if btnp(➡️) then 
 			move_view_board_cursor(1,0)
@@ -275,24 +232,6 @@ function update_hand()
 		if btnp(⬆️) then
 			move_view_board_cursor(0,-1)
 		end
-	end
-	if player_input=="hand" then
-		if(btnp(➡️)) then 
-			hand_i+=1
-			preview_changed_at=time()
-		end
-		if(btnp(⬅️)) then
-			hand_i-=1
-			preview_changed_at=time()
-		end
-		if(btnp(⬆️)) then
-			preview_i=1
-			row_i=4
-			move_view_board_cursor(0,-1)
-			player_input="view_board"
-		end
-		if(hand_i < 1) hand_i = #player.hand
-		if(hand_i > #player.hand) hand_i = 1
 	end
 end
 
@@ -860,52 +799,30 @@ end)
 -->8
 deck_scene={
   init=function(self)
+	self.cards = cards -- player.og_deck (For testing, show all cards)
     self.i=1
+	self.h_manager = create_hand_manager({
+		cards=self.cards,
+		spacing=32,
+		height=300,
+		y_base=40,
+	})
   end,
 
   update=function(self)
-    if btnp(⬅️) or btnp(⬆️) then
-      self.i-=1
-      if self.i<1 then
-        self.i=#player.deck
-      end
-      sfx(9)
-    end
-    if btnp(➡️) or btnp(⬇️) then
-      self.i+=1
-      if self.i>#player.deck then
-        self.i=1  
-      end
-      sfx(9)
-    end
+	self.h_manager:update()
     if btnp(❎) then
       pop_scene()
     end
   end,
 
-  	draw=parens8[[(fn ()
-  		(cls 0)
-		(for ((k v) (pairs player.deck))
-  			(seq
-  				(let ((y (+ 5 (* k 10))))
-					(seq
-						(draw_sprite v.s 0 (* k 10))
-						(print v.name 18 y 7)
-						(when (~= nil v.desc)
-							(print "★" (+ 19 (* (# v.name) 4)) y 7)
-						)
-						(print v.type 62 y ([] types v.type))
-						(print 
-							(.. v.cost (.. '✽ ' (.. v.atk (.. '/' v.def)) ))
-							100 
-							(+ 5 (* k 10)) 
-							7
-						)
-					)
-				)
-			)
-		)
-  	)]]
+  	draw=function(self)
+		cls()
+		self.h_manager:draw()
+		print_centered("view deck",64,10)
+		print("press ❎ to go back", 2, 120, 7)
+		print(self.h_manager.selected_index.."/"..#self.cards, 2, 2, 7)
+	end
 }
 menuitem(1, "view deck", function() push_scene(deck_scene) end)
 
@@ -949,17 +866,16 @@ end
 push_scene(game_scene)
 -->8
 --game
-hand_i = 1
-
 function gl_new_game()
 	for i=1,6 do
 		yield()
 		gl_draw_card(player)
 		gl_draw_card(opp)
 	end
+	player.h_manager:add_to_hand("endturn")
 	-- DEBUGGING THE LASTEST CARD
-	add_to_hand(player.hand, cards[#cards])
-	player.mana =  cards[#cards].cost
+	-- add_to_hand(player.hand, cards[#cards])
+	-- player.mana =  cards[#cards].cost
 end
 function map_to_cards(ids)
 	local result={}
@@ -973,19 +889,19 @@ function start_new_game(enemy)
 player={
 	hand={},
 	rows={},
-	og_deck=map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
+	og_deck={},--map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
 	pick_card=function()
 			player_input="hand"
 			yield()
 			while true do
 				if btnp(❎) and player_input=="hand" then
-					local c=player.hand[hand_i].c
+					local c=player.h_manager:get_card()
 					if c!="endturn" and c.cost > player.mana then
 						sfx(12)
 						player.mana_flash_at=time()
 					else
-					player_input=nil
-						return hand_i
+						player_input=nil
+						return c
 					end
 				end
 				yield()
@@ -1017,13 +933,35 @@ opp={
 	og_deck=map_to_cards(enemy.deck),
 	pick_card=function(self)
 			wait(.3)
-			local value,opts=knapsack(opp, opp.hand, opp.mana)
+			log("opp picking card")
+			local value,opts=knapsack(opp, opp.h_manager.cards, opp.mana)
+			log("value: "..tostr(value))
+			log("opts: "..tostr(opts))
+			log("opts[1]: "..tostr(opts[1]))
 			return rnd(opts)
 	end,
 	select_row=ai_select_row
 }
-	player.hand={}
-	opp.hand={}
+	player.h_manager = create_hand_manager({
+		cards={},
+		on_move=function()
+			preview_changed_at = time()
+		end,
+		on_up=function()
+			preview_i=1
+			row_i=4
+			move_view_board_cursor(0,-1)
+			player_input="view_board"
+		end,
+		actor=player
+	})
+	opp.h_manager = create_hand_manager({
+		cards={},
+		enabled=false,
+		inverted=true,
+		actor=opp,
+		y_base=12
+	})
 	player.rows={{},{},{}}
 	opp.rows={{},{},{}}
 	player.hp=20
@@ -1040,7 +978,6 @@ opp={
 	player.deck = shallow_copy(player.og_deck)
 	opp.deck = shallow_copy(opp.og_deck)
 	game_over=nil
-	add_to_hand(player.hand, "endturn")
 end
 
 function shallow_copy(dict)
@@ -1052,13 +989,14 @@ function shallow_copy(dict)
 end
 
 function gl_draw_card(actor)
+	sfx(9, 1)
 	if #actor.deck==0 then
-		add_to_hand(actor.hand, void)
+		actor.h_manager:add_to_hand(void)
 		return
 	end
 	local c = rnd(actor.deck)
 	del(actor.deck, c)
-	add_to_hand(actor.hand, c)
+	actor.h_manager:add_to_hand(c)
 end
 
 function game_logic()
@@ -1072,17 +1010,16 @@ function game_logic()
 		actor.used_mana=0
 		
 		while true do
-			local card_i=actor:pick_card()
-			if card_i == nil then
+			local c=actor:pick_card()
+			if c == nil then
 				break
 			end			
-			local c=actor.hand[card_i].c
 			if c == "endturn" then
 				break
 			end	
 			local row=actor:select_row(c)
 			if row!="back" and c then
-				deli(actor.hand, card_i)
+				actor.h_manager:remove(c)
 				gl_summon(actor, c, row)
 			end
 		end
@@ -1328,11 +1265,12 @@ end
 cards={}
 void={}
 enemies={}
+--30,30,30,30,30,14,14,14,8,8,3,4,6
 parens8[[
 (set enemies (table))
 (add enemies (table 
 	(max_hp 8) 
-	(deck (split "30,30,30,30,30,14,14,14,8,8,3,4,6"))
+	(deck (split ""))
 ))
 (add enemies (table 
 	(max_hp 15) 
@@ -1360,7 +1298,7 @@ parens8[[
     (desc "50% chance to draw swarm")
     (on_summon (fn (actor)
       (when (> (rnd) 0.5)
-        (add_to_hand actor.hand swarm))))))
+        (actor.h_manager:add_to_hand swarm))))))
 
 (add cards bones)
 (add cards goblin)
@@ -1510,13 +1448,10 @@ parens8[[
 			))
 		))
 		(ai_will_play (fn (actor)
-			(log "thinking about relic")
 			(>= (foreach_rc (fn (rc owner i)
 				(when 
 					(== rc.c.type "ghost") 
 					(seq 
-						(log rc.c.name)
-						(log (* (when (~= owner actor) 1 -1) rc.c.cost))
 						(* (when (~= owner actor) 1 -1) rc.c.cost)
 					)
 					0
@@ -1558,10 +1493,10 @@ parens8[[
 		(name "gnome") (s 76) (atk 1) (def 1) (cost 4) (type "beast")
 		(desc "discard all cards, draw 5")
 		(on_summon (fn (actor)
-			(foreach actor.hand (fn (card)
+			(foreach actor.h_manager.cards (fn (card)
 				(when (~= card.c "endturn")
 					(seq
-						(del actor.hand card)
+						(del actor.h_manager:remove card)
 						(wait 0.1)
 					)
 				)
@@ -1574,7 +1509,7 @@ parens8[[
 			)
 		))
 		(ai_will_play (fn (actor)
-			(and (<= (rawlen actor.hand) 3) (>= (rawlen actor.deck) 5))
+			(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
 		))
 	))
 
@@ -1640,7 +1575,6 @@ function ai_select_row(self, c)
   local row_choice=nil
   local defensive, unprotected, aggressive, valid = {}, {}, {}, {}
   local inanimate=false
-  
   for i=1,3 do
     local row = self.rows[i]
     if #row < 5 then 
@@ -1700,6 +1634,7 @@ function knapsack(actor, cards, mana, n)
 	 return 0, {}
 	end
 	local c=cards[n].c
+
 	if c.cost > mana or (c.ai_will_play and not c.ai_will_play(actor))  then
 	 return knapsack(actor, cards, mana, n-1)
 	else
@@ -1708,20 +1643,20 @@ function knapsack(actor, cards, mana, n)
 	
 		local c=cards[n].c
 		local card_value =  c.cost + 0.1
-	 value1 = value1 + card_value
+	 	value1 = value1 + card_value
 	
-	 if value1 > value2 then
-	     add(subset1, n)
-	     return value1, subset1
-	 else
-	     return value2, subset2
-	 end
+		if value1 > value2 then
+			add(subset1, c)
+			return value1, subset1
+		else
+			return value2, subset2
+		end
 	end
 end
 
 
 -->8
---hit spark
+--hit spark & hand manager
 hit_x, hit_y, hit_mag, hit_res, hit_rs = 50, 50, 0, 18, nil
 
 
@@ -1766,10 +1701,159 @@ function draw_hit_spark()
 	fillp(0)
 end
 
+function create_hand_manager(config)
+	-- config should include:
+	-- cards = array of cards to display
+	-- selected_index = current selected index (optional, defaults to 1)
+	-- on_hc_selected = callback when a card is selected (optional)
+	-- on_up = callback when up is pressed (optional)
+	-- on_down = callback when down is pressed (optional)
+	-- on_left = callback when left is pressed (optional)
+	-- on_right = callback when right is pressed (optional)
+	-- on_x = callback when x is pressed (optional)
+	-- on_o = callback when o is pressed (optional)
+	-- get_preview = function to get preview card info (optional)
+	-- y_base = base y position for the hand (optional, defaults to 89)
+	-- x_base = base x position for the hand (optional, defaults to 64)
+	-- spacing = spacing between cards (optional, defaults to 18)
+  
+	local hand = {
+	  cards = {},
+	  selected_index = config.selected_index or 1,
+		on_hc_selected = config.on_hc_selected,
+		on_up = config.on_up,
+		on_down = config.on_down,
+		on_x = config.on_x,
+		on_o = config.on_o,
+		on_move=config.on_move,
+		inverted = config.inverted,
+	  get_preview = config.get_preview,
+	  y_base = config.y_base or 89,
+	  x_base = config.x_base or 64,
+	  spacing = config.spacing or 18,
+	  height= config.height or 50,
+	  actor = config.actor,
+	  enabled=true
+	}
+	if config.enabled == false then
+		hand.enabled = false
+	end
+
+	function hand.get_card(self)
+		return self.cards[self.selected_index].c
+	end
+
+	function hand.add_to_hand(self, card)
+		local index=nil
+		for i=#self.cards, 1, -1 do
+			if type(self.cards[i].c) == "string" then
+				index=i
+				break
+			end
+		end
+		add(self.cards, {
+			c = card,
+			x = 124,
+			y = 64
+		},index)
+	end
+
+	function hand.remove(self, card)
+		for i, hc in ipairs(self.cards) do
+			if hc.c == card then
+				del(self.cards, hc)
+				break
+			end
+		end
+	end
+
+	
+  
+	function hand.update(self)
+	  -- Handle input
+	  if self.enabled then
+		  if btnp(⬅️) then
+			self.selected_index -= 1
+			if self.selected_index < 1 then
+			  self.selected_index = #self.cards
+			end
+			if(self.on_move) self.on_move()
+		  end
+		  if  btnp(➡️) then
+			self.selected_index += 1
+			if self.selected_index > #self.cards then
+			  self.selected_index = 1
+			end
+			if(self.on_move) self.on_move()
+		  end
+		  if self.on_up and btnp(⬆️) then
+			self.on_up(self)
+		  end
+		  if self.on_down and btnp(⬇️) then
+			self.on_down(self)
+		  end
+		  if self.on_x and btnp(❎) then
+			self.on_x(self.cards[self.selected_index].c)
+		  end
+		  if self.on_o and btnp(🅾️) then
+			self.on_o()
+		  end
+	  
+	  end
+	  -- Update card positions
+	  local s_i = self.enabled and self.selected_index or #self.cards/2 + .5
+	  for i, hc in ipairs(self.cards) do
+		local p = (i-s_i)/#self.cards
+		local cx = self.x_base - self.spacing/2
+		local w = self.spacing-#self.cards*.7
+		w = max(8,w)
+		local tx = cx+(i-s_i)*w
+		local ty = self.y_base+p*p*self.height*(self.inverted and -1 or 1)
+  
+		hc.x = lerp(hc.x,tx,0.1)
+		hc.y = lerp(hc.y,ty,0.1)
+	  end
+  
+	  -- Update preview if available
+	  if self.get_preview then
+		preview_c = self.get_preview(self)
+		if preview_c then
+		  preview_changed_at = time()
+		end
+	  end
+	end
+  
+	function hand:draw()
+	  -- Draw all cards
+	  for i,hc in ipairs(self.cards) do
+		draw_card(hc.c,hc.x,hc.y, self.actor)
+	  end
+	  local selected_card = self.cards[self.selected_index]
+	  if selected_card then
+		draw_card(selected_card.c, selected_card.x, selected_card.y, self.actor)
+	  end
+  
+	  -- Draw selection cursor
+	  local s_hc = self.enabled and self.cards[self.selected_index]
+	  if s_hc then
+		spr(16,s_hc.x+5,s_hc.y-7)
+		
+		-- Draw card name
+		if s_hc.c.name then
+		  print_centered(s_hc.c.name,s_hc.x+8,s_hc.y-12,7)
+		end
+	  end
+	end
+  -- Initialize cards with positions
+	for i, card in ipairs(config.cards) do
+		hand:add_to_hand(card)
+	end
+	return hand
+  end
+
 -->8
 reward_scene = {
-  init = function(self)
-    -- pick 3 random unique cards as rewards
+  init=function(self)
     self.rewards = {}
     local available = {}
     for i=1,#cards do
@@ -1781,63 +1865,37 @@ reward_scene = {
       del(available, card)
       add(self.rewards, card)
     end
-    
-    self.selected = 1
-    preview_c = self.rewards[self.selected]
+	add(self.rewards, "remove card")
+	add(self.rewards, "skip")
+    self.h_manager = create_hand_manager({
+	  cards = self.rewards,
+	  y_base=32,
+	  on_x = function(card)
+		if card == "remove card" then 
+			push_scene(deck_scene)
+			deck_scene.is_removing = true
+			return
+		elseif card.c then
+			add(player.og_deck, card)
+			sfx(14)
+		end
+		-- start next battle
+		start_new_game(enemies[current_enemy_index])
+		c_game_logic = cocreate(game_logic)
+		pop_scene()
+	  end
+	})
   end,
 
   update = function(self)
-    if btnp(⬅️) then
-      self.selected -= 1
-      if self.selected < 1 then
-        self.selected = 3
-      end
-      preview_c = self.rewards[self.selected]
-      sfx(9)
-    end
-    
-    if btnp(➡️) then
-      self.selected += 1 
-      if self.selected > 3 then
-        self.selected = 1
-      end
-      preview_c = self.rewards[self.selected]
-      sfx(9)
-    end
-    
-    if btnp(❎) then
-      -- add selected card to deck
-      add(player.og_deck, self.rewards[self.selected])
-      sfx(13)
-      
-      -- start next battle
-      start_new_game(enemies[current_enemy_index])
-      c_game_logic = cocreate(game_logic)
-      pop_scene()
-    end
+    self.h_manager:update()
   end,
 
   draw = function(self)
     cls(0)
-    
-    -- draw title
     print("pick a reward", 16, 10, 7)
-    
-    -- draw the 3 card choices
-    for i=1,3 do
-      local x = 20 + (i-1)*40
-      local y = 40
-      
-      -- draw selection cursor
-      if i == self.selected then
-        spr(16, x+5, y-7)
-      end
-      
-      -- draw card
-      add(player.og_deck, self.rewards[i])
-    end
-    
-    -- preview text appears automatically through preview_c
+
+    self.h_manager:draw()
   end
 }
 -->8
@@ -1892,17 +1950,25 @@ ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000
 e70077077077007e7077777777777707707070000070700777777007777707700070070000700700700077700700077700707000000707000000000007777770
 70070000000070077070000000000707777777077077777777770777777777700007000000700707700700000700700000777700007777000707707070700707
 70700000000007077070000000000707777707777777077777777777707077700000700000070000700700000700700070000007000000000707707070700707
-70700000000007077070000000070707007777777777770070707777770777700000700070007070700077700700077700770700707707070000000007777770
-70700000000007077070000000770707007777000077770077077007777770700000700000007000070007700070007700777700007777000007700000700700
-70700000000007077070000007700707007777000077770007770000077700000000700000007000007777700007777700700700007007000000000000077000
-70700000000007077070700077000707000000000777777000000000000000000000000000000000077777000077777000700700000000007707700000000000
-70700000000007077070770770000707077777707700700000000000000000000077000000077000700000700700000700070070007007000707070077077000
-70700000000007077070077700000707770070007777777700070700000000000777770000777770707770700707770700777770000700700077070007070700
-70700000000007077070007000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700707770000770700
+70700000000007077070000000000707007777777777770070707777770777700000700070007070700077700700077700770700707707070000000007777770
+70700000000007077070000000000707007777000077770077077007777770700000700000007000070007700070007700777700007777000007700000700700
+70700000000007077070000000000707007777000077770007770000077700000000700000007000007777700007777700700700007007000000000000077000
+70700000000007077070000000000707000000000777777000000000000000000000000000000000077777000077777000700700000000007707700000000000
+70700000000007077070000000000707077777707700700000000000000000000077000000077000700000700700000700070070007007000707070077077000
+70700000000007077070000000000707770070007777777700070700000000000777770000777770707770700707770700777770000700700077070007070700
+70700000000007077070000000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700707770000770700
 70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770707700700077007000770777007077700
 e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000777077007707770
 ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700777777007770770
 eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700777777077777777
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000007000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000077000777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000770007777700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+70007700000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+77077000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+07770000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00700000007770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
