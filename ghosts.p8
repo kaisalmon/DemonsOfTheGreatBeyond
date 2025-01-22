@@ -806,7 +806,7 @@ end)
 -->8
 deck_scene={
   init=function(self)
-	self.cards = cards -- player.og_deck (For testing, show all cards)
+	self.cards = player.og_deck 
     self.i=1
 	self.h_manager = create_hand_manager({
 		cards=self.cards,
@@ -897,7 +897,7 @@ function start_new_game(enemy)
 player={
 	hand={},
 	rows={},
-	og_deck=map_to_cards(split"34"),--map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
+	og_deck=player and player.og_deck or map_to_cards(split"1,1,4,4,11,5,8,8,3,9,9,7,22,6,28"),
 	pick_card=function()
 			player_input="hand"
 			yield()
@@ -1299,7 +1299,7 @@ parens8[[
 (set enemies (table))
 (add enemies (table 
 	(max_hp 8) 
-	(deck (split ""))
+	(deck (split "30,30,30,8,8,18,18,13"))
 ))
 (add enemies (table 
 	(max_hp 15) 
@@ -1327,7 +1327,7 @@ parens8[[
     (desc "50% chance to draw swarm")
     (on_summon (fn (actor)
       (when (> (rnd) 0.5)
-        (actor.h_manager:add_to_hand swarm))))))
+        (actor.h_manager.add_to_hand actor.h_manager swarm))))))
 (set flame (table
 		(name "flame") (s 55) (atk 3) (def 3) (cost 2) (type "elemental")
 		(desc "2 damage to all foes")
@@ -1910,7 +1910,7 @@ reward_scene = {
 			push_scene(deck_scene)
 			deck_scene.is_removing = true
 			return
-		elseif card.c then
+		else
 			add(player.og_deck, card)
 			sfx(14)
 		end

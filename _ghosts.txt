@@ -2677,3 +2677,147 @@ void
 void
 [table]
 void
+[table]
+void
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+[string "-- pico-8 header..."]:522: actor.h_manager:add_to_hand was nil: stack traceback:
+	[C]: in function 'assert'
+	[string "-- pico-8 header..."]:522: in function <[string "-- pico-8 header..."]:519>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:1150: in function 'gl_summon'
+	[string "-- pico-8 header..."]:1045: in function <[string "-- pico-8 header..."]:1024>
+[table]
+imp
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 3.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+[table]
+snake
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 3.3
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 4.4
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 3.3
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+adding 'shroom to deck
+adding 'shroom to deck
+adding 'shroom to deck
+adding bug to deck
