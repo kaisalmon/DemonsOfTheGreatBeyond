@@ -32,3 +32,4 @@ id,name,type,cost,atk,def,desc
 31,gnome,beast,4,1,1,discard all cards, draw 5
 32,skelly,ghost,4,2,7,summon bones
 33,reaper,ghost,5,3,7,kill all injured
+34,dragon,beast,6,3,10,summon flame

@@ -22,7 +22,7 @@ function _draw_game()
 	if(t and t<0.5)camera(rnd(5),rnd(3))
 	draw_rows(player.rows)
 	draw_rows(opp.rows, true)
-	player.h_manager:draw()
+	draw_player_hand()
 	opp.h_manager:draw()
 	if player.v_hp then
 		draw_health(player,100)
@@ -115,40 +115,43 @@ function draw_player_hand()
 		or nil
 
 	local s_hc=s_i and player.h_manager.cards[s_i]
-	if s_hc then
-		local c = s_hc.c
-		draw_card(c,s_hc.x,s_hc.y,player)
-		spr(16,s_hc.x+5,s_hc.y-6)
+
+	if preview_c and preview_c.name then
+		draw_summary(preview_c, 106)
 	end
-		if s_hc and s_hc.c=="endturn" then
-			print("end turn",s_hc.x+10-2*#"end turn",s_hc.y-12, 7)
-		elseif preview_c and preview_c.name then
-			local c =preview_c
-			if s_hc then
-				print(preview_c.name,s_hc.x+8 -2*#c.name,s_hc.y-12, 7)
-			end
-			local str = preview_c.type
-			rectfill(64-2*#str,106,64+2*#str,110,0)
-			print(str,64-2*#str,106,types[c.type])
-			str = c.cost.."✽, "..c.atk.."/"..c.def..""
-			rectfill(64-2*#str,106+7,64+2*#str,117,0)
-			print(str,64-2*#str,106+7,7)
-			str = (
-				c.desc or ""
-			)
-			clip(22,0,84,128)
+end
+
+function draw_summary(c,y,full)
+	local str = c.type
+	rectfill(64-2*#str,y,64+2*#str,110,0)
+	print(str,64-2*#str,y,types[c.type])
+	str = c.cost.."✽, "..c.atk.."/"..c.def..""
+	y+=7
+	rectfill(64-2*#str,y,64+2*#str,117,0)
+	print(str,64-2*#str,y,7)
+	y+=7
+
+	if(full)then
+		color(types[c.type])
+		for str in all(type_desc[c.type]) do
+			print(str,64-2*#str,y)
+			y+=7
+		end
+	end	
 	
-			local x = 64-2*#str
-			if #str > 17 then
-				preview_changed_at=preview_changed_at or 0
-				local t=(time()-preview_changed_at)
-				t %= (#str - 17)/3
-				x=30-12*t
-				
-			end
-			print(str,x,120,7)
-			clip()
+	clip(22,0,84,128)
+	str = (
+		c.desc or ""
+	)
+	local x = 64-2*#str
+	if #str > 17 then
+		preview_changed_at=preview_changed_at or 0
+		local t=(time()-preview_changed_at)
+		t %= (#str - 17)/3
+		x=30-12*t
 	end
+	print(str,x,y,7)
+	clip()
 end
 
 
@@ -217,6 +220,10 @@ end
 
 function update_hands()
 	player.h_manager.enabled=player_input=="hand"
+	if player_input == "hand" then
+		preview_i=player.h_manager.selected_index
+		preview_c=player.h_manager.cards[preview_i].c
+	end
 	player.h_manager:update()
 	opp.h_manager:update()
 	if player_input=="view_board" then
@@ -819,8 +826,9 @@ deck_scene={
   	draw=function(self)
 		cls()
 		self.h_manager:draw()
+		draw_summary(self.h_manager:get_card(), 64, 120)
 		print_centered("view deck",64,10)
-		print("press ❎ to go back", 2, 120, 7)
+		print("press ❎ to go back", 2, 120, 6)
 		print(self.h_manager.selected_index.."/"..#self.cards, 2, 2, 7)
 	end
 }
@@ -889,7 +897,7 @@ function start_new_game(enemy)
 player={
 	hand={},
 	rows={},
-	og_deck={},--map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
+	og_deck=map_to_cards(split"34"),--map_to_cards(split"1,1,3,3,5,6,8,9,10,11,11,14,19,22,28,30,30,32"),
 	pick_card=function()
 			player_input="hand"
 			yield()
@@ -1250,6 +1258,12 @@ types={
 	object=4,
 	elemental=9,
 }
+type_desc={
+	beast={"cannot block ghosts"},
+	ghost={"cannot be blocked by beasts","or by unpossessed objects.","possess allied objects on row"},
+	object={"cannot block ghosts or","attack if unpossessed."},
+	elemental={}
+}
 function foreach_rc(f)
 	local acc=0
 	for i=1,3 do
@@ -1299,7 +1313,31 @@ parens8[[
     (on_summon (fn (actor)
       (when (> (rnd) 0.5)
         (actor.h_manager:add_to_hand swarm))))))
+(set flame (table
+		(name "flame") (s 55) (atk 3) (def 3) (cost 2) (type "elemental")
+		(desc "2 damage to all foes")
+		(on_summon (fn (actor rc row_i)
+			(seq
+				(foreach_rc (fn (target_rc owner row)
+					(when (~= owner actor)
+						(seq 
+							(set target_rc.hp (- target_rc.hp 2))
+							(set target_rc.damaged_at (time))
+						)
+					)
+				))
+				(sfx 11)
+				(for (j 1 24) (yield))
+				(clear_dead)
+			)
+		))
 
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner)
+				(* (when (~= owner actor) 1 -1) (when (<= rc.hp 2) rc.c.cost 1))
+			)) 2 )
+		))
+	))
 (add cards bones)
 (add cards goblin)
  (add cards (table (name "devil") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
@@ -1404,31 +1442,7 @@ parens8[[
 			)
 		))
 	))
-	(add cards (table
-		(name "flame") (s 55) (atk 3) (def 3) (cost 2) (type "elemental")
-		(desc "2 damage to all foes")
-		(on_summon (fn (actor rc row_i)
-			(seq
-				(foreach_rc (fn (target_rc owner row)
-					(when (~= target_rc rc)
-						(seq 
-							(set target_rc.hp (- target_rc.hp 2))
-							(set target_rc.damaged_at (time))
-						)
-					)
-				))
-				(sfx 11)
-				(for (j 1 24) (yield))
-				(clear_dead)
-			)
-		))
-
-		(ai_will_play (fn (actor)
-			(>= (foreach_rc (fn (rc owner)
-				(* (when (~= owner actor) 1 -1) (when (<= rc.hp 2) rc.c.cost 1))
-			)) 2 )
-		))
-	))
+	(add cards flame)
 
 
 	(add cards (table
@@ -1536,6 +1550,14 @@ parens8[[
 					)
 				)
 			))
+		))
+	))
+
+	(add cards (table
+		(name "dragon") (s 100) (atk 3) (def 10) (cost 6) (type "beast")
+		(desc "summon flame")
+		(on_summon (fn (actor _rc i)
+			(gl_summon actor flame (* -1 i))
 		))
 	))
 
@@ -1813,14 +1835,6 @@ function create_hand_manager(config)
 		hc.x = lerp(hc.x,tx,0.1)
 		hc.y = lerp(hc.y,ty,0.1)
 	  end
-  
-	  -- Update preview if available
-	  if self.get_preview then
-		preview_c = self.get_preview(self)
-		if preview_c then
-		  preview_changed_at = time()
-		end
-	  end
 	end
   
 	function hand:draw()
@@ -1839,9 +1853,8 @@ function create_hand_manager(config)
 		spr(16,s_hc.x+5,s_hc.y-7)
 		
 		-- Draw card name
-		if s_hc.c.name then
-		  print_centered(s_hc.c.name,s_hc.x+8,s_hc.y-12,7)
-		end
+		local name = type(s_hc.c) == 'string' and s_hc.c or s_hc.c.name
+		print_centered(name,s_hc.x+8,s_hc.y-12,7)
 	  end
 	end
   -- Initialize cards with positions
@@ -1961,14 +1974,14 @@ e70077077077007e7077777777777707707070000070700777777007777707700070070000700700
 e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000777077007707770
 ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700777777007770770
 eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700777777077777777
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000007000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000077000777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000770007777700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70007700000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-77077000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-07770000000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700000007770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000070777700000000000000000000000000000000000000000000000000000000000000000
+00000007000070000000000000000000000070070000000000000000777077770000000000000000000000000000000000000000000000000000000000000000
+00000077000777000000000000000000770077770000700707077770000000000000000000000000000000000000000000000000000000000000000000000000
+00000770007777700000000000000000777070700000777777707777000700700000000000000000000000000000000000000000000000000000000000000000
+70007700000070000000000000000000077077770770707000000000000000000000000000000000000000000000000000000000000000000000000000000000
+77077000000070000000000000000000007770007700777777707007777070070000000000000000000000000000000000000000000000000000000000000000
+07770000000070000000000000000000777770700007000077707777777077770000000000000000000000000000000000000000000000000000000000000000
+00700000007770000000000000000000770070707700707077707777777077770000000000000000000000000000000000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077

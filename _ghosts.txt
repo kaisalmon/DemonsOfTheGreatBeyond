@@ -2613,3 +2613,50 @@ opp picking card
 value: 0
 opts: [table]
 opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+ai would not play flame
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+ai would not play flame
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+ai would not play flame
+opp picking card
+value: 2.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+opp picking card
+value: 1.1
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
