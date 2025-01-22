@@ -2821,3 +2821,90 @@ adding 'shroom to deck
 adding 'shroom to deck
 adding 'shroom to deck
 adding bug to deck
+[table]
+imp
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+endturn
+golem
+bones
+candle
+toad
+imp
+orb
+mimic
+bat
+[nil]
+
+
+golem
+bones
+candle
+toad
+imp
+orb
+mimic
+[nil]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+[table]
+endturn
+[table] -> table
+[table] -> table
+[table] -> table
+[table] -> table
+[table] -> table
+[table] -> table
+[table] -> table
+[table] -> table
+endturn -> string
+opp picking card
+value: 1.5
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]
+ai would play gargoyle
+ai would not play flame
+ai would not play relic
+ai would not play gnome
+ai would not play gnome
+ai would not play gnome
+attempt to index a nil value: stack traceback:
+	[string "-- pico-8 header..."]:599: in function 'a1'
+	[string "-- pico-8 header..."]:704: in function 'a1'
+	[string "-- pico-8 header..."]:569: in function <[string "-- pico-8 header..."]:568>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:2: in function <[string "-- pico-8 header..."]:2>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:646: in function <[string "-- pico-8 header..."]:645>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:1161: in function 'gl_summon'
+	[string "-- pico-8 header..."]:1056: in function <[string "-- pico-8 header..."]:1035>
+ai would not play gnome
+ai would not play flame
+opp picking card
+value: 1.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 1.2
+opts: [table]
+opts[1]: [table]
+opp picking card
+value: 0
+opts: [table]
+opts[1]: [nil]

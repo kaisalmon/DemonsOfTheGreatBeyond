@@ -222,7 +222,8 @@ function update_hands()
 	player.h_manager.enabled=player_input=="hand"
 	if player_input == "hand" then
 		preview_i=player.h_manager.selected_index
-		preview_c=player.h_manager.cards[preview_i].c
+		local hc = player.h_manager.cards[preview_i]
+		preview_c=hc and hc.c or nil
 	end
 	player.h_manager:update()
 	opp.h_manager:update()
@@ -882,8 +883,15 @@ function gl_new_game()
 	end
 	player.h_manager:add_to_hand("endturn")
 	-- DEBUGGING THE LASTEST CARD
-	player.h_manager:add_to_hand(cards[#cards])
-	player.mana =  cards[#cards].cost
+	-- player.h_manager:add_to_hand(cards[#cards])
+	-- player.mana =  cards[#cards].cost
+	--DEBUGGIN ALL CARDS
+	-- for c in all(cards) do
+	-- 	if c.desc then
+	-- 		player.h_manager:add_to_hand(c)
+	-- 		c.cost =0
+	-- 	end
+	-- end
 end
 function map_to_cards(ids)
 	local result={}
@@ -1009,17 +1017,20 @@ end
 
 function gl_steal_card(actor)
 	local target = actor==player and opp or player
-	local c,x,y = void,nil,nil
-	if #target.h_manager.cards !=0 then
-		local hc = rnd(target.h_manager.cards)
-		x = hc.x
-		y = hc.y
-		c = hc.c
-		target.h_manager:remove(c)
+	local valid_cards = {}
+	for hc in all(target.h_manager.cards) do
+		if type(hc.c) != "string" then
+			add(valid_cards, hc)
+		end
 	end
-	log(c)
-	log(c.name)
-	actor.h_manager:add_to_hand(c,x,y)
+	if #valid_cards > 0 then
+		local hc = rnd(valid_cards)
+		local x = hc.x
+		local y = hc.y
+		local c = hc.c
+		target.h_manager:remove(c)
+		actor.h_manager:add_to_hand(c,x,y)
+	end
 end
 
 function game_logic()
@@ -1302,8 +1313,22 @@ parens8[[
 	(deck (split "30,30,30,8,8,18,18,13"))
 ))
 (add enemies (table 
-	(max_hp 15) 
-	(deck (split "30,30,3,4,5,6,7,14,14,14,9,9,,8,8,3,4,6"))
+	(max_hp 12) 
+	(deck (split "1,1,4,4,11,11,17,22"))
+))
+(add enemies (table
+	(max_hp 15)
+	(deck (split "1,1,4,4,11,11,5,5,7,6,6,32,17,22"))
+))
+
+(add enemies (table
+	(max_hp 18)
+	(deck (split "13,13,9,9,27,27,26,26,34,21,25,23,23,24"))
+))
+
+(add enemies (table
+	(max_hp 20)
+	(deck (split "16,16,14,19,28,28,29,33,20,12,15,2,10"))
 ))
 
 (set void (table 
@@ -1522,10 +1547,10 @@ parens8[[
 		(name "gnome") (s 76) (atk 1) (def 1) (cost 4) (type "beast")
 		(desc "discard all cards, draw 5")
 		(on_summon (fn (actor)
-			(foreach actor.h_manager.cards (fn (card)
-				(when (~= card.c "endturn")
+			(foreach actor.h_manager.cards (fn (hc)
+				(when (~= hc.c "endturn")
 					(seq
-						(del actor.h_manager:remove card)
+						(actor.h_manager.remove actor.h_manager hc.c)
 						(wait 0.1)
 					)
 				)
@@ -1818,16 +1843,10 @@ function create_hand_manager(config)
 	  if self.enabled then
 		  if btnp(⬅️) then
 			self.selected_index -= 1
-			if self.selected_index < 1 then
-			  self.selected_index = #self.cards
-			end
 			if(self.on_move) self.on_move()
 		  end
 		  if  btnp(➡️) then
 			self.selected_index += 1
-			if self.selected_index > #self.cards then
-			  self.selected_index = 1
-			end
 			if(self.on_move) self.on_move()
 		  end
 		  if self.on_up and btnp(⬆️) then
@@ -1843,6 +1862,12 @@ function create_hand_manager(config)
 			self.on_o()
 		  end
 	  
+		  if self.selected_index < 1 then
+			self.selected_index = #self.cards
+		  end
+		  if self.selected_index > #self.cards then
+			self.selected_index = 1
+		  end
 	  end
 	  -- Update card positions
 	  local s_i = self.enabled and self.selected_index or #self.cards/2 + .5
