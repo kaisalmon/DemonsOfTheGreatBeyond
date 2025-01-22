@@ -2660,3 +2660,20 @@ opp picking card
 value: 0
 opts: [table]
 opts[1]: [nil]
+attempt to call global 'add_to_hand' (a nil value): stack traceback:
+	[string "-- pico-8 header..."]:884: in function 'gl_new_game'
+	[string "-- pico-8 header..."]:1020: in function <[string "-- pico-8 header..."]:1019>
+3.4336
+attempt to index local 'c' (a number value): stack traceback:
+	[string "-- pico-8 header..."]:1017: in function <[string "-- pico-8 header..."]:1009>
+	(...tail calls...)
+	[string "-- pico-8 header..."]:1147: in function 'gl_summon'
+	[string "-- pico-8 header..."]:1042: in function <[string "-- pico-8 header..."]:1021>
+[table]
+[nil]
+[table]
+void
+[table]
+void
+[table]
+void

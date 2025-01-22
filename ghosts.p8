@@ -882,8 +882,8 @@ function gl_new_game()
 	end
 	player.h_manager:add_to_hand("endturn")
 	-- DEBUGGING THE LASTEST CARD
-	-- add_to_hand(player.hand, cards[#cards])
-	-- player.mana =  cards[#cards].cost
+	player.h_manager:add_to_hand(cards[#cards])
+	player.mana =  cards[#cards].cost
 end
 function map_to_cards(ids)
 	local result={}
@@ -1005,6 +1005,21 @@ function gl_draw_card(actor)
 	local c = rnd(actor.deck)
 	del(actor.deck, c)
 	actor.h_manager:add_to_hand(c)
+end
+
+function gl_steal_card(actor)
+	local target = actor==player and opp or player
+	local c,x,y = void,nil,nil
+	if #target.h_manager.cards !=0 then
+		local hc = rnd(target.h_manager.cards)
+		x = hc.x
+		y = hc.y
+		c = hc.c
+		target.h_manager:remove(c)
+	end
+	log(c)
+	log(c.name)
+	actor.h_manager:add_to_hand(c,x,y)
 end
 
 function game_logic()
@@ -1561,6 +1576,13 @@ parens8[[
 		))
 	))
 
+	(add cards (table
+		(name "mimic") (s 102) (atk 1) (def 6) (cost 1) (type "beast")
+		(desc "steal a card")
+		(on_summon (fn (actor)
+			(gl_steal_card actor)
+		))
+	))
 ]]
 function log(msg)
 	printh(msg, "_ghosts.txt")
@@ -1765,7 +1787,7 @@ function create_hand_manager(config)
 		return self.cards[self.selected_index].c
 	end
 
-	function hand.add_to_hand(self, card)
+	function hand.add_to_hand(self, card,x,y)
 		local index=nil
 		for i=#self.cards, 1, -1 do
 			if type(self.cards[i].c) == "string" then
@@ -1775,8 +1797,8 @@ function create_hand_manager(config)
 		end
 		add(self.cards, {
 			c = card,
-			x = 124,
-			y = 64
+			x = x or 124,
+			y = y or 64
 		},index)
 	end
 
@@ -1924,6 +1946,16 @@ reward_scene = {
 -- 	..(c.desc or "")
 	
 -- 	, "cards.txt")
+-- end
+
+-- function _draw()
+-- 	cls()
+-- 	local cols = 6
+-- 	for i, c in ipairs(cards) do
+-- 		local x = flr(i/cols)*12
+-- 		local y = (i%cols)*12
+-- 		draw_sprite(c.s, x+10, y+10)
+-- 	end
 -- end
 __gfx__
 00000000000707000000000000007770000000000000007700000000007777000077770000000000000000000770770000000000070007000070007000000000
