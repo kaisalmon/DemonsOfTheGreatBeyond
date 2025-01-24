@@ -3,6 +3,7 @@ version 42
 __lua__
 health_x=0
 health_tx=0
+summary_y=128
 preview_c=nil
 no_wait=false
 
@@ -41,8 +42,14 @@ function _draw_game()
 			62,
 			7
 		)
+	end	
+
+	local t=time()-game_started_at
+	if t<3 then
+		local y = 64*((t-1)*(t-1)*(t-1)+0.8)
+		rectfill(0,y,128,8+y,8)
+		print("opponent "..tostr(current_enemy_index).."/"..tostr(#enemies)..": the "..enemies[current_enemy_index].name, 2, y+2, 7)
 	end
-	
 	if(debug)then
 		rectfill(0,0,128,8,0)
 		print(debug,0,0,7)
@@ -52,7 +59,10 @@ end
 function _update_game()
 	update_hands()
 	update_rows()
-	health_tx=(player_input!="hand" and -14 or 2)
+	player.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 60 or 89
+	health_tx=((player_input!="hand" or summary_y<100) and -14 or 2)
+	summary_y=lerp(summary_y, player.h_manager.y_base+17, .07)
+	
 	if player.damaged_at and time()-player.damaged_at<1
 	or health_drawer_at and time()-health_drawer_at<2
 	or opp.damaged_at and time()-opp.damaged_at<1
@@ -65,9 +75,11 @@ function _update_game()
 		player.v_hp=lerp(player.v_hp, player.hp,.3)
 		opp.v_hp=lerp(opp.v_hp, opp.hp,.3)
 	end
-	if(c_game_logic) then
+	
+	local status=costatus(c_game_logic)
+	if(c_game_logic and status!="dead") then
 		local _, err = coresume(c_game_logic)
-  local status=costatus(c_game_logic)
+  		status=costatus(c_game_logic)
   if status=="dead" then
   	local trace=trace(c_game_logic)
   	if(trace and err)then
@@ -117,39 +129,41 @@ function draw_player_hand()
 	local s_hc=s_i and player.h_manager.cards[s_i]
 
 	if preview_c and preview_c.name then
-		draw_summary(preview_c, 106)
+		draw_summary(preview_c,summary_y, summary_y < 95)
 	end
 end
 
 function draw_summary(c,y,full)
 	local str = c.type
-	rectfill(64-2*#str,y,64+2*#str,110,0)
+	rectfill(64-2*#str,y,64+2*#str,y+4,0)
 	print(str,64-2*#str,y,types[c.type])
 	str = c.cost.."✽, "..c.atk.."/"..c.def..""
 	y+=7
-	rectfill(64-2*#str,y,64+2*#str,117,0)
+	rectfill(64-2*#str,y,64+2*#str,y+4,0)
 	print(str,64-2*#str,y,7)
 	y+=7
 
 	if(full)then
-		color(types[c.type])
 		for str in all(type_desc[c.type]) do
-			print(str,64-2*#str,y)
+			rectfill(64-2*#str,y,64+2*#str,y+4,0)
+			print(str,64-2*#str,y,types[c.type])
 			y+=7
 		end
 	end	
 	
-	clip(22,0,84,128)
 	str = (
 		c.desc or ""
 	)
 	local x = 64-2*#str
-	if #str > 17 then
+	local w = full and 30 or 12
+	clip(64-w*3,0,w*2*3,128)
+	if #str > w then
 		preview_changed_at=preview_changed_at or 0
-		local t=(time()-preview_changed_at)
-		t %= (#str - 17)/3
-		x=30-12*t
+		local t=(time()-preview_changed_at)*10
+		t %= (#str - w + 8)
+		x=(full and 16 or 40)-t*4
 	end
+	rectfill(0,y,128,y+4,0)
 	print(str,x,y,7)
 	clip()
 end
@@ -325,7 +339,7 @@ function draw_rows(rows,flip)
 					pal(7,8)
 				end
 				local idle=time()%1>.5 and 1 or 0
-				if rc.c.type=="object" and not rc.possessed then
+				if (rc.c.type=="object" and not rc.possessed) or (rc.c.can_attack and not rc.c.can_attack(rc)) then
 					idle=0
 				end
 				spr(rc.c.s+idle,x,y,1,1,flip)
@@ -814,22 +828,50 @@ deck_scene={
 		spacing=32,
 		height=300,
 		y_base=40,
+		on_move=function()
+			preview_changed_at = time()
+		end,
 	})
+	self.removed_card = nil
+	self.removed_card_at = nil
   end,
 
   update=function(self)
-	self.h_manager:update()
-    if btnp(❎) then
-      pop_scene()
-    end
+	if not self.removed_card_at then
+		self.h_manager:update()
+		if btnp(🅾️) then
+		pop_scene()
+		end
+		if self.is_removing and btnp(❎) then
+			self.is_removing = false
+			del(player.og_deck, self.h_manager:get_card())
+			sfx(17)
+			self.h_manager.enabled=false
+			self.removed_card = self.h_manager:get_card()
+			self.removed_card_at = time()
+		end
+	else
+		self.h_manager:get_hc().dy = self.h_manager:get_hc().dy or 0
+		self.h_manager:get_hc().dy -= 1
+		self.h_manager:get_hc().y += self.h_manager:get_hc().dy
+		if time() - self.removed_card_at > 1 then
+			start_new_game(enemies[current_enemy_index])
+			c_game_logic = cocreate(game_logic)
+			pop_scene() -- back to rewards
+			pop_scene() -- back to game
+		end
+	end
   end,
 
   	draw=function(self)
 		cls()
 		self.h_manager:draw()
-		draw_summary(self.h_manager:get_card(), 64, 120)
+		draw_summary(self.h_manager:get_card(), 64, true)
 		print_centered("view deck",64,10)
-		print("press ❎ to go back", 2, 120, 6)
+		print("press 🅾️ to go back", 2, 120, 6)
+		if self.is_removing then
+			print("press ❎ to remove", 2, 110, 6)
+		end
 		print(self.h_manager.selected_index.."/"..#self.cards, 2, 2, 7)
 	end
 }
@@ -876,7 +918,7 @@ push_scene(game_scene)
 -->8
 --game
 function gl_new_game()
-	for i=1,6 do
+	for i=1,4 do
 		yield()
 		gl_draw_card(player)
 		gl_draw_card(opp)
@@ -902,6 +944,7 @@ function map_to_cards(ids)
 end
 
 function start_new_game(enemy)
+	game_started_at = time()
 player={
 	hand={},
 	rows={},
@@ -949,11 +992,7 @@ opp={
 	og_deck=map_to_cards(enemy.deck),
 	pick_card=function(self)
 			wait(.3)
-			log("opp picking card")
 			local value,opts=knapsack(opp, opp.h_manager.cards, opp.mana)
-			log("value: "..tostr(value))
-			log("opts: "..tostr(opts))
-			log("opts[1]: "..tostr(opts[1]))
 			return rnd(opts)
 	end,
 	select_row=ai_select_row
@@ -1030,6 +1069,24 @@ function gl_steal_card(actor)
 		local c = hc.c
 		target.h_manager:remove(c)
 		actor.h_manager:add_to_hand(c,x,y)
+		sfx(17)
+	end
+end
+
+function gl_tutor(player, predicate)
+	local valid_cards = {}
+	for c in all(player.deck) do
+		if predicate(c) then
+			add(valid_cards, c)
+		end
+	end
+	if #valid_cards == 0 then
+		sfx(12)
+	else
+		local c = rnd(valid_cards)
+		del(player.deck, c)
+		player.h_manager:add_to_hand(c)
+		sfx(17)
 	end
 end
 
@@ -1055,28 +1112,18 @@ function game_logic()
 			if row!="back" and c then
 				actor.h_manager:remove(c)
 				gl_summon(actor, c, row)
+				check_game_end()
+				if game_over then
+					return
+				end
 			end
 		end
 		
 		for i=1,3 do
 			gl_attack(player.rows[i], opp.rows[i], actor)
-			if player.hp<=0 then
-				game_over="game over"	
+			check_game_end()
+			if game_over then
 				return
-			end
-			if opp.hp<=0 then
-				if current_enemy_index < #enemies then
-					-- Progress to next enemy
-					current_enemy_index += 1
-					game_over = "victory!"
-					wait(1)
-					push_scene(reward_scene)
-					return
-				else
-					-- Player has defeated all enemies
-					game_over = "you won the game!"
-					return
-				end
 			end
 		end
 		
@@ -1084,6 +1131,27 @@ function game_logic()
 		actor = actor==player
 			and opp 
 			or player
+	end
+end
+
+function check_game_end()
+	if player.hp<=0 then
+		game_over="game over"	
+		return true
+	end
+	if opp.hp<=0 then
+		if current_enemy_index < #enemies then
+			-- Progress to next enemy
+			current_enemy_index += 1
+			game_over = "victory!"
+			wait(1)
+			push_scene(reward_scene)
+			return true
+		else
+			-- Player has defeated all enemies
+			game_over = "you won the game!"
+			return true
+		end
 	end
 end
 
@@ -1154,32 +1222,63 @@ function gl_summon(actor,c,row_i, special)
 			end
 		end
 	end
-	
+	local doubler = get_doubler(actor, c)
 	if not special and  c.on_summon then
 		rc.ability_at=time()
 		sfx(15)
 		wait(.5)
 		c.on_summon(actor, rc, row_i)
-		local doubler = get_doubler(actor, c)
+		
 		if doubler then
-            wait(.5)
 			sfx(15)
             doubler.ability_at=time()
             wait(.5)
+			
             sfx(15)
             rc.ability_at=time()
             wait(.5)
             c.on_summon(actor, rc, row_i)
         end
 	end
+	if c == void then
+		foreach_rc(function(on_void_rc, on_void_rc_actor)
+			if(on_void_rc_actor != actor) return
+			if on_void_rc.c.on_void then
+				on_void_rc.ability_at = time()
+				sfx(15)
+				wait(.5)
+				on_void_rc.c.on_void(rc, actor)
+				if doubler then
+					sfx(15)
+					doubler.ability_at=time()
+					wait(.5)
+					
+					sfx(15)
+					on_void_rc.ability_at=time()
+					wait(.5)
+					on_void_rc.c.on_void(rc, actor)
+				end
+			end
+		end)
+	end
+	check_game_end()
 end
 
 
 function can_attack(rc, actor)
-	if not rc or actor==player and actor.turn_1 then
+	if not rc or (actor==player and actor.turn_1) then
 		return false
 	end
- return rc.possessed or rc.c.type!="object"
+ 	if not rc.possessed and rc.c.type=="object" then
+		return false
+	end
+	if rc.c.atk <= 0 then
+		return false
+	end
+	if rc.c.can_attack and not rc.c.can_attack(rc) then
+		return false
+	end
+	return true
 end
 
 function can_defend(rc, attacker)
@@ -1240,6 +1339,14 @@ function gl_attack(player_row, opp_row)
 				wait(.8)
 			else
 				gl_damage_player(foe,atk_rc.c.atk)
+				if  atk_rc.c.double_damage_to_opponent then
+					sfx(15)
+					atk_rc.ability_at = time()
+					wait(.5)
+					atk_rc.attacking_at = time()
+					wait(.6)
+					gl_damage_player(foe,atk_rc.c.atk)
+				end
 			end
 			wait(.25)
 			any_damage=true
@@ -1285,9 +1392,9 @@ types={
 	elemental=9,
 }
 type_desc={
-	beast={"cannot block ghosts"},
-	ghost={"cannot be blocked by beasts","or by unpossessed objects.","possess allied objects on row"},
-	object={"cannot block ghosts or","attack if unpossessed."},
+	beast={"can't block ghosts"},
+	ghost={"can't be blocked by beasts","or by unpossessed objects.","possess allied objects on row"},
+	object={"can't block ghosts or","attack if unpossessed."},
 	elemental={}
 }
 function foreach_rc(f)
@@ -1308,27 +1415,57 @@ enemies={}
 --30,30,30,30,30,14,14,14,8,8,3,4,6
 parens8[[
 (set enemies (table))
+
 (add enemies (table 
 	(max_hp 8) 
-	(deck (split "30,30,30,8,8,18,18,13"))
+	(name "bug catcher")
+	(deck (split "30,30,30,8,8,18,18,13,41"))
 ))
 (add enemies (table 
 	(max_hp 12) 
+	(name "mystic")
 	(deck (split "1,1,4,4,11,11,17,22"))
 ))
 (add enemies (table
 	(max_hp 15)
-	(deck (split "1,1,4,4,11,11,5,5,7,6,6,32,17,22"))
+	(name "necromancer")
+	(deck (split "39,1,1,4,4,11,11,5,5,7,6,6,32,17,22"))
 ))
 
 (add enemies (table
 	(max_hp 18)
-	(deck (split "13,13,9,9,27,27,26,26,34,21,25,23,23,24"))
+	(name "elementalist")
+	(deck (split "42,13,13,9,9,27,27,26,26,34,21,25,23,23,24"))
 ))
 
 (add enemies (table
 	(max_hp 20)
+	(name "wizard")
 	(deck (split "16,16,14,19,28,28,29,33,20,12,15,2,10"))
+))
+(add enemies (table 
+  (max_hp 22) 
+  (name "beast master")
+  (deck (split "40,34,21,19,13,9,9,13,35,28,8,8"))
+))
+
+(add enemies (table
+	(max_hp 24)
+	(name "void caster")
+	(deck (split "43,43,43,44,20,37,7"))
+))
+
+(add enemies (table 
+  (max_hp 25) 
+  (name "artificer")
+  (deck (split "20,38,38,6,6,22,22,5,5,7,7,4,4,17,17"))
+))
+
+
+(add enemies (table 
+  (max_hp 26) 
+  (name "archmage")
+  (deck (split "36,31,16,14,35,29,27,24,37,25,33,40,15,2,21,34"))
 ))
 
 (set void (table 
@@ -1354,7 +1491,7 @@ parens8[[
       (when (> (rnd) 0.5)
         (actor.h_manager.add_to_hand actor.h_manager swarm))))))
 (set flame (table
-		(name "flame") (s 55) (atk 3) (def 3) (cost 2) (type "elemental")
+		(name "flame") (s 55) (atk 3) (def 3) (cost 4) (type "elemental")
 		(desc "2 damage to all foes")
 		(on_summon (fn (actor rc row_i)
 			(seq
@@ -1380,7 +1517,7 @@ parens8[[
 	))
 (add cards bones)
 (add cards goblin)
- (add cards (table (name "devil") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
+ (add cards (table (name "demon") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
   (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost")))
   (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object")))
   (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 2) (type "object")
@@ -1391,11 +1528,14 @@ parens8[[
   ))
   (add cards (table (name "golem") (s 9) (atk 3) (def 12) (cost 3) (type "object")))
   (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast")))
-  (add cards (table (name "bat") (s 19) (atk 3) (def 2) (cost 2) (type "beast")))
+  (add cards (table (name "bat") (s 19) (atk 3) (def 4) (cost 2) (type "beast")))
   (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost")))
   (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object")))
   (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost")))
-  (add cards(table (name "snake") (s 39) (atk 3) (def 3) (cost 2) (type "beast")))
+  (add cards(table (name "snake") (s 39) (atk 2) (def 2) (cost 2) (type "beast")
+	(desc "hits to opponent deal double damage")
+	(double_damage_to_opponent 1)
+  ))
   (add cards(table (name "'shroom") (s 41) (atk 1) (def 6) (cost 2) (type "beast")))
   (add cards(table (name "lich") (s 43) (atk 3) (def 14) (cost 6) (type "ghost")))
   (add cards(table (name "slime") (s 33) (atk 1) (def 8) (cost 2) (type "beast")))
@@ -1445,7 +1585,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "zap") (s 45) (atk 3) (def 1) (cost 3) (type "elemental")
+		(name "zap") (s 45) (atk 3) (def 1) (cost 4) (type "elemental")
 		(desc "clear row")
 		(on_summon (fn (actor rc row_i)
 			(foreach_rc (fn (target_rc owner row)
@@ -1532,7 +1672,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "bug") (s 92) (atk 1) (def 1) (cost 1) (type "beast")
+		(name "bug") (s 92) (atk 2) (def 1) (cost 1) (type "beast")
 		(desc "can't block beasts or ghosts")
 		(can_defend (fn (rc attacker)
 			(when (== attacker.c.type "beast")
@@ -1602,10 +1742,91 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "mimic") (s 102) (atk 1) (def 6) (cost 1) (type "beast")
+		(name "mimic") (s 102) (atk 3) (def 19) (cost 3) (type "beast")
+		(desc "can't attack unless hurt")
+		(can_attack (fn (rc)
+			(< rc.hp rc.c.def)
+		))
+	))
+
+	(add cards (table
+		(name "phish") (s 70) (atk 1) (def 6) (cost 3) (type "beast")
 		(desc "steal a card")
 		(on_summon (fn (actor)
 			(gl_steal_card actor)
+		))
+	))
+
+	(add cards (table
+		(name "storm") (s 104) (atk 2) (def 8) (cost 4) (type "elemental")
+		(desc "elemental's summon abilities trigger twice")
+		(double_abilites_for (fn (card) (== card.type "elemental")))
+	))	
+
+	(add cards (table
+		(name "magnet") (s 74) (atk 1) (def 4) (cost 4) (type "object")
+		(desc "draw an object from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (== c.type "object")))
+		))
+	))
+
+	(add cards (table
+		(name "'nomicon") (s 90) (atk 1) (def 4) (cost 4) (type "object")
+		(desc "draw an ghost from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (== c.type "ghost")))
+		))
+	))
+	(add cards (table
+		(name "devil") (s 106) (atk 3) (def 6) (cost 6) (type "beast")
+		(desc "draw an 5✽+ card from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (>= c.cost 4)))
+		))
+	))
+	
+	(add cards (table
+		(name "cheese") (s 108) (atk 1) (def 1) (cost 2) (type "object")
+		(desc "draw up to 3 1✽ cards from your deck")
+		(on_summon (fn (actor)
+			(for (i 1 3)
+				(seq
+					(gl_tutor actor (fn (c) (== c.cost 1)))
+					(wait 0.25)
+				)
+			)
+		))
+	))
+
+	(add cards (table
+		(name "sapling") (s 110) (atk 0) (def 3) (cost 3) (type "elemental")
+		(desc "heal all allies")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(when (and (== owner actor) (< rc.hp rc.c.def))
+					(seq
+						(set rc.hp rc.c.def)
+						(set rc.damaged_at (time))
+					)
+				)
+			))
+		))
+	))
+
+	(add cards (table
+		(name "portal") (s 116) (atk 0) (def 8) (cost 3) (type "elemental")
+		(desc "each void you summon deals 2 damage to opponent")
+		(on_void (fn (rc actor)
+			(gl_damage_player (when (== actor player) opp player) 2)
+		))
+	))
+
+	(add cards (table
+		(name "cultist") (s 118) (atk 3) (def 6) (cost 5) (type "beast")
+		(desc "draw each time you summon a void")
+		(on_void (fn (rc actor)
+			(gl_draw_card actor)
 		))
 	))
 ]]
@@ -1807,7 +2028,9 @@ function create_hand_manager(config)
 	if config.enabled == false then
 		hand.enabled = false
 	end
-
+	function hand.get_hc(self)
+		return self.cards[self.selected_index]
+	end
 	function hand.get_card(self)
 		return self.cards[self.selected_index].c
 	end
@@ -1925,8 +2148,8 @@ reward_scene = {
       del(available, card)
       add(self.rewards, card)
     end
-	add(self.rewards, "remove card")
 	add(self.rewards, "skip")
+	add(self.rewards, "remove card")
     self.h_manager = create_hand_manager({
 	  cards = self.rewards,
 	  y_base=32,
@@ -1935,7 +2158,7 @@ reward_scene = {
 			push_scene(deck_scene)
 			deck_scene.is_removing = true
 			return
-		else
+		elseif type(card)=='table' then
 			add(player.og_deck, card)
 			sfx(14)
 		end
@@ -1954,24 +2177,27 @@ reward_scene = {
   draw = function(self)
     cls(0)
     print("pick a reward", 16, 10, 7)
-
+	local c = self.h_manager:get_card()
+	if type(c)=="table" then
+		draw_summary(c, 64, true)
+	end
     self.h_manager:draw()
   end
 }
 -->8
--- printh("id,name,type,cost,atk,def,desc", "cards.txt",true)
+printh("id;name;type;cost;atk;def;abilities", "cards.txt",true)
 
--- for i,c in ipairs(cards) do
--- 	printh(i..","
--- 	..c.name..","
--- 	..c.type..","
--- 	..c.cost..","
--- 	..c.atk..","
--- 	..c.def..","
--- 	..(c.desc or "")
+for i,c in ipairs(cards) do
+	printh(i..";"
+	..c.name..";"
+	..c.type..";"
+	..c.cost..";"
+	..c.atk..";"
+	..c.def..";"
+	..(c.desc or "")
 	
--- 	, "cards.txt")
--- end
+	, "cards.txt")
+end
 
 -- function _draw()
 -- 	cls()
@@ -2031,14 +2257,22 @@ e70077077077007e7077777777777707707070000070700777777007777707700070070000700700
 e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000777077007707770
 ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700777777007770770
 eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700777777077777777
-00000000000000000000000000000000000000000000000000000000070777700000000000000000000000000000000000000000000000000000000000000000
-00000007000070000000000000000000000070070000000000000000777077770000000000000000000000000000000000000000000000000000000000000000
-00000077000777000000000000000000770077770000700707077770000000000000000000000000000000000000000000000000000000000000000000000000
-00000770007777700000000000000000777070700000777777707777000700700000000000000000000000000000000000000000000000000000000000000000
-70007700000070000000000000000000077077770770707000000000000000000000000000000000000000000000000000000000000000000000000000000000
-77077000000070000000000000000000007770007700777777707007777070070000000000000000000000000000000000000000000000000000000000000000
-07770000000070000000000000000000777770700007000077707777777077770000000000000000000000000000000000000000000000000000000000000000
-00700000007770000000000000000000770070707700707077707777777077770000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000070777700077770007777000070000700000000000000000000000000000000000000000
+00000007000070000000000000000000000070070000000000000000777077770070700007070000077007700700007000000000000000007700000000000077
+00000077000777000000000000000000770077770000700707077770000000000077770007777000007777000770077000000000770700007770007777000777
+00000770007777700000000000000000777070700000777777707777000700700000000000000000007070000077770077070000070770000770077777700770
+70007700000070000000000000000000077077770770707000000000000000000070070007007000707777070070700007077000770777000007077007707000
+77077000000070000000000000000000007770007700777777707007777070070077700000770000070000700077770077077700770707700007700000070000
+07770000000070000000000000000000777770700007000077707777777077770007000000070000000770007000000777070770700777070007000000070000
+00700000007770000000000000000000770070707700707077707777777077770000700000700000077007700770077070077707000000000007000000070000
+00000000000000000000000000000000000777000077700007777000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000070700700070000077777700077770000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000700000000000007777700070777777000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000700770777007700777070707777000700000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000770770077007700777000007770707070000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000077700000007777770770000070000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000070070700000070007777770077777700000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000007770000007770077777770777777770000000000000000000000000000000000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
@@ -2187,3 +2421,4 @@ __sfx__
 000300001f0502705030050360502c050090500405000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00030000000003715034150361502f1503b1503215033300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000100002d070300702e060260601c0502e050190501c050240402604017040170401b040260401d04013030140301b0301e02018020190201f0101f0101a0101a0101f0101c010160101b010000000000000000
+000100001007011070130602606015050170501b0501d05021040270402a0402e040360403b0401d04013030140001b0001e00018000190001f000360502a050250501b050120100e0501b000000000000000000
