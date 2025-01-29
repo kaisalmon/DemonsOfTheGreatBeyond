@@ -6,6 +6,7 @@ health_tx=0
 summary_y=128
 preview_c_wrapper=nil
 no_wait=false
+disable_tutorials=false
 
 poke(0x5f2e ,1)
 pal({[0]=0,128,2,132,
@@ -14,10 +15,16 @@ pal({[0]=0,128,2,132,
 										12,13,137,15},1)
 
 function _init()
+	cartdata("demons_of_the_great_beyond")
 	palt(14,true)
 	palt(0,false)
-	current_enemy_index=1
-	start_new_game(enemies[1])
+	player={}
+	local resumed = load_progress()
+	if not resumed then 
+		current_enemy_index=1
+		seed=rnd() 
+	end
+	start_new_game(enemies[current_enemy_index])
 	c_game_logic=cocreate(game_logic)
 end
 function _draw_game()
@@ -62,7 +69,7 @@ function _draw_game()
 		print("opponent "..tostr(current_enemy_index).."/"..tostr(#enemies)..": the "..enemies[current_enemy_index].name, 2, y+2, 7)
 	end
 	if(tutorial_text)then
-		local y=40
+		local y=70
 		rectfill(0,y-1,128,y+18,0)
 		print(tutorial_text,0,y,7)
 		color(5)
@@ -94,13 +101,13 @@ function _update_game()
 		end
 	end
 
+	update_hands(tutorial_text!=nil)
 	if tutorial_text then
 		if btnp(❎) then
 			tutorial_ok()
 		end
 		return
 	end
-	update_hands()
 
 	player.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 60 or 89
 	opp.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 22 or 12
@@ -235,9 +242,13 @@ end
 
 shown_tutorials={}
 tutorial_stack={}
-function tutorial(string)
-	if not shown_tutorials[string] then
-		shown_tutorials[string]=true
+function tutorial(key, string)
+	string = string or key
+	if disable_tutorials then
+		return
+	end
+	if not shown_tutorials[key] then
+		shown_tutorials[key]=true
 
 		if tutorial_text == nil then
 			tutorial_text=string
@@ -317,15 +328,15 @@ function move_view_board_cursor(x, y)
 	preview_c_wrapper=preview
 end
 
-function update_hands()
+function update_hands(disable_input)
 	player.h_manager.enabled=player_input=="hand"
 	if player_input == "hand" then
 		preview_i=player.h_manager.selected_index
 		local hc = player.h_manager.cards[preview_i]
 		preview_c_wrapper=hc
 	end
-	player.h_manager:update()
-	opp.h_manager:update()
+	player.h_manager:update(disable_input)
+	opp.h_manager:update(disable_input)
 	if player_input=="view_board" then
 		if btnp(➡️) then 
 			move_view_board_cursor(1,0)
@@ -984,6 +995,7 @@ deck_scene={
 	end
 }
 menuitem(1, "view deck", function() push_scene(deck_scene) end)
+menuitem(2, "title screen", function() load("#demons_wrapper") end)
 
 -->8
 --scenes
@@ -996,6 +1008,7 @@ scenes={
 current_scene=nil
 
 function push_scene(scene)
+	if current_scene==scene then return end
  add(scenes,scene)
  current_scene=scene
  if scene.init then scene:init() end
@@ -1071,6 +1084,8 @@ function new_player_deck()
 end
 
 function start_new_game(enemy)
+	srand(seed)
+	save_progress()
 	game_started_at = time()
 player={
 	hand={},
@@ -1297,6 +1312,8 @@ end
 function check_game_end()
 	if player.hp<=0 then
 		game_over="game over"	
+		wait(1)
+		load("#demons_wrapper")
 		return true
 	end
 	if opp.hp<=0 then
@@ -1304,12 +1321,17 @@ function check_game_end()
 			-- Progress to next enemy
 			current_enemy_index += 1
 			game_over = "victory!"
+			save_progress()
+			seed=rnd() --global, used for sync
 			wait(1)
 			push_scene(reward_scene)
 			return true
 		else
 			-- Player has defeated all enemies
 			game_over = "you won the game!"
+			clear_save()
+			wait(1)
+			load("#demons_wrapper")
 			return true
 		end
 	end
@@ -1472,7 +1494,7 @@ function gl_attack(player_row, opp_row)
 			if assumed_target != nil and def_rc != assumed_target then
 				if assumed_target.c.can_defend then
 					tutorial("some cards abilities stop\nthem from blocking")
-				elseif player_atk.c.type=="ghost" then
+				elseif atk_rc.c.type=="ghost" and assumed_target.c.type=="beast" then
 					tutorial("beasts cannot block ghosts!")
 				end
 				wait(0)
@@ -1518,7 +1540,7 @@ function gl_attack(player_row, opp_row)
 end
 
 function as_ability(rc, actor, fn)
-	tutorial("some cards, like "..rc.c.name..", have\nspecial abilities")
+	tutorial("ability", "some cards, like "..rc.c.name..", have\nspecial abilities")
 	rc.ability_at=time()
 	sfx(15)
 	wait(.5)
@@ -2386,9 +2408,9 @@ function create_hand_manager(config)
 
 	
   
-	function hand.update(self)
+	function hand.update(self, disable_input)
 	  -- Handle input
-	  if self.enabled then
+	  if self.enabled and not disable_input then
 		  if btnp(⬅️) then
 			self.selected_index -= 1
 			if(self.on_move) self.on_move()
@@ -2509,6 +2531,62 @@ reward_scene = {
     self.h_manager:draw()
   end
 }
+
+function save_deck()
+	if not player.og_deck then
+		return
+	end
+	for i = 0, 32 do
+		local c = player.og_deck[i+1] 
+		local index = c and indexof(cards, c) or 0
+		poke(0x5e00+i, index)
+	end
+end
+function indexof(t, v)
+	for i, c in ipairs(t) do
+		if c == v then
+			return i
+		end
+	end
+end
+function load_deck()
+	player.og_deck = {}
+	log("loading deck")
+	for i=0, 32 do
+		local addr = 0x5e00 + i
+		local c = peek(addr)
+		if c > 0 then
+			log(" > "..cards[c].name)
+			add(player.og_deck, cards[c])
+		end
+	end
+end
+function save_progress()
+	save_deck()
+	if current_enemy_index >=3 then
+		disable_tutorials = true
+	end
+	poke(0x5e00+33, current_enemy_index)
+	poke4(0x5e00+34, seed)
+	poke(0x5e00+64, disable_tutorials and 1 or 0)
+	log("saving...")
+end
+function load_progress()
+	current_enemy_index = peek(0x5e00+33)
+	seed = peek4(0x5e00+34)
+	disable_tutorials = peek(0x5e00+64) == 1
+	if current_enemy_index <= 1 then
+		log("no progress found")
+		return false
+	end
+	log("level "..current_enemy_index)
+	load_deck()
+	return true
+end
+function clear_save()
+	memset(0x5e00, 0, 64) -- First quater of memory is cleared between runs
+end
+
 -->8
 printh("id;name;type;cost;atk;def;abilities", "cards.txt",true)
 
@@ -2524,13 +2602,16 @@ for i,c in ipairs(cards) do
 	, "cards.txt")
 end
 
+-- add(cards, stone)
+-- add(cards, tentacle)
+-- add(cards, void)
 -- function _draw()
 -- 	cls()
--- 	local cols = 6
+-- 	local cols = 7
 -- 	for i, c in ipairs(cards) do
--- 		local x = flr(i/cols)*12
--- 		local y = (i%cols)*12
--- 		draw_sprite(c.s, x+10, y+10)
+-- 		local x = flr(i/cols)*15
+-- 		local y = (i%cols)*15
+-- 		draw_sprite(c.s, x+6, y+10)
 -- 	end
 -- end
 __gfx__

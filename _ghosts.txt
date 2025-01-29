@@ -1,1601 +1,2606 @@
-row 3
-row -2
-row 1
-row 1
-row -1
-row -3
-row 2
-row 2
-row 3
-row 2
-row 2
-row 3
-row 1
-row 1
-row 3
-row -2
-row 2
-row 1
-row 2
-row 1
-row -3
-row -3
-row 2
-row -3
-row -2
-row 3
-row 3
-row 2
-row 3
-row 3
-row 2
-row 3
-row 1
-row 1
-row 2
-row 3
-row 1
-row 1
-row 2
-row 3
-row 1
-row 1
-row 1
-row 3
-row 2
-row 1
-row 1
-row 3
-row 2
-row 2
-row 1
-row 3
-row 2
-row 2
-row 3
-row 1
-row 1
-row 2
-row 2
-row 2
-row 2
-row 1
-row 2
-row 3
-row 1
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 2
-row 2
-row 1
-row 2
-row 3
-row 2
-row 2
-row 3
-row 3
-row 3
-row 3
-row 3
-row 2
-row 1
-row 1
-row 3
-row 3
-row 1
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 1
-row 3
-row 1
-row 3
-row 1
-row 1
-row 2
-row 2
-row 2
-row 2
-row 1
-row 1
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 2
-row 2
-row 3
-row 2
-row 2
-row 2
-row 2
-row 1
-row 1
-row 2
-row 2
-row 3
-row 3
-row 2
-row 2
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 2
-row 2
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 1
-row 3
-row 2
-row 1
-row 1
-row 2
-row 2
-row 3
-row 2
-row 2
-row 2
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 1
-row 1
-row 3
-row 2
-row 1
-row 3
-row 1
-row 1
-row 2
-row 1
-row 1
-row 1
-row 2
-row 2
-row 3
-row 1
-row 3
-row 3
-row 1
-row 2
-row 2
-row 1
-row 3
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 2
-row 1
-row 1
-row 3
-row 2
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 2
-row 2
-row 1
-row 1
-row 2
-row 1
-row 2
-row 2
-row 3
-row 3
-row 2
-row 1
-row 2
-row 3
-row 2
-row 1
-row 1
-row 2
-row 2
-row 2
-row 1
-row 1
-row 2
-row 3
-row 1
-row 2
-row 3
-row 1
-row 1
-row 1
-row 2
-row 2
-row 2
-row 2
-row 2
-row 1
-row 2
-row 2
-row 1
-row 2
-row 3
-row 1
-row 2
-row 2
-row 3
-row 3
-row 3
-row 3
-row 2
-row 2
-row 1
-row 3
-row 2
-row 2
-row 3
-row 3
-row 2
-row 2
-row 2
-row 1
-row 3
-row 3
-row 2
-row 2
-row 1
-row 1
-row 3
-row 1
-row 2
-row 2
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 3
-row 1
-row 1
-row 2
-row 2
-row 1
-row 1
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 3
-row 1
-row 3
-row 3
-row 1
-row 2
-row 3
-row 3
-row 2
-row 3
-row 2
-row 2
-row 1
-row 3
-row 2
-row 2
-row 3
-row 3
-row 1
-row 3
-row 1
-row 3
-row 2
-row 2
-row 1
-row 1
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 1
-row 1
-row 3
-row 1
-row 1
-row 2
-row 2
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 3
-row 2
-row 3
-row 3
-row 1
-row 1
-row 1
-row 3
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 3
-row 2
-row 3
-row 1
-row 3
-row 2
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 2
-row 2
-row 1
-row 3
-row 3
-row 1
-row 1
-row 3
-row 1
-row 1
-row 1
-row 1
-row 2
-row 3
-row 3
-row 1
-row 1
-row 1
-row 1
-row 1
-row 2
-row 2
-row 1
-row 2
-row 3
-row 1
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 2
-row 3
-row 3
-row 2
-row 1
-row 2
-row 3
-row -1
-row -3
-row 2
-row -2
-row -2
-row 2
-row 1
-row -3
-row 1
-row 1
-row 1
-ai would play sapling
-row 2
-row 1
-row 1
-row 2
-row -3
-row 1
-row 2
-row 2
-row 2
-row 3
-row -3
-row 2
-row -1
-row 3
-row 2
-row 1
-row 1
-row 3
-row 3
-ai would play gnome
-row 3
-row 1
-row 1
-row 2
-row 1
-row 2
-row 1
-row 3
-row -3
-row 3
-ai would play flame
-row 1
-row 3
-row -3
-row 1
-row 3
-row -2
-row 3
-ai would play flame
-row 3
-row 3
-ai would play relic
-row 1
-row 1
-row 3
-ai would play yeti
-row 2
-row 1
-row 2
-row 3
-row 1
-row 2
-row 1
-row -3
-row 3
-row 2
-row 2
-ai would play gargoyle
-row -3
-row 2
-row 2
-row 3
-row 2
-row 3
-ai would not play flame
-row 2
-row -2
-row 1
-row 3
-row 2
-row -3
-row 2
-row 1
-row 2
-row 2
-row 2
-row -1
-row 3
-row 1
-row 3
-row -1
-row 3
-ai would play sapling
-row 2
-row -1
-row 2
-ai would not play flame
-row -2
-row 3
-row 3
-row 1
-row 2
-row -1
-row 2
-row 2
-row 2
-row 1
-row -2
-row 1
-row -3
-row 1
-row -2
-row 1
-row -3
-row -2
-row 3
-ai would play gargoyle
-row 2
-row 1
-row -3
-row 2
-row -3
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row -3
-row 1
-row 3
-row 1
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 2
-row 2
-row 3
-row 1
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row 2
-row -3
-row 1
-row 3
-row 1
-row -3
-row 1
-row 2
-row 2
-row 2
-row 2
-row -3
-row 1
-row 2
-row 2
-row -3
-row 1
-row 2
-row 1
-row 2
-row 1
-row -3
-row -3
-row -3
-row 1
-row 1
-row 1
-row 1
-row 1
-row -2
-row 2
-row 1
-row 2
-row 2
-row 1
-row 2
-row -2
-row 1
-row 2
-row -3
-row 1
-row 2
-row -2
-row -2
-row 1
-row 1
-row 1
-row -3
-row 1
-row 2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 3
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row -3
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 1
-row 1
-row 1
-row 1
-row 2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 1
-row 1
-row 3
-row 3
-row 2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row -2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 3
-row 3
-row -2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 1
-row 1
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 2
-row -2
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 2
-row [nil]
--------->
-stack traceback:
-	[string "-- pico-8 header..."]:1231: in function <[string "-- pico-8 header..."]:1199>
-invalid row [nil]
-c.name void
-stack traceback:
-	[string "-- pico-8 header..."]:1295: in function 'gl_summon'
-	[string "-- pico-8 header..."]:1233: in function <[string "-- pico-8 header..."]:1199>
-row 1
-row 1
-row 3
-row 3
-row -2
-row 2
-row 1
-row 1
-row 2
-row 2
-row 3
-row 3
-row 1
-row 1
-row 1
-row 1
-row 1
-row 1
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 3
-row 3
-row 2
-row 2
-row 2
-row 2
-row 1
-row 1
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-row 1
-row 1
-row 3
-row 3
-row 3
-row 3
-ai would play gargoyle
-ai would not play flame
-ai would play yeti
-ai would play gnome
-ai would play gnome
-ai would play sapling
-ai would play gargoyle
-ai would play sapling
-ai would play relic
-ai would play flame
-ai would play yeti
-ai would play flame
-ai would play relic
-ai would not play flame
-ai would play gnome
-ai would play yeti
-ai would play flame
-ai would play gargoyle
-ai would play relic
-ai would play flame
-ai would play sapling
-ai would play sapling
-ai would play flame
-ai would play relic
-ai would play yeti
-ai would play gargoyle
-ai would play gargoyle
-ai would play yeti
-ai would play flame
-ai would play gnome
-ai would play sapling
-ai would play flame
-ai would not play flame
-ai would play flame
-ai would play sapling
-ai would play gargoyle
-ai would play relic
-ai would play yeti
-ai would play flame
-ai would play relic
-ai would play gnome
-ai would play yeti
-ai would play gargoyle
-ai would play sapling
-ai would play gnome
-ai would play gnome
-ai would play relic
-ai would play relic
-..........sheet ability
-..........skelly ability
-..........magnet ability
-..........gorgon ability
-..........candle ability
-..........devil ability
-..........jelpi ability
-..........kraken ability
-..........bait ability
-..........swarm ability
-..........magnet ability
-..........cryptid ability
-..........swarm ability
-..........candle ability
-..........swarm ability
-..........cryptid ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........dragon ability
-ai would not play flame
-..........flame ability
-..........swarm ability
-..........orb ability
-ai would play gnome
-..........gnome ability
-..........toad ability
-..........orb ability
-..........jelpi ability
-..........phish ability
-ai would play flame
-..........flame ability
-..........toad ability
-..........reaper ability
-..........goblin ability
-..........kraken ability
-..........'nomicon ability
-ai would play flame
-..........flame ability
-ai would play relic
-..........relic ability
-..........goblin ability
-ai would play sapling
-..........sapling ability
-..........'nomicon ability
-..........reaper ability
-ai would play relic
-..........relic ability
-..........snake ability
-..........skelly ability
-..........snake ability
-ai would play gargoyle
-..........gargoyle ability
-ai would play gnome
-..........gnome ability
-..........cactus ability
-..........devil ability
-..........sheet ability
-..........familiar ability
-..........familiar ability
-ai would play gargoyle
-..........gargoyle ability
-..........gorgon ability
-ai would play sapling
-..........sapling ability
-..........zap ability
-..........bait ability
-..........cactus ability
-..........phish ability
-..........candle ability
-..........toad ability
-..........swarm ability
-..........kraken ability
-ai would play flame
-..........flame ability
-..........'nomicon ability
-..........phish ability
-ai would play gnome
-..........gnome ability
-..........corpse ability
-..........candle ability
-..........orb ability
-..........corpse ability
-..........devil ability
-ai would play relic
-..........relic ability
-..........jelpi ability
-ai would play flame
-..........flame ability
-..........corpse ability
-..........zap ability
-..........snake ability
-..........magnet ability
-..........magnet ability
-ai would play relic
-..........relic ability
-..........kraken ability
-..........orb ability
-..........bait ability
-..........bait ability
-..........swarm ability
-..........swarm ability
-..........candle ability
-..........sheet ability
-..........goblin ability
-..........'nomicon ability
-..........swarm ability
-..........cactus ability
-..........swarm ability
-..........reaper ability
-..........candle ability
-ai would play flame
-..........flame ability
-..........toad ability
-..........toad ability
-..........cryptid ability
-..........'nomicon ability
-..........jelpi ability
-ai would play relic
-..........relic ability
-..........cryptid ability
-..........gorgon ability
-..........cryptid ability
-..........sheet ability
-ai would play sapling
-..........sapling ability
-..........gorgon ability
-..........reaper ability
-ai would play flame
-..........flame ability
-ai would play gargoyle
-..........gargoyle ability
-..........magnet ability
-ai would play yeti
-..........yeti ability
-ai would play sapling
-..........sapling ability
-..........kraken ability
-ai would play gnome
-..........gnome ability
-..........phish ability
-..........zap ability
-..........familiar ability
-..........orb ability
-..........jelpi ability
-..........dragon ability
-ai would not play flame
-..........flame ability
-..........devil ability
-..........zap ability
-..........cryptid ability
-..........skelly ability
-ai would play gnome
-..........gnome ability
-..........cactus ability
-..........familiar ability
-..........devil ability
-..........dragon ability
-ai would play flame
-..........flame ability
-ai would not play flame
-..........flame ability
-..........skelly ability
-..........goblin ability
-..........magnet ability
-..........phish ability
-..........kraken ability
-..........orb ability
-..........portal ability
-ai would play gargoyle
-..........gargoyle ability
-..........portal ability
-..........sheet ability
-..........sheet ability
-..........zap ability
-..........bait ability
-..........skelly ability
-..........magnet ability
-..........swarm ability
-..........phish ability
-..........jelpi ability
-ai would play yeti
-..........yeti ability
-ai would play sapling
-..........sapling ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........candle ability
-..........phish ability
-..........cactus ability
-..........swarm ability
-..........orb ability
-..........goblin ability
-..........gorgon ability
-ai would play sapling
-..........sapling ability
-..........orb ability
-..........toad ability
-ai would play gnome
-..........gnome ability
-..........swarm ability
-..........cryptid ability
-ai would play gargoyle
-..........gargoyle ability
-..........phish ability
-..........devil ability
-..........cactus ability
-..........zap ability
-..........familiar ability
-..........reaper ability
-..........swarm ability
-..........familiar ability
-..........gorgon ability
-..........kraken ability
-ai would play gnome
-..........gnome ability
-..........cryptid ability
-..........phish ability
-..........cryptid ability
-..........skelly ability
-..........cryptid ability
-..........zap ability
-ai would play gnome
-..........gnome ability
-..........toad ability
-..........candle ability
-..........magnet ability
-ai would play sapling
-..........sapling ability
-..........bait ability
-..........corpse ability
-..........orb ability
-..........magnet ability
-..........corpse ability
-..........goblin ability
-..........snake ability
-..........kraken ability
-..........sheet ability
-..........zap ability
-..........toad ability
-..........magnet ability
-ai would play sapling
-..........sapling ability
-..........reaper ability
-..........gorgon ability
-..........familiar ability
-..........magnet ability
-..........bait ability
-ai would play gnome
-..........gnome ability
-..........swarm ability
-..........goblin ability
-..........'nomicon ability
-..........candle ability
-..........kraken ability
-ai would play flame
-..........flame ability
-..........skelly ability
-..........phish ability
-..........cactus ability
-ai would play gargoyle
-..........gargoyle ability
-ai would play flame
-..........flame ability
-..........goblin ability
-..........devil ability
-..........devil ability
-..........'nomicon ability
-..........orb ability
-..........sheet ability
-..........zap ability
-..........gorgon ability
-..........swarm ability
-..........familiar ability
-..........familiar ability
-..........reaper ability
-..........magnet ability
-..........zap ability
-..........cactus ability
-..........orb ability
-..........toad ability
-..........candle ability
-ai would play gnome
-..........gnome ability
-..........kraken ability
-..........reaper ability
-..........gorgon ability
-..........jelpi ability
-..........dragon ability
-ai would not play flame
-..........flame ability
-..........bait ability
-..........'nomicon ability
-..........dragon ability
-ai would play flame
-..........flame ability
-ai would play sapling
-..........sapling ability
-..........jelpi ability
-..........goblin ability
-..........swarm ability
-..........swarm ability
-..........skelly ability
-ai would play sapling
-..........sapling ability
-..........phish ability
-..........toad ability
-..........magnet ability
-ai would play relic
-..........relic ability
-..........sheet ability
-ai would play relic
-..........relic ability
-..........portal ability
-..........bait ability
-..........cryptid ability
-..........kraken ability
-..........candle ability
-..........'nomicon ability
-..........familiar ability
-..........magnet ability
-..........orb ability
-..........'nomicon ability
-..........bait ability
-..........dragon ability
-ai would not play flame
-..........flame ability
-..........swarm ability
-ai would play relic
-..........relic ability
-..........sheet ability
-..........swarm ability
-..........devil ability
-..........devil ability
-..........cactus ability
-ai would play sapling
-..........sapling ability
-..........swarm ability
-..........familiar ability
-..........gorgon ability
-..........cactus ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........goblin ability
-..........reaper ability
-..........toad ability
-ai would play gnome
-..........gnome ability
-..........swarm ability
-..........reaper ability
-..........magnet ability
-ai would play gargoyle
-..........gargoyle ability
-..........zap ability
-..........skelly ability
-..........phish ability
-ai would play sapling
-..........sapling ability
-ai would play yeti
-..........yeti ability
-..........bait ability
-..........phish ability
-..........gorgon ability
-..........jelpi ability
-ai would play relic
-..........relic ability
-..........candle ability
-ai would play gnome
-..........gnome ability
-ai would play flame
-..........flame ability
-..........sheet ability
-ai would play yeti
-..........yeti ability
-..........orb ability
-..........snake ability
-..........toad ability
-..........skelly ability
-..........cryptid ability
-..........kraken ability
-..........goblin ability
-..........jelpi ability
-..........zap ability
-..........corpse ability
-..........cryptid ability
-..........corpse ability
-..........cryptid ability
-..........cryptid ability
-..........cryptid ability
-..........cryptid ability
-ai would play gargoyle
-..........gargoyle ability
-..........kraken ability
-..........phish ability
-..........magnet ability
-..........orb ability
-..........candle ability
-..........cactus ability
-..........familiar ability
-..........goblin ability
-..........magnet ability
-..........'nomicon ability
-..........orb ability
-..........cryptid ability
-ai would play yeti
-..........yeti ability
-ai would play gnome
-..........gnome ability
-..........bait ability
-..........gorgon ability
-..........phish ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........jelpi ability
-..........sheet ability
-ai would play relic
-..........relic ability
-..........toad ability
-..........dragon ability
-ai would play flame
-..........flame ability
-ai would play flame
-..........flame ability
-ai would play relic
-..........relic ability
-..........goblin ability
-..........reaper ability
-..........skelly ability
-..........zap ability
-..........toad ability
-..........'nomicon ability
-..........familiar ability
-ai would play sapling
-..........sapling ability
-..........sheet ability
-..........gorgon ability
-..........reaper ability
-..........skelly ability
-ai would play gargoyle
-..........gargoyle ability
-..........devil ability
-ai would play yeti
-..........yeti ability
-..........jelpi ability
-..........devil ability
-..........cryptid ability
-ai would play flame
-..........flame ability
-..........kraken ability
-ai would play sapling
-..........sapling ability
-..........swarm ability
-..........swarm ability
-..........candle ability
-..........zap ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........bait ability
-..........cactus ability
-ai would play gargoyle
-..........gargoyle ability
-..........snake ability
-..........candle ability
-..........snake ability
-..........snake ability
-..........magnet ability
-..........devil ability
-..........swarm ability
-..........familiar ability
-..........cactus ability
-ai would play relic
-..........relic ability
-ai would play flame
-..........flame ability
-..........goblin ability
-..........goblin ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........gorgon ability
-..........phish ability
-..........toad ability
-..........devil ability
-ai would play sapling
-..........sapling ability
-..........cryptid ability
-..........cryptid ability
-..........orb ability
-..........cryptid ability
-ai would play sapling
-..........sapling ability
-..........bait ability
-..........bait ability
-..........zap ability
-..........gorgon ability
-ai would play yeti
-..........yeti ability
-..........kraken ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........familiar ability
-..........reaper ability
-..........skelly ability
-..........swarm ability
-..........kraken ability
-..........swarm ability
-ai would play relic
-..........relic ability
-..........jelpi ability
-..........skelly ability
-..........swarm ability
-..........'nomicon ability
-..........jelpi ability
-..........sheet ability
-..........magnet ability
-ai would play gargoyle
-..........gargoyle ability
-ai would play raven
-..........raven ability
-..........orb ability
-ai would play gnome
-..........gnome ability
-..........cactus ability
-..........cultist ability
-..........toad ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-..........candle ability
-..........cultist ability
-..........cultist ability
-..........cultist ability
-ai would play flame
-..........flame ability
-..........candle ability
-..........kraken ability
-..........zap ability
-..........bait ability
-..........zap ability
-..........magnet ability
-..........swarm ability
-..........skelly ability
-..........'nomicon ability
-..........gorgon ability
-ai would play relic
-..........relic ability
-ai would play sapling
-..........sapling ability
-..........devil ability
-..........reaper ability
-..........dragon ability
-ai would play flame
-..........flame ability
-ai would play yeti
-..........yeti ability
-ai would play flame
-..........flame ability
-ai would play gargoyle
-..........gargoyle ability
-..........cryptid ability
-..........cactus ability
-..........cryptid ability
-..........cryptid ability
-..........jelpi ability
-..........cryptid ability
-..........cryptid ability
-..........swarm ability
-..........phish ability
-..........bait ability
-..........goblin ability
-..........candle ability
-ai would play gnome
-..........gnome ability
-..........gorgon ability
-ai would play flame
-..........flame ability
-..........toad ability
-ai would play yeti
-..........yeti ability
-..........sheet ability
-..........orb ability
-..........orb ability
-..........goblin ability
-..........cactus ability
-ai would play gnome
-..........gnome ability
-..........devil ability
-..........magnet ability
-..........familiar ability
-..........toad ability
-..........familiar ability
-..........skelly ability
-..........jelpi ability
-..........portal ability
-ai would play sapling
-..........sapling ability
-..........portal ability
-..........portal ability
-..........portal ability
-..........portal ability
-..........portal ability
-..........portal ability
-..........kraken ability
-..........candle ability
-..........jelpi ability
-..........zap ability
-ai would play flame
-..........flame ability
-ai would play flame
-..........flame ability
-..........dragon ability
-ai would play flame
-..........flame ability
-..........gorgon ability
-..........goblin ability
-..........devil ability
-..........goblin ability
-..........devil ability
-..........orb ability
-..........bait ability
-..........cryptid ability
-..........zap ability
-..........orb ability
-..........phish ability
-..........swarm ability
-..........swarm ability
-..........cryptid ability
-..........cactus ability
-ai would play sapling
-..........sapling ability
-..........reaper ability
-..........reaper ability
-..........kraken ability
-..........sheet ability
-..........familiar ability
-..........skelly ability
-..........kraken ability
-..........'nomicon ability
-..........'nomicon ability
-..........swarm ability
-ai would play yeti
-..........yeti ability
-ai would play relic
-..........relic ability
-ai would play gnome
-..........gnome ability
-..........dragon ability
-ai would not play flame
-..........flame ability
-ai would play sapling
-..........sapling ability
-..........skelly ability
-..........magnet ability
-..........toad ability
-..........magnet ability
-..........phish ability
-..........bait ability
-ai would play gargoyle
-..........gargoyle ability
-..........gorgon ability
-..........candle ability
-..........cryptid ability
-..........jelpi ability
-..........cryptid ability
-..........cryptid ability
-..........cryptid ability
-ai would play yeti
-..........yeti ability
-..........cactus ability
-..........familiar ability
-..........toad ability
-ai would play gargoyle
-..........gargoyle ability
-..........toad ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........bait ability
-..........swarm ability
-..........swarm ability
-..........toad ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........toad ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
-..........swarm ability
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+level = 2
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+level = 2
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+level = 2
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+level 2
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+saving...
+saving...
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+
+
+
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+level 3
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+saving...
+saving...
+saving...
+level 9
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+ > cactus
+saving...
+level 9
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+ > cactus
+saving...
+level 9
+loading deck
+ > spirit
+ > bones
+ > imp
+ > wil'o
+ > bug
+ > slime
+ > bat
+ > demon
+ > bug
+ > spirit
+ > spirit
+ > bat
+ > 'shroom
+ > reaper
+ > cactus
+saving...
+no progress found
+no progress found
+no progress found
+no progress found
+no progress found
+no progress found
+saving...
+level 1
+loading deck
+saving...
+level 1
+loading deck
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+saving...
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+table index is nil: stack traceback:
+	[string "-- pico-8 header..."]:245: in function 'tutorial'
+	[string "-- pico-8 header..."]:1484: in function 'gl_attack'
+	[string "-- pico-8 header..."]:1290: in function <[string "-- pico-8 header..."]:1243>
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+level 2
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+saving...
+saving...
+level 3
+loading deck
+ > spirit
+ > 'geist
+ > 'shroom
+ > spirit
+ > swarm
+ > swarm
+ > spirit
+ > bug
+ > 'geist
+ > candle
+ > skelly
+ > orb
+ > bait
+ > spirit
+ > sheet
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+saving...
+saving...
+level 2
+loading deck
+ > imp
+ > golem
+ > swarm
+ > swarm
+ > snake
+ > bait
+ > golem
+ > slime
+ > furniture
+ > wil'o
+ > imp
+ > wil'o
+ > 'geist
+ > 'nomicon
+saving...
+level 2
+loading deck
+ > imp
+ > golem
+ > swarm
+ > swarm
+ > snake
+ > bait
+ > golem
+ > slime
+ > furniture
+ > wil'o
+ > imp
+ > wil'o
+ > 'geist
+ > 'nomicon
+saving...
+level 2
+loading deck
+ > imp
+ > golem
+ > swarm
+ > swarm
+ > snake
+ > bait
+ > golem
+ > slime
+ > furniture
+ > wil'o
+ > imp
+ > wil'o
+ > 'geist
+ > 'nomicon
+saving...
+no progress found
+saving...
+no progress found
+saving...
+saving...
+saving...
+level 2
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 2
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 2
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 2
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 2
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+false
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+level 3
+loading deck
+ > candle
+ > imp
+ > furniture
+ > bug
+ > bat
+ > orb
+ > bat
+ > skelly
+ > snake
+ > bones
+ > swarm
+ > swarm
+ > gorgon
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
+no progress found
+saving...
