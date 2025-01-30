@@ -3,26 +3,54 @@ version 42
 __lua__
 health_x=0
 health_tx=0
-preview_c=nil
+summary_y=128
+preview_c_wrapper=nil
 no_wait=false
+disable_tutorials=false
+function ssfx(n)
+	--sfx(9, 1)
+	sfx(n,3)
+end
+poke(0x5f2e ,1)
+pal({[0]=0,128,2,132,
+									133,141,6,7,
+										8,139,129,130,
+										12,13,137,15},1)
 
 function _init()
+	cartdata("demons_of_the_great_beyond")
 	palt(14,true)
 	palt(0,false)
-	init_players()
+	player={}
+	local resumed = load_progress()
+	if not resumed then 
+		current_enemy_index=1
+		seed=rnd() 
+	end
+	start_new_game(enemies[current_enemy_index])
 	c_game_logic=cocreate(game_logic)
+	tutorial_circles_front, tutorial_circles_back = {}, {}
+	for i=1, 45 do
+		add(tutorial_circles_front, {
+			x= rnd(128+20)-10,
+			y= 78 + 8 * 2*(rnd()-0.5),
+		})
+		add(tutorial_circles_back, {
+			x= rnd(128+20)-10,
+			y= 78 + 8 * 2*(rnd()-0.5),
+		})
+	end
 end
-function _draw()
-	cls(0)	
+function _draw_game()
 	camera()
 	local t=player.damaged_at and time()-player.damaged_at
 	if(t and t<0.5)camera(rnd(5),rnd(3))
 	t=opp.damaged_at and time()-opp.damaged_at
 	if(t and t<0.5)camera(rnd(5),rnd(3))
-	draw_player_hand()
-	draw_hand(opp)
 	draw_rows(player.rows)
 	draw_rows(opp.rows, true)
+	draw_player_hand()
+	opp.h_manager:draw()
 	if player.v_hp then
 		draw_health(player,100)
 		draw_health(opp,0)
@@ -40,18 +68,60 @@ function _draw()
 			62,
 			7
 		)
+	end	
+
+	local y = nil
+	local t=time()-game_started_at
+	t/=2.5
+	if t < 2 then
+		y = 64*((t-1)*(t-1)*(t-1)+0.8)
+	elseif summary_y < 90 then
+		y= (80-summary_y)  
 	end
-	
-	if(debug)then
-		rectfill(0,0,128,8,0)
-		print(debug,0,0,7)
+	if y then
+		rectfill(0,y,128,8+y,8)
+		print("opponent "..tostr(current_enemy_index).."/"..tostr(#enemies)..": the "..enemies[current_enemy_index].name, 2, y+2, 7)
+	end
+	local clear_t = time()-tutorial_cleared_at
+	clear_t *= 1.5
+	if(tutorial_text or clear_t < 1 )then
+		local y=70
+		local tut_t = time()-tutorial_at
+		tut_t *= 1.5
+		local t = tutorial_text and  tut_t or (1-clear_t)
+		t=min(t,1)
+		for i, c in ipairs(tutorial_circles_back) do
+			local r=t*12 + 1
+			r+=2*sin(time()/3 + i*0.1)
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
+		end
+		for i, c in ipairs(tutorial_circles_front) do
+			local r=t*(t-1)*-4*12 + 1
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
+		end
+		for i, c in ipairs(tutorial_circles_back) do
+			local r=t*12 
+			r+=2*sin(time()/3+ i*0.1)
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
+		end
+		if t>0.5 and tutorial_text then
+			print(tutorial_text,0,y,7)
+			color(5)
+			print("❎ to continue")
+		end
+		for i, c in ipairs(tutorial_circles_front) do
+			local r=t*(t-1)*-4*12 
+			if r>1 then
+				ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
+			end
+		end
 	end
 end
 
-function _update()
-	update_hand(player.hand,hand_i)
+function _update_game()
 	update_rows()
-	health_tx=(player_input!="hand" and -14 or 2)
+	health_tx=((player_input!="hand" or summary_y<100) and -14 or 2)
+	summary_y=lerp(summary_y, player.h_manager.y_base+17, .07)
 	if player.damaged_at and time()-player.damaged_at<1
 	or health_drawer_at and time()-health_drawer_at<2
 	or opp.damaged_at and time()-opp.damaged_at<1
@@ -59,104 +129,190 @@ function _update()
 	then
 		health_tx=2
 	end
+	
 	health_x=lerp(health_x,health_tx,.2)
 	if player.v_hp then
 		player.v_hp=lerp(player.v_hp, player.hp,.3)
+		if abs(player.v_hp-player.hp)<.1 then
+			player.v_hp=player.hp
+		end
 		opp.v_hp=lerp(opp.v_hp, opp.hp,.3)
+		if abs(opp.v_hp-opp.hp)<.1 then
+			opp.v_hp=opp.hp
+		end
 	end
-	if(c_game_logic) then
+
+	update_hands(tutorial_text!=nil)
+	if tutorial_text  then
+		local t= time()-tutorial_at
+		if btnp(❎)and t>0.8 then
+			tutorial_ok()
+		end
+		return
+	end
+
+	player.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 60 or 89
+	opp.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 22 or 12
+	
+	if player_input == "hand" then
+		local playable_cards = {}
+		for i, hc in ipairs(player.h_manager.cards) do
+			if hc.c ~= "endturn" and hc.c.cost <= player.mana then
+				add(playable_cards, hc)
+			end
+		end
+		if #playable_cards == 0 and time() > 2 then
+			tutorial("you don't have enough mana to\nplay any cards, end your turn")
+		elseif time() > 10 and preview_c_wrapper and preview_c_wrapper.c.type == "ghost" then
+			tutorial("hold ⬇️ to view detailed\ncard info") 
+		end
+		if foreach_rc(function() return 1 end) >= 4 then 
+			tutorial("hold ⬆️ to view cards on\nthe board") 
+		end
+	end
+	if player_input == "view_board" and current_enemy_index != 1 then
+		tutorial("hold ❎ to view card's stats") 
+	end
+	if current_enemy_index >= 3 then
+		tutorial("you can view your deck from\nthe pause menu at any time") 
+	end
+	
+	local status=costatus(c_game_logic)
+	if(c_game_logic and status!="dead") then
 		local _, err = coresume(c_game_logic)
-  local status=costatus(c_game_logic)
+  		status=costatus(c_game_logic)
   if status=="dead" then
   	local trace=trace(c_game_logic)
-  	if(trace and not game_over)then
-  		printh(err..": "..trace, "_ghosts.txt")
+  	if(trace and err)then
+  		log(err..": "..trace)
 	  	cls(0)
 	  	cursor()
 	  	stop(err..": "..trace)
-	  end
+	elseif(err) then
+		log("no trace: "..err)
+	end
   end
 	end
 	if hit_frame then
 		hit_frame+=1
 	end
 end
-
-function draw_card(c,x,y,actor)
-	if c=="endturn" then
+function draw_sprite(s,x,y)
+	spr(s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+end
+function draw_card(hc,actor)
+	local c,x,y=hc.c,hc.x,hc.y
+	if hc.ability_at then
+		local t= time()-hc.ability_at
+		if t<.5 then
+			y+=(t-.5)*t*(100)
+		end
+	end
+	if c=="endturn" or c=="skip" then
 		spr(66,x,y,2,2)
+		spr(96,x+4,y+4)
+		return
+	else if c=="remove card" then
+		spr(66,x,y,2,2)
+		spr(97,x+4,y+4)
 		return
 	end
-	local col  = (actor==opp or actor.mana>=c.cost) and 7 or 6
+	end
+	local col  = (actor==nil or actor==opp or actor.mana>=c.cost) and 7 or 6
 	pal(7,col)
+	pal(8,actor==opp and 5 or types[c.type])
 	spr(64,x,y,2,2)
-	if(actor==player)spr(c.s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+	if(actor!=opp)draw_sprite(c.s,x,y)
 	
 	pal(7,7)
+	pal(8,8)
 end
 
-function draw_hand(actor)
-	local hand=actor.hand
-	for i,hc in ipairs(hand) do
-			draw_card(hc.c,hc.x,hc.y,actor)
-	end
-end
+
 function draw_player_hand()
-	draw_hand(player)
+	player.h_manager:draw()
 	local s_i=
 		(player_input == "hand") 
-		and hand_i 
+		and player.h_manager.selected_index
 		or nil
 
-	local s_hc=player.hand[s_i]
-	if s_hc then
-		local c = s_hc.c
-		draw_card(c,s_hc.x,s_hc.y,player)
-		spr(16,s_hc.x+5,s_hc.y-6)
-	end
-		if s_hc and s_hc.c=="endturn" then
-			print("end turn",s_hc.x+10-2*#"end turn",s_hc.y-12, 7)
-		elseif preview_c and preview_c.name then
-			local c =preview_c
-			if s_hc then
-				print(preview_c.name,s_hc.x+8 -2*#c.name,s_hc.y-12, 7)
-			end
-			local str = preview_c.type
-			rectfill(64-2*#str,106,64+2*#str,110,0)
-			print(str,64-2*#str,106,types[c.type])
-			str = c.cost.." mana"
-			rectfill(64-2*#str,106+7,64+2*#str,117,0)
-			print(str,64-2*#str,106+7,7)
-			str = c.atk.."/"..c.def..(
-				c.desc and ", "..c.desc or ""
-			)
-			clip(22,0,84,128)
-	
-			local x = 64-2*#str
-			if #str > 17 then
-				preview_changed_at=preview_changed_at or 0
-				local t=(time()-preview_changed_at)
-				t %= (#str - 17)/3
-				x=30-12*t
-				
-			end
-			print(str,x,120,7)
-			clip()
+	local s_hc=s_i and player.h_manager.cards[s_i]
+
+	if preview_c_wrapper and preview_c_wrapper.c.name then
+		draw_summary(preview_c_wrapper,summary_y, summary_y < 95)
 	end
 end
 
-function add_to_hand(hand,c)
-	sfx(9)
-	local i = #hand+1
-	if hand==player.hand then
-		i=#hand > 0 and #hand or 1
+function draw_summary(c_or_c_wrapper,y,full)
+	mark_card_seen(c_or_c_wrapper.c)
+	local c=c_or_c_wrapper.c or c_or_c_wrapper
+	local rc= c_or_c_wrapper.hp and c_or_c_wrapper or nil
+	local str = c.type
+	rectfill(64-2*#str,y,64+2*#str,y+4,0)
+	print(str,64-2*#str,y,types[c.type])
+	y+=7
+	rectfill(64-2*#str,y,64+2*#str,y+4,0)
+	if rc and rc.hp != c.def then
+		str = c.cost.."✽, "..c.atk.."/"
+		local x = print(str,64-2*#str,y,7)
+		print(rc.hp,x,y,8)
+	else
+		str = c.cost.."✽, "..c.atk.."/"..c.def..""
+		print(str,64-2*#str,y,7)
 	end
-	add(hand,{
-		c=c,
-		x=124,
-		y=64
-	}, i)
-	
+	y+=7
+
+	if(full)then
+		for str in all(type_desc[c.type]) do
+			rectfill(64-2*#str,y,64+2*#str,y+4,0)
+			print(str,64-2*#str,y,types[c.type])
+			y+=7
+		end
+	end	
+	if c.desc then 
+		str = c.desc
+		local x = 64-2*#str
+		local w = full and 30 or 12
+		clip(64-w*3,0,w*2*3,128)
+		if #str > w then
+			preview_changed_at=preview_changed_at or 0
+			local t=(time()-preview_changed_at)*6
+			t %= (#str - w + 8)
+			x=(full and 16 or 40)-t*4
+		end
+		rectfill(0,y,128,y+4,0)
+		print(str,x,y,7)
+		clip()
+	end
+end
+
+shown_tutorials={}
+tutorial_stack={}
+tutorial_at=0
+tutorial_cleared_at=0
+function tutorial(key, string)
+	string = string or key
+	if disable_tutorials then
+		return
+	end
+	tutorial_at=time()
+	if not shown_tutorials[key] then
+		shown_tutorials[key]=true
+
+		if tutorial_text == nil then
+			tutorial_text=string
+		else
+			add(tutorial_stack,string)
+		end
+	end
+end
+function tutorial_ok()
+	if #tutorial_stack > 0 then
+		tutorial_text=deli(tutorial_stack,1)
+	else
+		tutorial_text=nil
+		tutorial_cleared_at=time()
+	end
 end
 
 function move_view_board_cursor(x, y)
@@ -218,45 +374,19 @@ function move_view_board_cursor(x, y)
 	end
 	local actor=sgn(preview_i)==1 and player or opp
 	local row=actor.rows[row_i]
-	preview_c=row[abs(preview_i)].c
+	local preview=row and row[abs(preview_i)]
+	preview_c_wrapper=preview
 end
 
-function update_hand()
-	local s_i=
-		player_input == "hand" 
-		and hand_i 
-		or #player.hand/2+.5
-	if(player_input == "hand")preview_c=player.hand[hand_i].c
-	for i,hc in ipairs(player.hand) do
-			local p = (i-s_i)/#player.hand
-			local cx=64-18/2
-			local w=18-#player.hand*.7
-			local show_hand = player_input == "hand" or player_input == "view_board"
-			w=max(8,w)
-			local tx,ty = 
-				cx+(i-s_i)*w,
-				89+p*p*50
-			if	not show_hand then
-				ty+=30
-			end
-	
-			hc.x=lerp(hc.x,tx,0.1)
-			hc.y=lerp(hc.y,ty,0.1)
+function update_hands(disable_input)
+	player.h_manager.enabled=player_input=="hand"
+	if player_input == "hand" then
+		preview_i=player.h_manager.selected_index
+		local hc = player.h_manager.cards[preview_i]
+		preview_c_wrapper=hc
 	end
-	for i,hc in ipairs(opp.hand) do
-				local p = (i-#opp.hand/2-.5)/#opp.hand
-				local cx=64-18/2
-				local w=18-#opp.hand*.7
-				w=max(8,w)
-				local tx,ty = 
-					cx+(i-#opp.hand/2)*w,
-					10-p*p*20
-				if	player_input != "hand" then
-					ty-=18
-				end
-				hc.x=lerp(hc.x,tx,0.1)
-				hc.y=lerp(hc.y,ty,0.1)
-		end
+	player.h_manager:update(disable_input)
+	opp.h_manager:update(disable_input)
 	if player_input=="view_board" then
 		if btnp(➡️) then 
 			move_view_board_cursor(1,0)
@@ -271,38 +401,24 @@ function update_hand()
 			move_view_board_cursor(0,-1)
 		end
 	end
-	if player_input=="hand" then
-		if(btnp(➡️)) then 
-			hand_i+=1
-			preview_changed_at=time()
-		end
-		if(btnp(⬅️)) then
-			hand_i-=1
-			preview_changed_at=time()
-		end
-		if(btnp(⬆️)) then
-			preview_i=1
-			row_i=4
-			move_view_board_cursor(0,-1)
-			player_input="view_board"
-		end
-		if(hand_i < 1) hand_i = #player.hand
-		if(hand_i > #player.hand) hand_i = 1
-	end
+end
+
+function has_board_ability(c)
+	return c.on_void or c.double_abilites_for or c.double_damage_to_opponent or c.can_attack or c.can_defend or c.on_kill
 end
 
 function draw_rows(rows,flip)
 	for i,row in ipairs(rows) do
 		if not flip and player_input=="rows" then
 			if row_i == i then
-				spr(32,10*(1+#row),40+12*i,1,1,true)
+				spr(32,10*(1+#row),35+14*i,1,1,true)
 			elseif row_i == -i then
-				spr(32,0,40+12*i)
+				spr(32,0,35+14*i)
 			end
 		end
 		
 		for j,rc in ipairs(row) do
-			local x,y=0+10*j,40+12*i
+			local x,y=0+10*j,35+14*i
 
 			if rc.attacking_at then
 				local t=time()-rc.attacking_at
@@ -338,18 +454,17 @@ function draw_rows(rows,flip)
 			end
 			if(flip)x=128-x
 			
-			if rc.hp < rc.c.def then
+			if rc.hp < rc.c.def and not ( btn(❎) and player_input=="view_board") then
 				line(x,y-2,x+7,y-2,8)	
-				
 				if rc.hp>0 then
 					line(x,y-2,x+7*rc.hp/rc.c.def,y-2,7)	
 				end
 			end
 					
-			if player_input=="view_board" then
+			if player_input=="view_board" and not btn(❎) then
 				if row_i == i then
 					if preview_i*(flip and -1 or 1)==j then
-						spr(16,x,y-7)
+						spr(16,x,y-8)
 						print_centered(rc.c.name,x+4,y-12)
 					end
 				end
@@ -368,17 +483,36 @@ function draw_rows(rows,flip)
 				rc.summoned_at=nil
 			end
 			if t==nil or t > .6 then
-				palt(0,true)
-				if t and t < .8 then
-					pal(7,8)
+				if btn(❎) and player_input=="view_board" then
+					local col = types[rc.c.type]
+					if has_board_ability(rc.c) then
+						col=time()%1>.5 and 7 or col
+					end
+					local x = print(rc.c.atk <= 9 and rc.c.atk or "+",x,y,col)
+					x=print("/",x-1,y+2,col)
+					x = print(rc.hp,x-1,y+4, rc.hp < rc.c.def and 8 or col)
+					
+				else
+					palt(0,true)
+					if t and t < .8 then
+						pal(7,8)
+					end
+					local idle=time()%1>.5 and 1 or 0
+					if (rc.c.type=="object" and not rc.possessed) 
+					or (rc.c.can_attack and not rc.c.can_attack(rc)) 
+					or rc.frozen then
+						idle=0
+					end
+					pal(7,0)
+					spr(rc.c.s+idle,x,y+1,1,1,flip)
+					spr(rc.c.s+idle,x,y-1,1,1,flip)
+					spr(rc.c.s+idle,x+1,y,1,1,flip)
+					spr(rc.c.s+idle,x-1,y,1,1,flip)
+					pal(7,rc.frozen and 12 or 7)
+					spr(rc.c.s+idle,x,y,1,1,flip)
+					palt(0,false)
+					pal(7,7)
 				end
-				local idle=time()%1>.5 and 1 or 0
-				if rc.c.type=="object" and not rc.possessed then
-					idle=0
-				end
-				spr(rc.c.s+idle,x,y,1,1,flip)
-				palt(0,false)
-				pal(7,7)
 			end
 			if t and t > 2 then
 				rc.summoned_at=nil
@@ -422,17 +556,17 @@ function draw_bar(x, y, p, primary_color, secondary_color, flash_condition, flas
  end
 end
 
-function print_centered(text, x, y, color)
- local tx= x- 2 * #tostr(text)
- local mx=128-4*#tostr(text)
- if tx<0 then
- 	tx=0
- elseif tx>mx then
- 	tx=mx
- end
- rectfill(-2+tx, y-1,
- x + 2 * #tostr(text), y+5, 0)
- print(text, tx, y, color or 7)
+function print_centered(text, x, y, color, w)
+	local w = w or 4* #tostr(text)
+	local tx= x- w/2
+	local mx=128-4*#tostr(text)
+	if tx<0 then
+		tx=0
+	elseif tx>mx then
+		tx=mx
+	end
+	rectfill(-2+tx, y-1, x +w/2, y+5, 0)
+	print(text, tx, y, color or 7)
 end
 
 function draw_health(actor, y)
@@ -442,7 +576,7 @@ function draw_health(actor, y)
 		health_x=106-health_x
 	end
  -- draw health bar
- local p = hp / 20
+ local p = hp / actor.max_hp
  draw_bar(health_x, y, p, 8, 7, actor.damaged_at, 1/30, nil)
  print_centered(flr(hp), health_x + 10, y + 22, 8)
 
@@ -450,16 +584,12 @@ function draw_health(actor, y)
  p = mana / 7
  local x = 128 - health_x - 20
  draw_bar(x, y, p, 12, 7, actor.mana_flash_at, 0.6, 10)
- local str = tostr(mana) .. "/" .. tostr(mana + used_mana)
+ local str = tostr(mana) .. "✽/" .. tostr(mana + used_mana)..'✽'
  local color = actor.mana_flash_at and time() - actor.mana_flash_at < 0.6 and 8 or 12
- print_centered(str, x + 10, y + 22, color)
+ print_centered(str, x+10, y + 22, color, 30)
 end
 -->8
 --util
-function lerp(tar,pos,perc)
- return (1-perc)*tar + perc*pos;
-end
-
 function draw_pentagram(x1, y1, x2, y2, angle, col)
  oval(x1, y1, x2, y2, col)
  local cx, cy, w, h = (x1 + x2) / 2, (y1 + y2) / 2, (x2 - x1) / 2, (y2 - y1) / 2
@@ -494,7 +624,13 @@ function ease(t,p)
 	return 1-t^p*p*2
 end
 function wait(s)
+	while tutorial_text != nil do
+		yield()
+	end
 	if no_wait then
+		if rnd() < 0.25 then 
+			yield()
+		end
 		return
 	end
 	for j=0,30*s do
@@ -569,11 +705,11 @@ function compile(exp, lookup)
 		return args and function(frame)
 			local f = fun(frame)
 			if(f) return f(args(frame))
-			printh(op .. " was nil", "debug.txt")
+			assert(false, op .. " was nil")
 		end or function(frame)
 			local f = fun(frame)
 			if(f) return f()
-			printh(op .. " was nil", "debug.txt")
+			assert(false, op .. " was nil")
 		end
 	
 end
@@ -678,28 +814,28 @@ function builtin.table(...)
 		end
 	end, ...}
 end
--- inlined statement sequence, returns the last expression
--- significantly improves performance compared to `(id s1 s2 s3 ...)`
+function repack(f) return function(...) return f{...} end end
 
--- 39 tokens, inlines up to 3 before looping
-function builtin.seq(...)
-	return parens8[[
-		(fn (exp) ((fn (unroll lookup e1 e2 e3) 
-			((fn (s1 s2) (select (mid 3 (rawlen exp)) s1 (unroll s1 s2 (when e3
-				((rawget builtin "seq") lookup (unpack exp 3)))))
-			) (compile_n lookup e1 e2))
-		) (deli exp 1) (deli exp 1) (unpack exp)))
-	]]{function(s1, s2, s3)
-		return function(frame)
-			s1(frame)
-			return s2(frame)
-		end, function(frame)
-			s1(frame)
-			s2(frame)
-			return s3(frame)
-		end
-	end, ...}
-end
+parens8[[
+(fn (unroll) (rawset builtin "seq" (repack
+    (fn (args) ((fn (lookup e1 e2 e3) 
+        ((fn (s1 s2) (select (mid 3 (rawlen args)) s1 (unroll s1 s2 (when e3
+            ((rawget builtin "seq") lookup (unpack args 3)))))
+        ) (compile_n lookup e1 e2))
+    ) (deli args 1) (unpack args)))
+) ((fn (func) (rawset builtin "fn" (repack (fn (args)
+    (func (deli args 1) (deli args 1) (pack "seq" (unpack args)))
+)))) (rawget builtin "fn")) ))
+]](function(s1, s2, s3)
+    return function(frame)
+        s1(frame)
+        return s2(frame)
+    end, function(frame)
+        s1(frame)
+        s2(frame)
+        return s3(frame)
+    end
+end)
 
 -- 56 tokens, inlines up to 4 before looping
 -- function builtin.seq(...)
@@ -735,7 +871,7 @@ parens8[[
 		(inext ops i)
 	)))))
 	(loopfn (inext ops))
-)) (split "+,-,*,/,\,%,^,<,>,==,~=,..,or,and,not,#,[]")))
+)) (split "+,-,*,/,\,%,^,<,>,<=,>=,==,~=,..,or,and,not,#,[]")))
 ]](function(a1, a2, a3) return
 	function(f) return a1(f)+a2(f) end,
 	a2 and function(f) return a1(f)-a2(f) end
@@ -747,6 +883,8 @@ parens8[[
 	function(f) return a1(f)^a2(f) end,
 	function(f) return a1(f)<a2(f) end,
 	function(f) return a1(f)>a2(f) end,
+	function(f) return a1(f)<=a2(f) end,
+	function(f) return a1(f)>=a2(f) end,
 	function(f) return a1(f)==a2(f) end,
 	function(f) return a1(f)~=a2(f) end,
 	function(f) return a1(f)..a2(f) end,
@@ -851,39 +989,170 @@ parens8[[
 	end
 end)
 -->8
+deck_scene={
+  init=function(self)
+	self.cards = player.og_deck 
+    self.i=1
+	self.h_manager = create_hand_manager({
+		cards=self.cards,
+		spacing=32,
+		height=300,
+		y_base=40,
+		on_move=function()
+			preview_changed_at = time()
+		end,
+	})
+	self.removed_card = nil
+	self.removed_card_at = nil
+  end,
+
+  update=function(self)
+	if not self.removed_card_at then
+		self.h_manager:update()
+		if btnp(🅾️) then
+		pop_scene()
+		end
+		if self.is_removing and btnp(❎) then
+			self.is_removing = false
+			del(player.og_deck, self.h_manager:get_card())
+			ssfx(43)
+			self.h_manager.enabled=false
+			self.removed_card = self.h_manager:get_card()
+			self.removed_card_at = time()
+		end
+	else
+		self.h_manager:get_hc().dy = self.h_manager:get_hc().dy or 0
+		self.h_manager:get_hc().dy -= 1
+		self.h_manager:get_hc().y += self.h_manager:get_hc().dy
+		if time() - self.removed_card_at > 1 then
+			start_new_game(enemies[current_enemy_index])
+			c_game_logic = cocreate(game_logic)
+			pop_scene() -- back to rewards
+			pop_scene() -- back to game
+		end
+	end
+  end,
+
+  	draw=function(self)
+		self.h_manager:draw()
+		draw_summary(self.h_manager:get_card(), 64, true)
+		print_centered("view deck",64,10)
+		print("press 🅾️ to go back", 2, 120, 6)
+		if self.is_removing then
+			print("press ❎ to remove", 2, 110, 6)
+		end
+		print(self.h_manager.selected_index.."/"..#self.cards, 2, 2, 7)
+	end
+}
+menuitem(1, "view deck", function() push_scene(deck_scene) end)
+menuitem(2, "title screen", function() load("#demons_wrapper") end)
 
 -->8
+--scenes
+game_scene={
+	draw=_draw_game,
+	update=_update_game
+}
+scenes={
+} -- scene stack
+current_scene=nil
 
+function push_scene(scene)
+	if current_scene==scene then return end
+ add(scenes,scene)
+ current_scene=scene
+ if scene.init then scene:init() end
+end
+
+function pop_scene()
+ del(scenes,current_scene)
+ current_scene=scenes[#scenes]
+ if current_scene.resume then 
+  current_scene:resume()
+ end
+end
+
+-- override pico-8 callbacks 
+function _update()
+ if current_scene then
+  current_scene:update()
+ end
+end
+
+function _draw()
+	cls()
+	memcpy(0x6000,0x8000,128*128/2)
+ if current_scene then
+  current_scene:draw()
+ end
+end
+
+push_scene(game_scene)
 -->8
 --game
-hand_i = 1
-
 function gl_new_game()
-	for i=1,6 do
+	for i=1,4 do
 		yield()
-		-- add_to_hand(player.hand, rnd(cards))
-		local c = cards[#cards]
-		c.cost = 0
-		add_to_hand(player.hand, c)
-		add_to_hand(opp.hand, rnd(cards))
+		gl_draw_card(player)
+		gl_draw_card(opp)
 	end
+	player.h_manager:add_to_hand("endturn")
+	-- DEBUGGING THE LATEST CARD
+	-- player.h_manager:add_to_hand(cards[#cards])
+	-- player.h_manager:add_to_hand(cards[#cards -2])
+	-- player.h_manager:add_to_hand(cards[#cards -3])
+	-- player.mana =  100
+	-- --DEBUGGIN ALL CARDS
+	-- for c in all(cards) do
+	-- 	if c.desc then
+	-- 		player.h_manager:add_to_hand(c)
+	-- 		c.cost =0
+	-- 	end
+	-- end
 end
-function init_players()
+function map_to_cards(ids)
+	local result={}
+	for id in all(ids) do
+		add(result, cards[id])
+	end
+	return result
+end
+
+function new_player_deck()
+	local opts={}
+	for c in all(cards) do
+		for i = 1, c.start_count or 0 do
+			add(opts, c)
+		end
+	end
+	local len = rnd({-1,0,0,1,2}) + 12
+	local result={}
+	for i=1,len do
+		add(result, rnd(opts))
+	end
+	return result
+end
+
+function start_new_game(enemy)
+	srand(seed)
+	save_progress()
+	game_started_at = time()
 player={
 	hand={},
 	rows={},
+	og_deck=player and player.og_deck or new_player_deck(),
 	pick_card=function()
 			player_input="hand"
 			yield()
 			while true do
 				if btnp(❎) and player_input=="hand" then
-					local c=player.hand[hand_i].c
+					local c=player.h_manager:get_card()
 					if c!="endturn" and c.cost > player.mana then
-						sfx(12)
+						ssfx(38)
 						player.mana_flash_at=time()
 					else
-					player_input=nil
-						return hand_i
+						player_input=nil
+						return c
 					end
 				end
 				yield()
@@ -894,12 +1163,15 @@ player={
 		row_i=-1
 		yield()
 		while true do
+			if player.rows[abs(row_i)] and #player.rows[abs(row_i)]>=1 then
+				tutorial("cards can be summon at the\n front or back of a row")
+			end
 			if btnp(🅾️) then
 				return "back"
 			end
 			if btnp(❎) then
 				if #player.rows[abs(row_i)]>=5 then
-					sfx(12)
+					ssfx(38)
 				else
 					player_input=nil
 					return row_i
@@ -912,22 +1184,41 @@ player={
 opp={
 	hand={},
 	rows={},
+	og_deck=map_to_cards(enemy.deck),
 	pick_card=function(self)
 			wait(.3)
-			local value,opts=knapsack(opp, opp.hand, opp.mana)
-			printh(value, "_ghosts.txt")
-			printh(opts, "_ghosts.txt")
-
+			local value,opts=knapsack(opp, opp.h_manager.cards, opp.mana)
 			return rnd(opts)
 	end,
 	select_row=ai_select_row
 }
-	player.hand={}
-	opp.hand={}
+	player.h_manager = create_hand_manager({
+		cards={},
+		on_move=function()
+			preview_changed_at = time()
+		end,
+		on_up=function()
+			preview_i=1
+			row_i=4
+			move_view_board_cursor(0,-1)
+			player_input="view_board"
+		end,
+		actor=player
+	})
+	opp.h_manager = create_hand_manager({
+		cards={},
+		enabled=false,
+		inverted=true,
+		actor=opp,
+		y_base=12
+	})
 	player.rows={{},{},{}}
 	opp.rows={{},{},{}}
-	player.hp=20
-	opp.hp=player.hp
+
+	player.hp=16
+	opp.hp=enemy.max_hp
+	player.max_hp=16
+	opp.max_hp=enemy.max_hp
 	player.v_hp=player.hp
 	opp.v_hp=opp.hp
 	opp.mana=0
@@ -935,42 +1226,131 @@ opp={
 	opp.used_mana=0
 	player.used_mana=0
 	player.turn_1=true
-	add_to_hand(player.hand, "endturn")
+	player.deck = shallow_copy(player.og_deck)
+	opp.deck = shallow_copy(opp.og_deck)
+	game_over=nil
+
+	
+	-- --DEBUGGING
+	-- player.pick_card = function(self)
+	-- 	wait(.3)
+	-- 	local value,opts=knapsack(player, player.h_manager.cards, player.mana)
+	-- 	return rnd(opts)
+	-- end
+	-- player.select_row=ai_select_row
+	-- player.hp=200
+	-- opp.hp=200
+	-- player.deck = shallow_copy(cards)
+	-- opp.deck = shallow_copy(cards)
+	-- ----
+
 end
+
+function shallow_copy(dict)
+	local result={}
+	for k,v in pairs(dict) do
+		result[k]=v
+	end
+	return result
+end
+
+function gl_draw_card(actor)
+	ssfx(35)
+	if #actor.deck==0 then
+		actor.h_manager:add_to_hand(void)
+		return
+	end
+	local c = rnd(actor.deck)
+	del(actor.deck, c)
+	actor.h_manager:add_to_hand(c)
+end
+
+function gl_steal_card(actor)
+	local target = actor==player and opp or player
+	local valid_cards = {}
+	for hc in all(target.h_manager.cards) do
+		if type(hc.c) != "string" then
+			add(valid_cards, hc)
+		end
+	end
+	if #valid_cards > 0 then
+		local hc = rnd(valid_cards)
+		local x = hc.x
+		local y = hc.y
+		local c = hc.c
+		target.h_manager:remove(c)
+		actor.h_manager:add_to_hand(c,x,y)
+		ssfx(43)
+	end
+end
+
+function gl_tutor(player, predicate)
+	local valid_cards = {}
+	for c in all(player.deck) do
+		if predicate(c) then
+			add(valid_cards, c)
+		end
+	end
+	if #valid_cards == 0 then
+		ssfx(38)
+	else
+		local c = rnd(valid_cards)
+		del(player.deck, c)
+		player.h_manager:add_to_hand(c)
+		ssfx(43)
+	end
+end
+
 function game_logic()
 	gl_new_game()
 	local actor=player
 	while true do
-		add_to_hand(actor.hand, rnd(cards))
+		foreach_rc(function(rc)
+			if rc.frozen then
+				rc.frozen -= 1
+				if rc.frozen == 0 then
+					rc.frozen = nil
+				end
+			end
+		end)
+		gl_draw_card(actor)
 
-		if(actor.mana+actor.used_mana<6)actor.mana+=1
+		if actor.mana+actor.used_mana<6 then 
+			actor.mana+=1
+		else
+			tutorial("once you have 6 mana you\nwill no longer more each turn")
+			tutorial("(some abilities can bypass\nthis limit)")
+		end
+
 		actor.mana+=actor.used_mana
 		actor.used_mana=0
 		
 		while true do
-			local card_i=actor:pick_card()
-			if card_i == nil then
+			local c=actor:pick_card()
+			if c == nil then
 				break
 			end			
-			local c=actor.hand[card_i].c
 			if c == "endturn" then
 				break
 			end	
 			local row=actor:select_row(c)
+			if row == nil then
+				break
+			end
 			if row!="back" and c then
-				deli(actor.hand, card_i)
-				gl_summon(actor, c, row)
+				actor.h_manager:remove(c)
+				gl_summon(actor, c, row, false, false)
+				check_game_end()
+				if game_over then
+					return
+				end
 			end
 		end
 		
 		for i=1,3 do
 			gl_attack(player.rows[i], opp.rows[i], actor)
-			if player.hp<=0 then
-				game_over="game over"	
-				return
-			end
-			if opp.hp<=0 then
-				game_over="you win"
+			check_game_end()
+			if game_over then
 				return
 			end
 		end
@@ -979,6 +1359,35 @@ function game_logic()
 		actor = actor==player
 			and opp 
 			or player
+	end
+end
+
+function check_game_end()
+	if player.hp<=0 then
+		game_over="game over"	
+		clear_save()
+		wait(4)
+		load("#demons_wrapper")
+		return true
+	end
+	if opp.hp<=0 then
+		if current_enemy_index < #enemies then
+			-- Progress to next enemy
+			current_enemy_index += 1
+			game_over = "victory!"
+			save_progress()
+			seed=rnd() --global, used for sync
+			wait(1)
+			push_scene(reward_scene)
+			return true
+		else
+			-- Player has defeated all enemies
+			game_over = "you won the game!"
+			clear_save()
+			wait(4)
+			load("#demons_wrapper")
+			return true
+		end
 	end
 end
 
@@ -995,12 +1404,14 @@ function get_doubler(actor, card)
     return false
 end
 
-function gl_summon(actor,c,row_i, special)
-	if #actor.rows[abs(row_i)]>=5 then
+function gl_summon(actor,c,row_i, no_cost, disable_abilities)
+	local row = actor.rows[abs(row_i)]
+	if #row>=5 then
 		return
 	end
+
 	yield()
-	if not special then
+	if not no_cost then
 		actor.mana-=c.cost
 		actor.used_mana+=c.cost
 	end
@@ -1015,14 +1426,14 @@ function gl_summon(actor,c,row_i, special)
 		rc,
 		row_i < 0 and 1 or #row+1
 	)
-	sfx(13)
+	ssfx(39)
 	wait(.8)
 	if c.type=="ghost" then
 		for other in all(row) do
 			if other.c.type=="object" and not other.possessed then
 				other.possessed=true
 				other.possessed_at=time()
-				sfx(14)
+				ssfx(14)
 				wait(.5)
 			end
 		end
@@ -1030,58 +1441,82 @@ function gl_summon(actor,c,row_i, special)
 	
 	if c.type=="object" then
 		for other in all(row) do
-			if other.c.type=="ghost" and not other.possessed then
+			if other.c.type=="ghost" then
 				rc.possessed=true
 				rc.possessed_at=time()
-				sfx(14)
+				ssfx(40)
 				wait(.5)
 				break
 			end
 		end
 	end
-	
-	if not special and  c.on_summon then
-		rc.ability_at=time()
-		sfx(15)
-		wait(.5)
-		c.on_summon(actor, rc, row_i)
-		local doubler = get_doubler(actor, c)
-		if doubler then
-            wait(.5)
-			sfx(15)
-            doubler.ability_at=time()
-            wait(.5)
-            sfx(15)
-            rc.ability_at=time()
-            wait(.5)
-            c.on_summon(actor, rc, row_i)
-        end
+	local doubler = get_doubler(actor, c)
+	if c.on_summon and not disable_abilities then
+		as_ability(rc, actor, function()
+			c.on_summon(actor, rc, row_i)
+		end)
 	end
+	if c == void then
+		foreach_rc(function(on_void_rc, on_void_rc_actor)
+			if(on_void_rc_actor != actor) return
+			if on_void_rc.c.on_void then
+				as_ability(on_void_rc, on_void_rc_actor, function()
+					on_void_rc.c.on_void(on_void_rc, on_void_rc_actor)
+				end)
+			end
+		end)
+	end
+	if c.type == "object" then
+		if rc.possessed then
+			tutorial("this object has been possessed,\nand can now attack")
+		else
+			tutorial("this object cannot attack,\nuntil possessed by a ghost")
+		end
+	end
+	check_game_end()
 end
 
 
 function can_attack(rc, actor)
-	if not rc or actor==player and actor.turn_1 then
+	if not rc or (actor==player and actor.turn_1) then
 		return false
 	end
- return rc.possessed or rc.c.type!="object"
+	if rc.frozen then
+		return false
+	end
+ 	if not rc.possessed and rc.c.type=="object" then
+		return false
+	end
+	if rc.c.atk <= 0 then
+		return false
+	end
+	if rc.c.can_attack and not rc.c.can_attack(rc) then
+		return false
+	end
+	return true
+end
+
+function can_defend(rc, attacker)
+	if attacker.c.type=="ghost" then
+		if rc.c.type=="beast" then
+			return false
+		end
+		if rc.c.type=="object" and not rc.possessed then
+			return false
+		end
+	end
+	if rc.c.can_defend then
+		return rc.c.can_defend(rc, attacker)
+	end
+	return true
 end
 
 function get_defender(row, attacker)
- if attacker.c.type!="ghost" then
- 	return row[#row]
- end
  local result=nil
  for _, rc in pairs(row) do
-   if rc.c.type=="beast" 
-   or (
-   	rc.c.type=="object" and
-   	not rc.possessed
-   ) then
-	--pass
-   else
-    result=rc
-   end
+	if can_defend(rc, attacker) then
+    	result=rc
+	end
  end
  return result
 end
@@ -1099,6 +1534,16 @@ function gl_attack(player_row, opp_row)
 		local foe_row=actor==player and opp_row or player_row
 		if atk_rc and can_attack(atk_rc, actor) then
 			local def_rc = get_defender(foe_row, atk_rc)
+			local assumed_target = foe_row[#foe_row]
+	
+			if assumed_target != nil and def_rc != assumed_target then
+				if assumed_target.c.can_defend then
+					tutorial("some cards abilities stop\nthem from blocking")
+				elseif atk_rc.c.type=="ghost" and assumed_target.c.type=="beast" then
+					tutorial("beasts cannot block ghosts!")
+				end
+				wait(0)
+			end
 			atk_rc.attacking_at = time()
 			if def_rc then
 				atk_rc.attacking_x=100
@@ -1111,20 +1556,51 @@ function gl_attack(player_row, opp_row)
 				health_drawer_at=time()
 			end
 			wait(.6)
-			sfx(10)
+			ssfx(10)
 			if def_rc then
 				def_rc.hp -= atk_rc.c.atk
 				def_rc.damaged_at = time()
-				sfx(11)
+				ssfx(11)
 				wait(.8)
+				if def_rc.hp <= 0 and atk_rc.c.on_kill then
+					def_rc.killed_by=atk_rc
+				end
 			else
 				gl_damage_player(foe,atk_rc.c.atk)
+				if  atk_rc.c.double_damage_to_opponent then
+					as_ability(atk_rc, actor, function()
+						atk_rc.attacking_at = time()
+						wait(.6)
+						gl_damage_player(foe,atk_rc.c.atk)
+					end)
+				end
 			end
 			wait(.25)
+		
+
 			any_damage=true
 		end
 	end		
 	clear_dead()
+end
+
+function as_ability(rc, actor, fn)
+	tutorial("ability", "some cards, like "..rc.c.name..", have\nspecial abilities")
+	rc.ability_at=time()
+	ssfx(15)
+	wait(.5)
+	fn()
+	local doubler = get_doubler(actor, rc.c)
+	if doubler then
+		doubler.ability_at=time()
+		ssfx(15)
+		wait(.4)
+		
+		rc.ability_at=time()
+		ssfx(15)
+		wait(.5)
+		fn()
+	end
 end
 
 function gl_damage_player(actor, dam)
@@ -1135,7 +1611,7 @@ function gl_damage_player(actor, dam)
 		actor==player and 110 or 12,
 		dam*1.6
 	)
-	sfx(16)
+	ssfx(16)
 	wait(.8)
 end	
 
@@ -1144,11 +1620,21 @@ function clear_dead()
  	for rc in all(opp.rows[i]) do
  		if rc.hp <= 0 then	
 				del(opp.rows[i], rc)
+				if rc.killed_by and rc.killed_by.c.on_kill then
+					as_ability(rc.killed_by, player, function()
+						rc.killed_by.c.on_kill(player, rc.killed_by, rc, i)
+					end)
+				end
 			end
 		end
  	for rc in all(player.rows[i]) do	
- 	 if rc.hp <= 0 then	
+ 	 	if rc.hp <= 0 then	
 				del(player.rows[i], rc)
+				if rc.killed_by and rc.killed_by.c.on_kill then
+					as_ability(rc.killed_by, opp, function()
+						rc.killed_by.c.on_kill(opp, rc.killed_by, rc, i)
+					end)
+				end
 			end
 		end
 	end
@@ -1158,54 +1644,170 @@ end
 --cards
 
 types={
-	beast=3,
+	beast=9,
 	ghost=12,
-	object=4,
-	elemental=9,
+	object=15,
+	elemental=14,
 }
+type_desc={
+	beast={"can't block ghosts"},
+	ghost={"can't be blocked by beasts","or by unpossessed objects.","possess allied objects on row"},
+	object={"can't block ghosts or","attack if unpossessed."},
+	elemental={}
+}
+function foreach_rc(f)
+	local acc=0
+	for i=1,3 do
+		for actor in all{player,opp} do	
+			local row = actor.rows[i]
+			for rc in all(row) do
+				acc+=(f(rc,actor,i) or 0)
+			end
+		end
+	end
+	return acc
+end
+function foreach_hc(actor, f)
+	local acc=0
+	for hc in all(actor.h_manager.cards) do
+		acc+=(f(hc) or 0)
+	end
+	return acc
+end
 cards={}
+void={}
+enemies={}
+--30,30,30,30,30,14,14,14,8,8,3,4,6
 parens8[[
-(set foreach_rc (fn (f)
-  (let ((acc 0))
-    (for (i 1 3)
-      (for ((actor) (all (table player opp)))
-        (for ((rc) (all (. actor.rows i)))
-          (set acc (+ acc (or (f rc actor i) 0))))))
-    acc)))
+(set enemies (table))
+
+(add enemies (table 
+	(max_hp 8) 
+	(name "bug catcher")
+	(deck (split "30,30,30,8,8,18,18,13,41,41"))
+))
+(add enemies (table 
+	(max_hp 12) 
+	(name "mystic")
+	(deck (split "11,11,1,1,4,4,22,7,17,10"))
+))
+(add enemies (table
+	(max_hp 15)
+	(name "necromancer")
+	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47"))
+))
+
+(add enemies (table
+	(max_hp 18)
+	(name "elementalist")
+	(deck (split "18,18,13,13,24,42,9,9,27,27,26,26,25,23,23,34,21,50"))
+))
+
+(add enemies (table
+	(max_hp 20)
+	(name "wizard")
+	(deck (split "3,3,16,16,14,28,28,19,29,10,33,20,12,15,2,49"))
+))
+(add enemies (table 
+  (max_hp 22) 
+  (name "beast master")
+  (deck (split "8,8,13,13,28,19,9,9,35,40,34,21,45,48"))
+))
+
+(add enemies (table
+	(max_hp 24)
+	(name "void caster")
+	(deck (split "18,18,43,43,43,7,37,44,20"))
+))
+
+(add enemies (table 
+  (max_hp 25) 
+  (name "artificer")
+  (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51"))
+))
+
+
+(add enemies (table 
+  (max_hp 26) 
+  (name "archmage")
+  (deck (split "8,8,16,16,36,35,29,27,24,31,37,25,33,40,15,2,21,34,46"))
+))
+
+(set void (table 
+	(name "void") (s 78) (atk 1) (def 1) (cost 1) (type "elemental")
+	(desc "you ran out of cards...")
+))
 
 (set goblin (table
   (name "goblin") (s 53) (atk 3) (def 5) (cost 6) (type "beast")
   (desc "summon goblin in every row")
   (on_summon (fn (actor rc row_i)
     (for (i 1 3)
-        (gl_summon actor goblin i 1))))))
+        (gl_summon actor goblin i 1 1))))))
 
 (set bones (table 
-  (name "bones") (s 23) (atk 1) (def 6) (cost 2) (type "ghost")))
+  (name "bones") (s 23) (atk 1) (def 2) (cost 1) (type "ghost") (start_count 2) ))
 (set stone (table 
   (name "stone") (s 59) (atk 1) (def 5) (cost 0) (type "object")))
 (set swarm (table 
-    (name "swarm") (s 11) (atk 2) (def 2) (cost 1) (type "beast")
+    (name "swarm") (s 11) (atk 2) (def 2) (cost 1) (type "beast") (start_count 2)
     (desc "50% chance to draw swarm")
     (on_summon (fn (actor)
       (when (> (rnd) 0.5)
-        (add_to_hand actor.hand swarm))))))
+        (actor.h_manager.add_to_hand actor.h_manager swarm))))))
+(set flame (table
+		(name "flame") (s 55) (atk 3) (def 3) (cost 4) (type "elemental")
+		(desc "2 damage to all foes")
+		(on_summon (fn (actor rc row_i)
+			(seq
+				(foreach_rc (fn (target_rc owner row)
+					(when (~= owner actor)
+						(seq 
+							(set target_rc.hp (- target_rc.hp 2))
+							(set target_rc.damaged_at (time))
+						)
+					)
+				))
+				(ssfx 11)
+				(wait 0.5)
+				(clear_dead)
+			)
+		))
 
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner)
+				(* (when (~= owner actor) 1 -1) (when (<= rc.hp 2) rc.c.cost 1))
+			)) 2 )
+		))
+	))
 (add cards bones)
 (add cards goblin)
- (add cards (table (name "devil") (s 1) (atk 1) (def 5) (cost 1) (type "beast")))
-  (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost")))
-  (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object")))
-  (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 1) (type "object")))
-  (add cards (table (name "golem") (s 9) (atk 3) (def 12) (cost 3) (type "object")))
-  (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast")))
-  (add cards (table (name "bat") (s 19) (atk 3) (def 2) (cost 2) (type "beast")))
-  (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost")))
-  (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object")))
-  (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost")))
+ (add cards (table (name "demon") (s 1) (atk 1) (def 5) (cost 1) (type "beast") (start_count 2)))
+  (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost") (start_count 2)))
+  (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object") (start_count 1)))
+  (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 2) (type "object") (start_count 1)
+		(desc "draw a card")
+		(on_summon (fn (actor)
+			(gl_draw_card actor)
+		))
+  ))
+  (add cards (table (name "automata") (s 9) (atk 3) (def 12) (cost 3) (type "object") (start_count 1)))
+  (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast") (start_count 2)))
+  (add cards (table (name "bat") (s 19) (atk 3) (def 5) (cost 3) (type "beast") (start_count 2)))
+  (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost") (start_count 2)))
+  (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object") (start_count 2)))
+  (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost") (start_count 2)))
+  (add cards(table (name "snake") (s 39) (atk 2) (def 2) (cost 2) (type "beast") (start_count 1)
+	(desc "hits to opponent deal double damage")
+	(double_damage_to_opponent 1)
+  ))
+  (add cards(table (name "'shroom") (s 41) (atk 1) (def 6) (cost 2) (type "elemental")(start_count 1)))
+  (add cards(table (name "lich") (s 43) (atk 3) (def 14) (cost 6) (type "ghost")))
+  (add cards(table (name "slime") (s 33) (atk 1) (def 8) (cost 2) (type "beast")(start_count 1)))
+  (add cards(table (name "blinky") (s 35) (atk 1) (def 8) (cost 3) (type "ghost")(start_count 1)))
   (add cards swarm)
   (add cards  (table
-    (name "jelpi") (s 13) (atk 1) (def 8) (cost 3) (type "beast")
+    (name "jelpi") (s 13) (atk 1) (def 8) (cost 3) (type "beast") (start_count 1)
     (desc "heal 4")
     (on_summon (fn (actor)
       (set actor.hp (+ actor.hp 4))
@@ -1214,43 +1816,447 @@ parens8[[
 
 	(add cards (table
 		(name "wand") (s 72) (atk 1) (def 8) (cost 5) (type "object")
-		(desc "summon abilities trigger twice")
+		(desc "abilities trigger twice")
 		(double_abilites_for (fn (card) 1))
+	))
+	(add cards (table
+		(name "gorgon") (s 57) (atk 3) (def 6) (cost 6) (type "beast")
+		(desc "turn foes to stone")
+		(on_summon (fn (actor rc row_i)
+			(foreach_rc (fn (rc owner)
+				(when (~= owner actor)
+					(seq 
+						(set rc.c stone)
+						(set rc.hp (min stone.def rc.hp))
+						(set rc.possessed nil)
+						(set rc.damaged_at (time))
+					)
+				)
+			))
+			(ssfx 11)
+			(wait 0.6)
+			(clear_dead)
+		))
+	))
+
+	(add cards (table 
+		(name "candle") (s 37) (atk 2) (def 2) (cost 2) (type "object") (start_count 1)
+		(desc "+1 mana")
+		(on_summon (fn (actor)
+			(set actor.mana (+ actor.mana 1))
+		))
+	))
+
+	(add cards (table
+		(name "zap") (s 45) (atk 3) (def 1) (cost 4) (type "elemental")
+		(desc "clear row")
+		(on_summon (fn (actor rc row_i)
+			(foreach_rc (fn (target_rc owner row)
+				(when (and (== (abs row_i) (abs row)) (~= target_rc rc))
+					(seq 
+						(set target_rc.hp 0)
+						(set target_rc.damaged_at (time))
+					)
+				)
+			))
+			(ssfx 11)
+			(wait 0.6)
+			(clear_dead)
+		))
+	))
+
+	(add cards (table
+		(name "cactus") (s 68) (atk 1) (def 8) (cost 3) (type "elemental")
+		(desc "deal 3 damage to opponent")
+		(on_summon (fn (actor)
+			(gl_damage_player (when (== actor player) opp player) 3)
+		))
+	))
+
+	(add cards (table
+		(name "gargoyle") (s 84) (atk 3) (def 14) (cost 4) (type "elemental")
+		(desc "costs 5 life")
+		(on_summon (fn (actor)
+			(gl_damage_player actor 5)
+		))
+		(ai_will_play (fn (actor)
+			(let ((foe (when (== actor player) opp player)))
+				(and (>= actor.hp foe.hp) (>= actor.hp 10))
+			)
+		))
+	))
+	(add cards flame)
+
+
+	(add cards (table
+    	(name "relic") (s 51) (atk 1) (def 5) (cost 3) (type "object")
+    	(desc "kill all ghosts")
+    	(on_summon (fn (actor)
+      		(foreach_rc (fn (rc owner i)
+        		(when (== rc.c.type "ghost")
+					(seq
+						(set rc.hp 0)
+						(set rc.damaged_at (time))
+						(ssfx 11)
+						(wait 0.6)
+						(clear_dead)
+					)
+				)
+			))
+		))
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner i)
+				(when 
+					(== rc.c.type "ghost") 
+					(seq 
+						(* (when (~= owner actor) 1 -1) rc.c.cost)
+					)
+					0
+				)
+			)) 3 )
+		))
+	))
+		
+	(add cards (table
+		(name "toad") (s 86) (atk 1) (def 4) (cost 2) (type "beast") (start_count 1)
+		(desc "draw a card")
+		(on_summon (fn (actor)
+			(gl_draw_card actor)
+		))
 	))
 
 
-]]
+	(add cards (table
+		(name "smog") (s 88) (atk 3) (def 1) (cost 3) (type "elemental")
+		(desc "can't block")
+		(can_defend (fn ()
+			false
+		))
+	))
 
+	(add cards (table
+		(name "bug") (s 92) (atk 2) (def 1) (cost 1) (type "beast") (start_count 2)
+		(desc "can't block beasts or ghosts")
+		(can_defend (fn (rc attacker)
+			(when (== attacker.c.type "beast")
+				false
+				1
+			)
+		))
+	))
+
+	
+	(add cards (table
+		(name "gnome") (s 76) (atk 1) (def 1) (cost 4) (type "beast")
+		(desc "discard all cards, draw 5")
+		(on_summon (fn (actor)
+			(foreach actor.h_manager.cards (fn (hc)
+				(when (~= hc.c "endturn")
+					(seq
+						(actor.h_manager.remove actor.h_manager hc.c)
+						(wait 0.1)
+					)
+				)
+			))
+			(for (i 1 5)
+				(seq
+					(gl_draw_card actor)
+					(wait 0.1)
+				)
+			)
+		))
+		(ai_will_play (fn (actor)
+			(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
+		))
+	))
+
+	(add cards (table
+		(name "skelly") (s 29) (atk 2) (def 7) (cost 4) (type "ghost")  (start_count 1)
+		(desc "summon bones")
+		(on_summon (fn (actor _rc i)
+			(gl_summon actor bones i 1)
+		))
+	))
+
+	(add cards (table
+		(name "reaper") (s 94) (atk 3) (def 7) (cost 5) (type "ghost")
+		(desc "kill all injured")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(when (< rc.hp rc.c.def)
+					(seq
+						(set rc.hp 0)
+						(set rc.damaged_at (time))
+						(ssfx 11)
+						(wait 0.25)
+						(clear_dead)
+					)
+				)
+			))
+		))
+	))
+
+	(add cards (table
+		(name "dragon") (s 100) (atk 3) (def 10) (cost 6) (type "beast")
+		(desc "summon flame")
+		(on_summon (fn (actor _rc i)
+			(gl_summon actor flame i 1)
+		))
+	))
+
+	(add cards (table
+		(name "mimic") (s 102) (atk 3) (def 19) (cost 3) (type "beast")
+		(desc "can't attack unless hurt")
+		(can_attack (fn (rc)
+			(< rc.hp rc.c.def)
+		))
+	))
+
+	(add cards (table
+		(name "phish") (s 70) (atk 1) (def 6) (cost 3) (type "beast")
+		(desc "steal a card")
+		(on_summon (fn (actor)
+			(gl_steal_card actor)
+		))
+	))
+
+	(add cards (table
+		(name "storm") (s 104) (atk 2) (def 8) (cost 4) (type "elemental")
+		(desc "elemental's abilities trigger twice")
+		(double_abilites_for (fn (card) (== card.type "elemental")))
+	))	
+
+	(add cards (table
+		(name "magnet") (s 74) (atk 1) (def 4) (cost 4) (type "object")
+		(desc "draw an object from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (== c.type "object")))
+		))
+	))
+
+	(add cards (table
+		(name "'nomicon") (s 90) (atk 1) (def 4) (cost 4) (type "object")
+		(desc "draw an ghost from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (== c.type "ghost")))
+		))
+	))
+	(add cards (table
+		(name "devil") (s 106) (atk 3) (def 6) (cost 6) (type "beast")
+		(desc "draw an 4✽+ card from your deck")
+		(on_summon (fn (actor)
+			(gl_tutor actor (fn (c) (>= c.cost 4)))
+		))
+	))
+	
+	(add cards (table
+		(name "bait") (s 108) (atk 1) (def 1) (cost 2) (type "object") (start_count 1)
+		(desc "draw up to 3 1✽ cards from your deck")
+		(on_summon (fn (actor)
+			(for (i 1 3)
+				(seq
+					(gl_tutor actor (fn (c) (== c.cost 1)))
+					(wait 0.25)
+				)
+			)
+		))
+	))
+
+	(add cards (table
+		(name "sapling") (s 110) (atk 0) (def 3) (cost 3) (type "elemental")
+		(desc "heal all allies")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(when (and (== owner actor) (< rc.hp rc.c.def))
+					(seq
+						(set rc.hp rc.c.def)
+						(set rc.damaged_at (time))
+					)
+				)
+			))
+		))
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner i)
+				(when 
+					(== owner actor) 
+					(- rc.c.def rc.hp)
+					0
+				)
+			)) 6 )
+		))
+	))
+
+	(add cards (table
+		(name "portal") (s 116) (atk 0) (def 8) (cost 3) (type "elemental")
+		(desc "each void you summon deals 2 damage to opponent")
+		(on_void (fn (rc actor)
+			(gl_damage_player (when (== actor player) opp player) 2)
+		))
+	))
+
+	(add cards (table
+		(name "cultist") (s 118) (atk 3) (def 6) (cost 5) (type "beast")
+		(desc "draw each time you summon a void")
+		(on_void (fn (rc actor)
+			(gl_draw_card actor)
+		))
+	))
+
+	(set tentacle (table
+		(name "tentacle") (s 124) (atk 2) (def 4) (cost 0) (type "beast")
+	))
+
+	(add cards (table
+		(name "kraken") (s 122) (atk 2) (def 6) (cost 2) (type "beast")
+		(desc "summon two 2/4 tentacles")
+		(on_summon (fn (actor _rc i)
+			(gl_summon actor tentacle (* -1 i) 1)
+			(gl_summon actor tentacle i 1)
+		))
+	))
+
+	(add cards (table
+		(name "raven") (s 120) (atk 2) (def 2) (cost 4) (type "beast")
+		(desc "+1 mana for each ghost in hand (max 8)")
+		(on_summon (fn (actor)
+			(set actor.mana (+ actor.mana (foreach_hc actor (fn (hc)
+				(when (== hc.c.type "ghost") (seq
+					(set hc.ability_at (time))
+					(ssfx 17)
+					(wait 0.25)
+					1
+				) 0)
+			))))
+			(set actor.mana (min 8 actor.mana))
+		))
+		(ai_will_play (fn (actor)
+			(>= (foreach_hc actor (fn (hc)
+				(when (== hc.c.type "ghost") 1 0)
+			)) 2)
+		))
+	))
+
+	(set corpse (table
+		(name "corpse") (s 130) (atk 3) (def 6) (cost 4) (type "object")
+		(desc "on kill: summon corpse")
+		(on_kill (fn (actor rc dead_rc row)
+			(gl_summon actor corpse row 1)
+		))
+	))
+	(add cards corpse)
+
+	(add cards (table
+		(name "cryptid") (s 128) (atk 2) (def 8) (cost 6) (type "beast")
+		(desc "on kill: deal 1 damage to opponent for each beast in hand")
+		(on_kill (fn (actor rc dead_rc row)
+			(foreach_hc actor (fn (hc)
+				(when (== hc.c.type "beast") (seq
+					(ssfx 17)
+					(set hc.ability_at (time))
+					(wait 0.25)
+					(gl_damage_player (when (== actor player) opp player) 1)
+				))
+			))
+		))
+	))
+
+	(add cards (table
+		(name "familiar") (s 126) (atk 1) (def 3) (cost 5) (type "beast")
+		(desc "random effect")
+		(on_summon (fn (actor rc i)
+			(let ((opts (table)) (og_c rc.c))
+				(seq
+					(foreach cards (fn (c)
+						(when c.on_summon (add opts c))
+					))
+					(let ((c (rnd opts)))
+						(seq 
+							(set rc.c c)
+							(set rc.hp c.def)
+							(ssfx 15)
+							(set rc.ability_at (time))
+							(wait .4)
+							(c.on_summon actor rc i)
+							(wait 0.3)
+							(set rc.c og_c)	
+							(set rc.hp og_c.def)
+						)
+					)
+				)
+			)
+		))
+	))
+
+	(add cards (table
+		(name "yeti") (s 134) (atk 1) (def 6) (cost 3) (type "elemental")
+		(desc "freeze all for 2 turns")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(seq
+					(set rc.damaged_at (time))
+					(set rc.frozen 2)
+				)
+			))
+			(ssfx 11)
+		))
+
+		(ai_will_play (fn (actor)
+			(>= (foreach_rc (fn (rc owner i)
+				(when 
+					(can_attack rc actor)
+					(when (== actor owner) 1 -1)
+					0
+				)
+			)) 3 )
+		))
+	))
+
+	(add cards (table
+		(name "sheet") (s 132) (atk 2) (def 4) (cost 3) (type "ghost")
+		(desc "possess all allied objects")
+		(on_summon (fn (actor)
+			(foreach_rc (fn (rc owner i)
+				(when (and (== owner actor) (and (== rc.c.type "object") (not rc.possessed)))
+					(seq 
+						(set rc.possessed 1)
+						(set rc.possessed_at (time))
+						(ssfx 40)
+						(wait 0.5)
+					)
+				)
+			))
+		))
+	))
+]]
+function log(msg)
+	printh(msg, "_ghosts.txt")
+end
+--[[
+
+					]]
 -->8
 --ai
 
--- define utility functions to abstract repetitive logic
--- check for possession by a ghost
-local function check_possession(row, c)
-  local possessed = false
+function check_possession(row, c)
   if c.type == "object" then
     for other_rc in all(row) do
       if other_rc.c.type=="ghost" then
-        possessed = true
-        break
+        return true
       end
     end
   end
-  return possessed
+  return false
 end
 
--- add card to row and return if it can attack or not
-local function get_pot_rc(row, c, owner)
+function get_pot_rc(row, c, owner)
   local pot_rc = {c=c, hp=c.def, possessed=check_possession(row, c)}
   return pot_rc, can_attack(pot_rc, owner)
 end
 
--- main function body, now using utility functions
 function ai_select_row(self, c)
   local row_choice=nil
   local defensive, unprotected, aggressive, valid = {}, {}, {}, {}
   local inanimate=false
-  
   for i=1,3 do
     local row = self.rows[i]
     if #row < 5 then 
@@ -1310,6 +2316,9 @@ function knapsack(actor, cards, mana, n)
 	 return 0, {}
 	end
 	local c=cards[n].c
+	if c == "endturn" then
+		return knapsack(actor, cards, mana, n-1)
+	end
 	if c.cost > mana or (c.ai_will_play and not c.ai_will_play(actor))  then
 	 return knapsack(actor, cards, mana, n-1)
 	else
@@ -1318,27 +2327,27 @@ function knapsack(actor, cards, mana, n)
 	
 		local c=cards[n].c
 		local card_value =  c.cost + 0.1
-	 value1 = value1 + card_value
+	 	value1 = value1 + card_value
 	
-	 if value1 > value2 then
-	     add(subset1, n)
-	     return value1, subset1
-	 else
-	     return value2, subset2
-	 end
+		if value1 > value2 then
+			add(subset1, c)
+			return value1, subset1
+		else
+			return value2, subset2
+		end
 	end
 end
 
 
 -->8
---hit spark
+--hit spark & hand manager
 hit_x, hit_y, hit_mag, hit_res, hit_rs = 50, 50, 0, 18, nil
 
 
 function create_hit_spark(x, y, mag)
 	hit_x, hit_y, hit_frame, rs, hit_mag = x, y, 0, {}, mag
 	for i=0, hit_res do add(rs, i%2==0 and (rnd(1.75)+1) or .8) end
-	sfx(1)
+	ssfx(1)
 end
 
 
@@ -1376,15 +2385,309 @@ function draw_hit_spark()
 	fillp(0)
 end
 
+function create_hand_manager(config)
+	-- config should include:
+	-- cards = array of cards to display
+	-- selected_index = current selected index (optional, defaults to 1)
+	-- on_hc_selected = callback when a card is selected (optional)
+	-- on_up = callback when up is pressed (optional)
+	-- on_down = callback when down is pressed (optional)
+	-- on_left = callback when left is pressed (optional)
+	-- on_right = callback when right is pressed (optional)
+	-- on_x = callback when x is pressed (optional)
+	-- on_o = callback when o is pressed (optional)
+	-- get_preview = function to get preview card info (optional)
+	-- y_base = base y position for the hand (optional, defaults to 89)
+	-- x_base = base x position for the hand (optional, defaults to 64)
+	-- spacing = spacing between cards (optional, defaults to 18)
+  
+	local hand = {
+	  cards = {},
+	  selected_index = config.selected_index or 1,
+		on_hc_selected = config.on_hc_selected,
+		on_up = config.on_up,
+		on_down = config.on_down,
+		on_x = config.on_x,
+		on_o = config.on_o,
+		on_move=config.on_move,
+		inverted = config.inverted,
+	  get_preview = config.get_preview,
+	  y_base = config.y_base or 89,
+	  x_base = config.x_base or 64,
+	  spacing = config.spacing or 18,
+	  height= config.height or 50,
+	  actor = config.actor,
+	  enabled=true
+	}
+	if config.enabled == false then
+		hand.enabled = false
+	end
+	function hand.get_hc(self)
+		return self.cards[self.selected_index]
+	end
+	function hand.get_card(self)
+		return self.cards[self.selected_index].c
+	end
+
+	function hand.add_to_hand(self, card,x,y)
+		local index=nil
+		for i=#self.cards, 1, -1 do
+			if type(self.cards[i].c) == "string" then
+				index=i
+				break
+			end
+		end
+		add(self.cards, {
+			c = card,
+			x = x or 124,
+			y = y or 64
+		},index)
+	end
+
+	function hand.remove(self, card)
+		for i, hc in ipairs(self.cards) do
+			if hc.c == card then
+				del(self.cards, hc)
+				break
+			end
+		end
+	end
+
+	
+  
+	function hand.update(self, disable_input)
+	  -- Handle input
+	  if self.enabled and not disable_input then
+		  if btnp(⬅️) then
+			self.selected_index -= 1
+			if(self.on_move) self.on_move()
+		  end
+		  if  btnp(➡️) then
+			self.selected_index += 1
+			if(self.on_move) self.on_move()
+		  end
+		  if self.on_up and btnp(⬆️) then
+			self.on_up(self)
+		  end
+		  if self.on_down and btnp(⬇️) then
+			self.on_down(self)
+		  end
+		  if self.on_x and btnp(❎) then
+			self.on_x(self.cards[self.selected_index].c)
+		  end
+		  if self.on_o and btnp(🅾️) then
+			self.on_o()
+		  end
+	  
+		  if self.selected_index < 1 then
+			self.selected_index = #self.cards
+		  end
+		  if self.selected_index > #self.cards then
+			self.selected_index = 1
+		  end
+	  end
+	  -- Update card positions
+	  local s_i = self.enabled and self.selected_index or #self.cards/2 + .5
+	  for i, hc in ipairs(self.cards) do
+		local p = (i-s_i)/#self.cards
+		local cx = self.x_base - self.spacing/2
+		local w = self.spacing-#self.cards*.7
+		w = max(8,w)
+		local tx = cx+(i-s_i)*w
+		local ty = self.y_base+p*p*self.height*(self.inverted and -1 or 1)
+  
+		hc.x = lerp(hc.x,tx,0.1)
+		hc.y = lerp(hc.y,ty,0.1)
+	  end
+	end
+  
+	function hand:draw()
+	  -- Draw all cards
+	  for i,hc in ipairs(self.cards) do
+
+		draw_card(hc, self.actor)
+	  end
+	  local selected_card = self.cards[self.selected_index]
+	  if selected_card then
+		draw_card(selected_card, self.actor)
+	  end
+  
+	  -- Draw selection cursor
+	  local s_hc = self.enabled and self.cards[self.selected_index]
+	  if s_hc then
+		spr(16,s_hc.x+5,s_hc.y-7)
+		
+		-- Draw card name
+		local name = type(s_hc.c) == 'string' and s_hc.c or s_hc.c.name
+		print_centered(name,s_hc.x+8,s_hc.y-12,7)
+	  end
+	end
+  -- Initialize cards with positions
+	for i, card in ipairs(config.cards) do
+		hand:add_to_hand(card)
+	end
+	return hand
+  end
+
+-->8
+reward_scene = {
+  init=function(self)
+    self.rewards = {}
+    local available = {}
+    for i=1,#cards do
+      add(available, cards[i])
+    end
+    
+    for i=1,3 do
+      local card = rnd(available)
+      del(available, card)
+      add(self.rewards, card)
+    end
+	add(self.rewards, "skip")
+	add(self.rewards, "remove card")
+    self.h_manager = create_hand_manager({
+	  cards = self.rewards,
+	  y_base=32,
+	  on_x = function(card)
+		if card == "remove card" then 
+			push_scene(deck_scene)
+			deck_scene.is_removing = true
+			return
+		elseif type(card)=='table' then
+			add(player.og_deck, card)
+			ssfx(40)
+		end
+		-- start next battle
+		start_new_game(enemies[current_enemy_index])
+		c_game_logic = cocreate(game_logic)
+		pop_scene()
+	  end
+	})
+  end,
+
+  update = function(self)
+    self.h_manager:update()
+  end,
+
+  draw = function(self)
+    print("pick a reward", 16, 10, 7)
+	local c = self.h_manager:get_card()
+	if type(c)=="table" then
+		draw_summary(c, 64, true)
+	end
+    self.h_manager:draw()
+  end
+}
+
+function save_deck()
+	if not player.og_deck then
+		return
+	end
+	for i = 0, 32 do
+		local c = player.og_deck[i+1] 
+		local index = c and indexof(cards, c) or 0
+		poke(0x5e00+i, index)
+	end
+end
+function indexof(t, v)
+	for i, c in ipairs(t) do
+		if c == v then
+			return i
+		end
+	end
+end
+function load_deck()
+	player.og_deck = {}
+	for i=0, 32 do
+		local addr = 0x5e00 + i
+		local c = peek(addr)
+		if c > 0 then
+			add(player.og_deck, cards[c])
+		end
+	end
+end
+function save_progress()
+	save_deck()
+	if current_enemy_index >=4 then
+		disable_tutorials = true
+	end
+	poke(0x5e00+33, current_enemy_index)
+	poke4(0x5e00+34, seed)
+	poke(0x5e00+64, disable_tutorials and 1 or 0)
+end
+function load_progress()
+	current_enemy_index = peek(0x5e00+33)
+	seed = peek4(0x5e00+34)
+	disable_tutorials = peek(0x5e00+64) == 1
+	if current_enemy_index <= 1 then
+		return false
+	end
+	load_deck()
+	return true
+end
+function clear_save()
+	memset(0x5e00, 0, 64) -- First quater of memory is cleared between runs
+end
+
+function mark_card_seen(card)
+    -- Find card index in the cards array
+    local card_index = 0
+    for i,c in ipairs(cards) do
+        if c == card then
+            card_index = i
+            break
+        end
+    end
+    
+    if card_index == 0 then return end
+    
+    local byte_offset = (card_index - 1) \ 8  -- Integer division
+    local bit_position = (card_index - 1) % 8
+    
+    local addr = 0x5e00 + 65 + byte_offset
+    local current = peek(addr)
+    local old_value = current & (1 << bit_position)
+    local new_value = current | (1 << bit_position)
+
+    poke(addr, new_value)
+end
+-->8
+-- printh("id;name;type;cost;atk;def;abilities", "cards.txt",true)
+
+-- for i,c in ipairs(cards) do
+-- 	printh(i..";"
+-- 	..c.name..";"
+-- 	..c.type..";"
+-- 	..c.cost..";"
+-- 	..c.atk..";"
+-- 	..c.def..";"
+-- 	..(c.desc or "")
+	
+-- 	, "cards.txt")
+-- end
+
+-- add(cards, stone)
+-- add(cards, tentacle)
+-- add(cards, void)
+-- function _draw()
+-- 	cls()
+-- 	local cols = 7
+-- 	for i, c in ipairs(cards) do
+-- 		local x = flr(i/cols)*15
+-- 		local y = (i%cols)*15
+-- 		draw_sprite(c.s, x+6, y+10)
+-- 	end
+-- end
+
 __gfx__
 00000000000707000000000000007770000000000000007700000000007777000077770000000000000000000770770000000000070007000070007000000000
-00000000007777700007070000077777000077700000070700000077070000700700007000000000000000000770000007707700077777700077777700000000
-00700700077707000077777000070770000777770000707000000707707000077000770700077700000777000007777007700000070777000070777000000000
-00077000077777770777070000777777007707700007070000007070700077077000770700707000007070007007070000077770077777700077777700000000
-00077000077777700777777707777770007777770770700000070700700077077070000700777700707777070777777770070700000000000000000000000000
-00700700777777007777777007777700077777700077000007707000070000700700007007777770077777707777700077777777077770000077770000000000
-00000000777777007777770077770000777777000707000000770000007777000077770070777707007777007707070077770000077777000777770000000000
-00000000070070000700070077000000777000000000000007070000077777700777777007707770077077707007070070070700070000000000070000000000
+00000000007777700007070000077777000077700000070700000077070000700700007000077700000000000770000007707700077777700077777700000000
+00700700077707000077777000070770000777770000707000000707707000077000770700770700000777000007777007700000070777000070777000000000
+00077000077777770777070000777777007707700007070000007070700077077000770700770700007707007007070000077770077777700077777700000000
+00077000077777700777777707777770007777770770700000070700700077077070000700777700007707000777777770070700000000000000000000000000
+00700700777777007777777007777700077777700077000007707000070000700700007000777700007777007777700077777777077770000077770000000000
+00000000777777007777770077770000777777000707000000770000007777000077770007007070007777007707070077770000077777000777770000000000
+00000000070070000700070077000000777000000000000007070000077777700777777007007070070070707007070070070700070000000000070000000000
 e00000ee000700070000000000000000077007700770000070000007000077700000000000000000007000000077770000000000000777000000000000000000
 0667770e000700070007000770700707777007770770007000770000000707000000077707000000007000000777777000777700007070000007770000000000
 0667770e070777707007000770777707770000770000770000770000000777700700707007000000070777007777700707777770007777000070700000000000
@@ -1409,22 +2712,46 @@ eeeeeeee077777000077700000077700000000000000700000000000000000000000000000777700
 00000000007777700070000007000070000770000077770000000000770077707777707000000000007000000777707007777070770707077707000000000000
 00000000000777000000000000077000000770000077770000777700770007707707007000777700000777000777707007777770077007070770707000000000
 00000000000000000000000000077000000000000070070000700700077000700700007000077000000770000777777000000000007777770077777000000000
-eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070000000000000000000000000000000000000000000000000
-ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000000000000000000000000000000000000000000000000000
-e70077077077007e7077777777777707707070000070700777777007777707700070070000700700000000000000000000000000000000000000000000000000
-70070000000070077070000000000707777777077077777777770777777777700007000000700707000000000000000000000000000000000000000000000000
-70700000000007077070000000000707777707777777077777777777707077700000700000070000000000000000000000000000000000000000000000000000
-70700000000007077070000000070707007777777777770070707777770777700000700070007070000000000000000000000000000000000000000000000000
-70700000000007077070000000770707007777000077770077077007777770700000700000007000000000000000000000000000000000000000000000000000
-70700000000007077070000007700707007777000077770007770000077700000000700000007000000000000000000000000000000000000000000000000000
-70700000000007077070700077000707000000000777777000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70700000000007077070770770000707077777707700700000000000000000000077000000077000000000000000000000000000000000000000000000000000
-70700000000007077070077700000707770070007777777700070700000000000777770000777770000000000000000000000000000000000000000000000000
-70700000000007077070007000000707777777777070707000707070000707007777777777777777000000000000000000000000000000000000000000000000
-70070000000070077070000000000707707070707000000000777770007070700000000000000000000000000000000000000000000000000000000000000000
-e70077777777007e7077777777777707700000007000000007777770007777700000770000077000000000000000000000000000000000000000000000000000
-ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700000000000000000000000000000000000000000000000000
-eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000000000000000000000000000000000000000000000000000
+eee7770770777eeeee777777777777ee000770000007700000000000077700000007700000000070007777700007777700077000000770000000000000077000
+ee700078870007eee70000000000007e007777000077770007770000777770700070070070077000070007700070007700777700007777000007700000700700
+e70077077077007e7077777777777707707070000070700777777007777707700070070000700700700077700700077700707000000707000000000007777770
+70070000000070077070000000000707777777077077777777770777777777700007000000700707700700000700700000777700007777000707707070700707
+70700000000007077070000000000707777707777777077777777777707077700000700000070000700700000700700070000007000000000707707070700707
+70700000000007077070000000000707007777777777770070707777770777700000700070007070700077700700077700770700707707070000000007777770
+70700000000007077070000000000707007777000077770077077007777770700000700000007000070007700070007700777700007777000007700000700700
+70700000000007077070000000000707007777000077770007770000077700000000700000007000007777700007777700700700007007000000000000077000
+70700000000007077070000000000707000000000777777000000000000000000000000000000000077777000077777000700700000000007707700000000000
+70700000000007077070000000000707077777707700700000000000000000000077000000077000700000700700000700070070007007000707070077077000
+70700000000007077070000000000707770070007777777700070700000000000777770000777770707770700707770700777770000700700077070007070700
+70700000000007077070000000000707777777777070707000707070000707007777777777777777700700700700700707700700007777700707770000770700
+70070000000070077070000000000707707070707000000000777770007070700000000000000000707770700707770707700700077007000770777007077700
+e70077777777007e7077777777777707700000007000000007777770007777700000770000077000707070700707070707777770077007000777077007707770
+ee700000000007eee70000000000007e770707077707070770070070077777700007777000777700700000700700000777777770777777700777777007770770
+eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000077777000077777077777700777777700777777077777777
+00000000000000000000000000000000000000000000000000000000070777700077770007777000070000700000000000000000000000000000000000000000
+00000007000070000000000000000000000070070000000000000000777077770070700007070000077007700700007000000000000000007700000000000077
+00000077000777000000000000000000770077770000700707077770000000000077770007777000007777000770077000000000770700007770007777000777
+00000770007777700000000000000000777070700000777777707777000700700000000000000000007070000077770077070000070770000770077777700770
+70007700000070000000000000000000077077770770707000000000000000000070070007007000707777070070700007077000770777000007077007707000
+77077000000070000000000000000000007770007700777777707007777070070077700000770000070000700077770077077700770707700007700000070000
+07770000000070000000000000000000777770700007000077707777777077770007000000070000000770007000000777070770700777070007000000070000
+00700000007770000000000000000000770070707700707077707777777077770000700000700000077007700770077070077707000000000007000000070000
+00000000000000000000000000000000000777000077700007777000000000000000000000000000007777000000000000777700000000000007070000070700
+00000000000000000000000000000000070700700070000077777700077770007770000000000770077777700077770007770000000000000007777000077770
+00000000000000000000000000000000700000000000007777700070777777000777077000777077777777770777777077700000000777007007070007070700
+00000000000000000000000000000000700770777007700777070707777000700077707707777770777007707777777777700000007777707007777007077770
+00000000000000000000000000000000770770077007700777000007770707070007777077707770777007707770077077770000077700777000000007000000
+00000000000000000000000000000000000000077700000007777770770000070077777000000000777777777770077007777000077700070707770007077700
+00000000000000000000000000000000070070700000070007777770077777700000000000070700077777707777777700777700077770000777777007777770
+00000000000000000000000000000000007770000007770077777770777777770007070000000000777007777777777700777700007777000070707000707070
+07000007000000000077700000000000000777000007770000077700000000000000000000000000000000000000000000000000000000000000000000000000
+07700077070000070707000000777000077070000070707000707000000777000000000000000000000000000000000000000000000000000000000000000000
+00777770077000770777700007070000077777700777777000777700007070000000000000000000000000000000000000000000000000000000000000000000
+07707707007777700000000007777000077777700777777000770700007777000000000000000000000000000000000000000000000000000000000000000000
+00770070077077070777770700000000077777700777770007777770007707000000000000000000000000000000000000000000000000000000000000000000
+07777770077700700770070707777707007777000777770007770770077777700000000000000000000000000000000000000000000000000000000000000000
+77777770777777700000000007700707707770007077700007777770077707700000000000000000000000000000000000000000000000000000000000000000
+70700070707000700707000070007000077770000777700000777700777777770000000000000000000000000000000000000000000000000000000000000000
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077
@@ -1555,7 +2882,41 @@ __label__
 00000000006660660666707000700000606066666060606006000060060060000000060600660666006060000000007070000000000707000000000000000ccc
 00000000060006886000707007077700606066060060600600000000606006666666660060000000066060006666007070000000070707000000000000000000
 
+__map__
+0000676755676767676767000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000676767677683676767000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000067676467677a766767000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000677867876767676767000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000676767676467677c67000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000675e674f6767677a67000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000676767676767856767000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
+11240000155651c5651d565155651c5651d565155651a5651c565155651a5651c565155651a565185651a565155651c5651d565155651c5651d565155651a5651c565155651a5651c565155651a565185651a565
+152400000000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050901509025090350904509055090650907509075
+152400000907509075000000907509075000050907509075000000907509075090750707507075070750000505075050750000505075050750000505075050750000505075050750507507075070750707500005
+c92400000953209532095320953209532095320953209532095320953209532095320953209532095320953209532095320953209532095320953209532095320953209532095320953209532095320953209532
+c92400001053210532105321053210532105321053210532105321053210532105321053210532105321053210532105321053210532105321053210532105321153210532115321053211532105321153210532
+c92400000253202532025320253202532025320253202532025320253202532025320253202532025320253202532025320253202532025320253202532025320253204532055320453205532075320553207532
+152400000507505075000000507505075000000507505075000000507505075050750407504075040750407502075020750000002075020750000002075020750000002075020750207507075070750707507075
+012400000c0430c043156430c0430c04300603156430c0430c0430c043156430c043006030c04315643156430c04300603156430c0430c0430060315643006030c0430060315643006030c043156431564315643
+31240020307402f740307402f7402d7402f7402d7402d7402d7402d7402d7402d740297402b7402974028740267402674026740267402674026740267402674026740287402674028740297402b7402d7402f740
+3124000030740307402f740307402f7402f7402d7402f740000002d7402b7402d7402b7402b740297402b74000000297402874029740287402874026740287402674026740247402674024740267402474026740
+012400002474024740247402474024742247422474224742247422474224742247422474224742247422474218742187421874218742187321873218732187321872218722187221872218712187121871218712
+5d1e000000345003450034500345013450030500345003450034500345013450030500345003450034500345013450030500345003450034500345013450030500345003450034500345013450c3450c3450c345
+011e0000180321803218032180321f0321f0321f0321f0321e0321e0321e0321e0321e0321e0321e0321e032180321803218032180321b0321b0321b0321b0321a0321a0321a0321a0321a0321a0321a0321a032
+5d1e000000345003450034500345013452142500345003450034500345013452142500345003450034500345013452142500345003450034500345013452142500345003450034500345013450c3450c3450c345
+011e00000c33300422004220c3331a33307422074220c3331a3331a333064220c3331a3330642206422064220c333264252142500422034220c33321425034221a3331a333024221a33321425024220242202422
+001e000000345003450034500345013451842500345003450034500345013451e42500345003450034500345013451842500345003450034500345013450134500345003450034500345013450c3450c3450c345
+011e00000c333184251e4250c3331a3330c3331e4250c3331a3331a333184250c3331a3331a3331a3331e4250c3331e4251e4250c3331a3330c333013450c3331a3331a3331e4251a333184251a3331e42518425
+5c1e00000004500300003000000000045003000000000000000450030000300000000004500300003000030000045003000030000000000450030000000000000004500300003000000000045003000030000300
+012100000711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122
+012100000c0330703202032000320c0330003202032000320c0330203203032020320c0330203203032020320c0330003202032000320c0330003202032000320c0330303205032050320c033030320703207032
+0121000013012180221a0321b0421a0321302218012130220e032130420e0320c0220f0120e0220c0321304213012180221a0321b0421a0321302218012130220e032130420e0320c0220e012130220e0320c042
+012100000711207122071320711207122071320711207122051320511205122051320511205122051320511204122041320411204122041320411204122041320511205122051320511205122051320511205122
+0121000013012180221a0321b0421a0321302218012130220e032130420e0320c0220f0120e0220c0321304213032180221a0121b0221a0321304218032180221a0121f022240322604227032260222401226022
+0121000007012080220c0320e042130520e0420c0320802207012080220c032070420805213042180321b0221a0121f02225032240421f052240422503226022260122b0222603227042260522b0423003231022
+012100000c0430c04307132071120c0430713207112071220c0430711207122071320c0430712207132071120c0430c04307112071220c0430711207122071320c0430712207132071120c043071320711207122
+012200000c0430000000000000000c0430000000000000000c0430000000000000000c0430000000000000000c0430c04300000000000c0430000000000000000c0430000000000000000c043000000000000000
 000100032a370212701c7601d34020340233400654029340075402534008540075402034007440263400744000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -1573,3 +2934,56 @@ __sfx__
 000300001f0502705030050360502c050090500405000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00030000000003715034150361502f1503b1503215033300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000100002d070300702e060260601c0502e050190501c050240402604017040170401b040260401d04013030140301b0301e02018020190201f0101f0101a0101a0101f0101c010160101b010000000000000000
+000100001007011070130602606015050170501b0501d05021040270402a0402e040360403b0401d04013030140001b0001e00018000190001f000360502a050250501b050120100e0501b000000000000000000
+__music__
+00 00030444
+00 00050444
+00 00014344
+01 00024344
+00 00024344
+00 00064344
+00 00064344
+00 00020744
+00 00020744
+00 00060744
+00 00060744
+00 00030444
+00 00050444
+00 00020708
+00 00020709
+00 0006070a
+02 00060741
+01 0b424344
+00 0b424344
+00 0b0c4344
+00 0b0c4344
+00 0d0e4344
+00 0d0e4344
+00 0f104344
+00 0f104344
+00 0c104344
+00 0c104344
+00 110c4344
+00 110c4344
+02 114c4344
+01 19424344
+00 12134344
+00 12134344
+00 14134344
+00 16134344
+00 12174344
+00 12174344
+00 18174344
+00 18174344
+00 12134344
+00 12134344
+00 14174344
+00 16174344
+00 14154344
+00 16154344
+00 14134344
+00 16134344
+00 56134344
+00 56134344
+02 19424344
+
