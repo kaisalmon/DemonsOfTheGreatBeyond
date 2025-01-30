@@ -38,8 +38,17 @@ options = {
 			disable_tutorials = not disable_tutorials
 			poke(0x5e00+64, disable_tutorials and 1 or 0)
 		end
+	},
+	{
+		text=function()
+			 return "card gallery ("..tostr(count_discovered()).."/51)"
+		end,
+		action=function ()
+			load("#demons_gallery")
+		end
 	}
 }
+
 
 function _init()
 	cartdata("demons_of_the_great_beyond")
@@ -120,7 +129,24 @@ function _update()
 		end
 	end
 end
-
+function is_card_seen(card_index)	
+	local byte_offset = (card_index - 1) \ 8  -- Integer division
+	local bit_position = (card_index - 1) % 8
+	
+	local addr = 0x5e00 + 65 + byte_offset
+	local current = peek(addr)
+	
+	return (current & (1 << bit_position)) > 0
+end
+function count_discovered()
+	local count = 0
+	for i=0,64 do
+		if is_card_seen(i) then
+			count += 1
+		end
+	end
+	return count
+end
 -->
 
 __gfx__

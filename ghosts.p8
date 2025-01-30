@@ -26,6 +26,17 @@ function _init()
 	end
 	start_new_game(enemies[current_enemy_index])
 	c_game_logic=cocreate(game_logic)
+	tutorial_circles_front, tutorial_circles_back = {}, {}
+	for i=1, 45 do
+		add(tutorial_circles_front, {
+			x= rnd(128+20)-10,
+			y= 78 + 8 * 2*(rnd()-0.5),
+		})
+		add(tutorial_circles_back, {
+			x= rnd(128+20)-10,
+			y= 78 + 8 * 2*(rnd()-0.5),
+		})
+	end
 end
 function _draw_game()
 	camera()
@@ -68,12 +79,39 @@ function _draw_game()
 		rectfill(0,y,128,8+y,8)
 		print("opponent "..tostr(current_enemy_index).."/"..tostr(#enemies)..": the "..enemies[current_enemy_index].name, 2, y+2, 7)
 	end
-	if(tutorial_text)then
+	local clear_t = time()-tutorial_cleared_at
+	clear_t *= 1.5
+	if(tutorial_text or clear_t < 1 )then
 		local y=70
-		rectfill(0,y-1,128,y+18,0)
-		print(tutorial_text,0,y,7)
-		color(5)
-		print("❎ to continue")
+		local tut_t = time()-tutorial_at
+		tut_t *= 1.5
+		local t = tutorial_text and  tut_t or (1-clear_t)
+		t=min(t,1)
+		for i, c in ipairs(tutorial_circles_back) do
+			local r=t*12 + 1
+			r+=2*sin(time()/3 + i*0.1)
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
+		end
+		for i, c in ipairs(tutorial_circles_front) do
+			local r=t*(t-1)*-4*12 + 1
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
+		end
+		for i, c in ipairs(tutorial_circles_back) do
+			local r=t*12 
+			r+=2*sin(time()/3+ i*0.1)
+			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
+		end
+		if t>0.5 and tutorial_text then
+			print(tutorial_text,0,y,7)
+			color(5)
+			print("❎ to continue")
+		end
+		for i, c in ipairs(tutorial_circles_front) do
+			local r=t*(t-1)*-4*12 
+			if r>1 then
+				ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
+			end
+		end
 	end
 end
 
@@ -102,8 +140,9 @@ function _update_game()
 	end
 
 	update_hands(tutorial_text!=nil)
-	if tutorial_text then
-		if btnp(❎) then
+	if tutorial_text  then
+		local t= time()-tutorial_at
+		if btnp(❎)and t>0.8 then
 			tutorial_ok()
 		end
 		return
@@ -121,7 +160,7 @@ function _update_game()
 		end
 		if #playable_cards == 0 and time() > 2 then
 			tutorial("you don't have enough mana to\nplay any cards, end your turn")
-		elseif time() > 10 and preview_c_wrapper.c.type == "ghost" then
+		elseif time() > 10 and preview_c_wrapper and preview_c_wrapper.c.type == "ghost" then
 			tutorial("hold ⬇️ to view detailed\ncard info") 
 		end
 		if foreach_rc(function() return 1 end) >= 4 then 
@@ -199,6 +238,7 @@ function draw_player_hand()
 end
 
 function draw_summary(c_or_c_wrapper,y,full)
+	mark_card_seen(c_or_c_wrapper.c)
 	local c=c_or_c_wrapper.c or c_or_c_wrapper
 	local rc= c_or_c_wrapper.hp and c_or_c_wrapper or nil
 	local str = c.type
@@ -242,11 +282,14 @@ end
 
 shown_tutorials={}
 tutorial_stack={}
+tutorial_at=0
+tutorial_cleared_at=0
 function tutorial(key, string)
 	string = string or key
 	if disable_tutorials then
 		return
 	end
+	tutorial_at=time()
 	if not shown_tutorials[key] then
 		shown_tutorials[key]=true
 
@@ -262,6 +305,7 @@ function tutorial_ok()
 		tutorial_text=deli(tutorial_stack,1)
 	else
 		tutorial_text=nil
+		tutorial_cleared_at=time()
 	end
 end
 
@@ -1049,7 +1093,7 @@ function gl_new_game()
 	player.h_manager:add_to_hand("endturn")
 	-- DEBUGGING THE LATEST CARD
 	-- player.h_manager:add_to_hand(cards[#cards])
-	-- player.h_manager:add_to_hand(cards[#cards -4])
+	-- player.h_manager:add_to_hand(cards[#cards -2])
 	-- player.h_manager:add_to_hand(cards[#cards -3])
 	-- player.mana =  100
 	-- --DEBUGGIN ALL CARDS
@@ -1113,6 +1157,9 @@ player={
 		row_i=-1
 		yield()
 		while true do
+			if player.rows[abs(row_i)] and #player.rows[abs(row_i)]>=1 then
+				tutorial("cards can be summon at the\n front or back of a row")
+			end
 			if btnp(🅾️) then
 				return "back"
 			end
@@ -1312,7 +1359,8 @@ end
 function check_game_end()
 	if player.hp<=0 then
 		game_over="game over"	
-		wait(1)
+		clear_save()
+		wait(4)
 		load("#demons_wrapper")
 		return true
 	end
@@ -1330,7 +1378,7 @@ function check_game_end()
 			-- Player has defeated all enemies
 			game_over = "you won the game!"
 			clear_save()
-			wait(1)
+			wait(4)
 			load("#demons_wrapper")
 			return true
 		end
@@ -1354,15 +1402,6 @@ function gl_summon(actor,c,row_i, no_cost, disable_abilities)
 	local row = actor.rows[abs(row_i)]
 	if #row>=5 then
 		return
-	end
-
-	-- DEBUGGING AI CHOICES
-	if c.ai_will_play then
-		if c.ai_will_play(actor) then
-			log("ai would play "..c.name)
-		else
-			log("ai would not play "..c.name)
-		end
 	end
 
 	yield()
@@ -1746,7 +1785,7 @@ parens8[[
 			(gl_draw_card actor)
 		))
   ))
-  (add cards (table (name "golem") (s 9) (atk 3) (def 12) (cost 3) (type "object") (start_count 1)))
+  (add cards (table (name "automata") (s 9) (atk 3) (def 12) (cost 3) (type "object") (start_count 1)))
   (add cards  (table (name "imp") (s 17) (atk 2) (def 3) (cost 1) (type "beast") (start_count 2)))
   (add cards (table (name "bat") (s 19) (atk 3) (def 5) (cost 3) (type "beast") (start_count 2)))
   (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost") (start_count 2)))
@@ -2127,12 +2166,14 @@ parens8[[
 					(let ((c (rnd opts)))
 						(seq 
 							(set rc.c c)
+							(set rc.hp c.def)
 							(sfx 15)
 							(set rc.ability_at (time))
 							(wait .4)
 							(c.on_summon actor rc i)
 							(wait 0.3)
 							(set rc.c og_c)	
+							(set rc.hp og_c.def)
 						)
 					)
 				)
@@ -2551,12 +2592,10 @@ function indexof(t, v)
 end
 function load_deck()
 	player.og_deck = {}
-	log("loading deck")
 	for i=0, 32 do
 		local addr = 0x5e00 + i
 		local c = peek(addr)
 		if c > 0 then
-			log(" > "..cards[c].name)
 			add(player.og_deck, cards[c])
 		end
 	end
@@ -2569,17 +2608,14 @@ function save_progress()
 	poke(0x5e00+33, current_enemy_index)
 	poke4(0x5e00+34, seed)
 	poke(0x5e00+64, disable_tutorials and 1 or 0)
-	log("saving...")
 end
 function load_progress()
 	current_enemy_index = peek(0x5e00+33)
 	seed = peek4(0x5e00+34)
 	disable_tutorials = peek(0x5e00+64) == 1
 	if current_enemy_index <= 1 then
-		log("no progress found")
 		return false
 	end
-	log("level "..current_enemy_index)
 	load_deck()
 	return true
 end
@@ -2587,6 +2623,28 @@ function clear_save()
 	memset(0x5e00, 0, 64) -- First quater of memory is cleared between runs
 end
 
+function mark_card_seen(card)
+    -- Find card index in the cards array
+    local card_index = 0
+    for i,c in ipairs(cards) do
+        if c == card then
+            card_index = i
+            break
+        end
+    end
+    
+    if card_index == 0 then return end
+    
+    local byte_offset = (card_index - 1) \ 8  -- Integer division
+    local bit_position = (card_index - 1) % 8
+    
+    local addr = 0x5e00 + 65 + byte_offset
+    local current = peek(addr)
+    local old_value = current & (1 << bit_position)
+    local new_value = current | (1 << bit_position)
+
+    poke(addr, new_value)
+end
 -->8
 printh("id;name;type;cost;atk;def;abilities", "cards.txt",true)
 
@@ -2616,13 +2674,13 @@ end
 -- end
 __gfx__
 00000000000707000000000000007770000000000000007700000000007777000077770000000000000000000770770000000000070007000070007000000000
-00000000007777700007070000077777000077700000070700000077070000700700007000000000000000000770000007707700077777700077777700000000
-00700700077707000077777000070770000777770000707000000707707000077000770700077700000777000007777007700000070777000070777000000000
-00077000077777770777070000777777007707700007070000007070700077077000770700707000007070007007070000077770077777700077777700000000
-00077000077777700777777707777770007777770770700000070700700077077070000700777700707777070777777770070700000000000000000000000000
-00700700777777007777777007777700077777700077000007707000070000700700007007777770077777707777700077777777077770000077770000000000
-00000000777777007777770077770000777777000707000000770000007777000077770070777707007777007707070077770000077777000777770000000000
-00000000070070000700070077000000777000000000000007070000077777700777777007707770077077707007070070070700070000000000070000000000
+00000000007777700007070000077777000077700000070700000077070000700700007000077700000000000770000007707700077777700077777700000000
+00700700077707000077777000070770000777770000707000000707707000077000770700770700000777000007777007700000070777000070777000000000
+00077000077777770777070000777777007707700007070000007070700077077000770700770700007707007007070000077770077777700077777700000000
+00077000077777700777777707777770007777770770700000070700700077077070000700777700007707000777777770070700000000000000000000000000
+00700700777777007777777007777700077777700077000007707000070000700700007000777700007777007777700077777777077770000077770000000000
+00000000777777007777770077770000777777000707000000770000007777000077770007007070007777007707070077770000077777000777770000000000
+00000000070070000700070077000000777000000000000007070000077777700777777007007070070070707007070070070700070000000000070000000000
 e00000ee000700070000000000000000077007700770000070000007000077700000000000000000007000000077770000000000000777000000000000000000
 0667770e000700070007000770700707777007770770007000770000000707000000077707000000007000000777777000777700007070000007770000000000
 0667770e070777707007000770777707770000770000770000770000000777700700707007000000070777007777700707777770007777000070700000000000

@@ -5,7 +5,7 @@ id;name;type;cost;atk;def;abilities
 4;spirit;ghost;2;1;5;
 5;blade;object;2;3;4;
 6;orb;object;2;2;6;draw a card
-7;golem;object;3;3;12;
+7;automata;object;3;3;12;
 8;imp;beast;1;2;3;
 9;bat;beast;3;3;5;
 10;wil'o;ghost;4;3;8;
