@@ -7,9 +7,9 @@ summary_y=128
 preview_c_wrapper=nil
 no_wait=false
 disable_tutorials=false
-function ssfx(n)
+function ssfx(n,c)
 	--sfx(9, 1)
-	sfx(n,3)
+	sfx(n,c or 3)
 end
 poke(0x5f2e ,1)
 pal({[0]=0,128,2,132,
@@ -26,6 +26,10 @@ function _init()
 	if not resumed then 
 		current_enemy_index=1
 		seed=rnd() 
+	end
+	music_disabled=peek(0x5e00+73)==1
+	if not music_disabled then
+		music(17, 4000)
 	end
 	start_new_game(enemies[current_enemy_index])
 	c_game_logic=cocreate(game_logic)
@@ -105,7 +109,7 @@ function _draw_game()
 			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
 		end
 		if t>0.5 and tutorial_text then
-			print(tutorial_text,0,y,7)
+			print(tutorial_text,2,y,7)
 			color(5)
 			print("❎ to continue")
 		end
@@ -162,16 +166,16 @@ function _update_game()
 			end
 		end
 		if #playable_cards == 0 and time() > 2 then
-			tutorial("you don't have enough mana to\nplay any cards, end your turn")
+			tutorial("you don't have enough mana to\nsummon any demons, end the turn")
 		elseif time() > 10 and preview_c_wrapper and preview_c_wrapper.c.type == "ghost" then
 			tutorial("hold ⬇️ to view detailed\ncard info") 
 		end
 		if foreach_rc(function() return 1 end) >= 4 then 
-			tutorial("hold ⬆️ to view cards on\nthe board") 
+			tutorial("press ⬆️ to view the demons on\nthe board") 
 		end
 	end
 	if player_input == "view_board" and current_enemy_index != 1 then
-		tutorial("hold ❎ to view card's stats") 
+		tutorial("hold ❎ to view the demons' stats") 
 	end
 	if current_enemy_index >= 3 then
 		tutorial("you can view your deck from\nthe pause menu at any time") 
@@ -1046,6 +1050,15 @@ deck_scene={
 }
 menuitem(1, "view deck", function() push_scene(deck_scene) end)
 menuitem(2, "title screen", function() load("#demons_wrapper") end)
+menuitem(3, "toggle music", function()
+	music_disabled = not music_disabled
+	poke(0x5e00+73, music_disabled and 1 or 0)
+	if music_disabled then
+		music(-1, 500)
+	else
+		music(17, 2000)
+	end
+end)
 
 -->8
 --scenes
@@ -1164,7 +1177,7 @@ player={
 		yield()
 		while true do
 			if player.rows[abs(row_i)] and #player.rows[abs(row_i)]>=1 then
-				tutorial("cards can be summon at the\n front or back of a row")
+				tutorial("demons can be summoned at the\n front or back of a row")
 			end
 			if btnp(🅾️) then
 				return "back"
@@ -1433,7 +1446,7 @@ function gl_summon(actor,c,row_i, no_cost, disable_abilities)
 			if other.c.type=="object" and not other.possessed then
 				other.possessed=true
 				other.possessed_at=time()
-				ssfx(14)
+				ssfx(40)
 				wait(.5)
 			end
 		end
@@ -1538,7 +1551,7 @@ function gl_attack(player_row, opp_row)
 	
 			if assumed_target != nil and def_rc != assumed_target then
 				if assumed_target.c.can_defend then
-					tutorial("some cards abilities stop\nthem from blocking")
+					tutorial("some demons' abilities stop\nthem from blocking")
 				elseif atk_rc.c.type=="ghost" and assumed_target.c.type=="beast" then
 					tutorial("beasts cannot block ghosts!")
 				end
@@ -1556,11 +1569,11 @@ function gl_attack(player_row, opp_row)
 				health_drawer_at=time()
 			end
 			wait(.6)
-			ssfx(10)
+			ssfx(36)
 			if def_rc then
 				def_rc.hp -= atk_rc.c.atk
 				def_rc.damaged_at = time()
-				ssfx(11)
+				ssfx(37,1)
 				wait(.8)
 				if def_rc.hp <= 0 and atk_rc.c.on_kill then
 					def_rc.killed_by=atk_rc
@@ -1585,19 +1598,19 @@ function gl_attack(player_row, opp_row)
 end
 
 function as_ability(rc, actor, fn)
-	tutorial("ability", "some cards, like "..rc.c.name..", have\nspecial abilities")
+	tutorial("ability", "some demons, like "..rc.c.name..", have\nspecial abilities")
 	rc.ability_at=time()
-	ssfx(15)
+	ssfx(41)
 	wait(.5)
 	fn()
 	local doubler = get_doubler(actor, rc.c)
 	if doubler then
 		doubler.ability_at=time()
-		ssfx(15)
+		ssfx(41)
 		wait(.4)
 		
 		rc.ability_at=time()
-		ssfx(15)
+		ssfx(41)
 		wait(.5)
 		fn()
 	end
@@ -1611,7 +1624,7 @@ function gl_damage_player(actor, dam)
 		actor==player and 110 or 12,
 		dam*1.6
 	)
-	ssfx(16)
+	ssfx(36)
 	wait(.8)
 end	
 
@@ -1768,7 +1781,7 @@ parens8[[
 						)
 					)
 				))
-				(ssfx 11)
+				(ssfx 37)
 				(wait 0.5)
 				(clear_dead)
 			)
@@ -1782,7 +1795,7 @@ parens8[[
 	))
 (add cards bones)
 (add cards goblin)
- (add cards (table (name "demon") (s 1) (atk 1) (def 5) (cost 1) (type "beast") (start_count 2)))
+ (add cards (table (name "hellhound") (s 1) (atk 1) (def 5) (cost 1) (type "beast") (start_count 2)))
   (add cards (table (name "spirit") (s 3) (atk 1) (def 5) (cost 2) (type "ghost") (start_count 2)))
   (add cards (table (name "blade") (s 5) (atk 3) (def 4) (cost 2) (type "object") (start_count 1)))
   (add cards (table (name "orb") (s 7) (atk 2) (def 6) (cost 2) (type "object") (start_count 1)
@@ -1833,7 +1846,7 @@ parens8[[
 					)
 				)
 			))
-			(ssfx 11)
+			(ssfx 37)
 			(wait 0.6)
 			(clear_dead)
 		))
@@ -1859,7 +1872,7 @@ parens8[[
 					)
 				)
 			))
-			(ssfx 11)
+			(ssfx 37)
 			(wait 0.6)
 			(clear_dead)
 		))
@@ -1897,7 +1910,7 @@ parens8[[
 					(seq
 						(set rc.hp 0)
 						(set rc.damaged_at (time))
-						(ssfx 11)
+						(ssfx 37)
 						(wait 0.6)
 						(clear_dead)
 					)
@@ -1987,7 +2000,7 @@ parens8[[
 					(seq
 						(set rc.hp 0)
 						(set rc.damaged_at (time))
-						(ssfx 11)
+						(ssfx 37)
 						(wait 0.25)
 						(clear_dead)
 					)
@@ -2122,7 +2135,7 @@ parens8[[
 			(set actor.mana (+ actor.mana (foreach_hc actor (fn (hc)
 				(when (== hc.c.type "ghost") (seq
 					(set hc.ability_at (time))
-					(ssfx 17)
+					(ssfx 41)
 					(wait 0.25)
 					1
 				) 0)
@@ -2151,7 +2164,7 @@ parens8[[
 		(on_kill (fn (actor rc dead_rc row)
 			(foreach_hc actor (fn (hc)
 				(when (== hc.c.type "beast") (seq
-					(ssfx 17)
+					(ssfx 41)
 					(set hc.ability_at (time))
 					(wait 0.25)
 					(gl_damage_player (when (== actor player) opp player) 1)
@@ -2173,7 +2186,7 @@ parens8[[
 						(seq 
 							(set rc.c c)
 							(set rc.hp c.def)
-							(ssfx 15)
+							(ssfx 43)
 							(set rc.ability_at (time))
 							(wait .4)
 							(c.on_summon actor rc i)
@@ -2197,7 +2210,7 @@ parens8[[
 					(set rc.frozen 2)
 				)
 			))
-			(ssfx 11)
+			(ssfx 37)
 		))
 
 		(ai_will_play (fn (actor)
@@ -2347,7 +2360,6 @@ hit_x, hit_y, hit_mag, hit_res, hit_rs = 50, 50, 0, 18, nil
 function create_hit_spark(x, y, mag)
 	hit_x, hit_y, hit_frame, rs, hit_mag = x, y, 0, {}, mag
 	for i=0, hit_res do add(rs, i%2==0 and (rnd(1.75)+1) or .8) end
-	ssfx(1)
 end
 
 
@@ -2614,10 +2626,11 @@ function save_progress()
 	poke(0x5e00+33, current_enemy_index)
 	poke4(0x5e00+34, seed)
 	poke(0x5e00+64, disable_tutorials and 1 or 0)
+	-- poke(0x5e00+73) is for music
 end
 function load_progress()
 	current_enemy_index = peek(0x5e00+33)
-	seed = peek4(0x5e00+34)
+	seed = peek4(0x5e00+73)
 	disable_tutorials = peek(0x5e00+64) == 1
 	if current_enemy_index <= 1 then
 		return false
@@ -2905,9 +2918,9 @@ c9240000025320253202532025320253202532025320253202532025320253202532025320253202
 5d1e000000345003450034500345013450030500345003450034500345013450030500345003450034500345013450030500345003450034500345013450030500345003450034500345013450c3450c3450c345
 011e0000180321803218032180321f0321f0321f0321f0321e0321e0321e0321e0321e0321e0321e0321e032180321803218032180321b0321b0321b0321b0321a0321a0321a0321a0321a0321a0321a0321a032
 5d1e000000345003450034500345013452142500345003450034500345013452142500345003450034500345013452142500345003450034500345013452142500345003450034500345013450c3450c3450c345
-011e00000c33300422004220c3331a33307422074220c3331a3331a333064220c3331a3330642206422064220c333264252142500422034220c33321425034221a3331a333024221a33321425024220242202422
-001e000000345003450034500345013451842500345003450034500345013451e42500345003450034500345013451842500345003450034500345013450134500345003450034500345013450c3450c3450c345
-011e00000c333184251e4250c3331a3330c3331e4250c3331a3331a333184250c3331a3331a3331a3331e4250c3331e4251e4250c3331a3330c333013450c3331a3331a3331e4251a333184251a3331e42518425
+991e00000c33300422004220c3331a33307422074220c3331a3331a333064220c3331a3330642206422064220c333264252142500422034220c33321425034221a3331a333024221a33321425024220242202422
+911e000000345003450034500345013451842500345003450034500345013451e42500345003450034500345013451842500345003450034500345013450134500345003450034500345013450c3450c3450c345
+911e00000c333184251e4250c3331a3330c3331e4250c3331a3331a333184250c3331a3331a3331a3331e4250c3331e4251e4250c3331a3330c333013450c3331a3331a3331e4251a333184251a3331e42518425
 5c1e00000004500300003000000000045003000000000000000450030000300000000004500300003000030000045003000030000000000450030000000000000004500300003000000000045003000030000300
 012100000711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122071320711207122
 012100000c0330703202032000320c0330003202032000320c0330203203032020320c0330203203032020320c0330003202032000320c0330003202032000320c0330303205032050320c033030320703207032
