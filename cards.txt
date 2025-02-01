@@ -1,7 +1,7 @@
 id;name;type;cost;atk;def;abilities
 1;bones;ghost;1;1;2;
 2;goblin;beast;6;3;5;summon goblin in every row
-3;demon;beast;1;1;5;
+3;hellhound;beast;1;1;5;
 4;spirit;ghost;2;1;5;
 5;blade;object;2;3;4;
 6;orb;object;2;2;6;draw a card
@@ -11,14 +11,14 @@ id;name;type;cost;atk;def;abilities
 10;wil'o;ghost;4;3;8;
 11;furniture;object;0;1;6;
 12;'geist;ghost;5;3;10;
-13;snake;beast;2;2;2;hits to opponent deal double damage
+13;viper;beast;3;2;2;hits to opponent deal double damage
 14;'shroom;elemental;2;1;6;
 15;lich;ghost;6;3;14;
 16;slime;beast;2;1;8;
 17;blinky;ghost;3;1;8;
 18;swarm;beast;1;2;2;50% chance to draw swarm
 19;jelpi;beast;3;1;8;heal 4
-20;wand;object;5;1;8;abilities trigger twice
+20;wand;object;5;1;8;ally's abilities trigger twice
 21;gorgon;beast;6;3;6;turn foes to stone
 22;candle;object;2;2;2;+1 mana
 23;zap;elemental;4;3;1;clear row
@@ -35,7 +35,7 @@ id;name;type;cost;atk;def;abilities
 34;dragon;beast;6;3;10;summon flame
 35;mimic;beast;3;3;19;can't attack unless hurt
 36;phish;beast;3;1;6;steal a card
-37;storm;elemental;4;2;8;elemental's abilities trigger twice
+37;storm;elemental;4;2;8;allied elemental's abilities trigger twice
 38;magnet;object;4;1;4;draw an object from your deck
 39;'nomicon;object;4;1;4;draw an ghost from your deck
 40;devil;beast;6;3;6;draw an 4✽+ card from your deck
@@ -43,10 +43,10 @@ id;name;type;cost;atk;def;abilities
 42;sapling;elemental;3;0;3;heal all allies
 43;portal;elemental;3;0;8;each void you summon deals 2 damage to opponent
 44;cultist;beast;5;3;6;draw each time you summon a void
-45;kraken;beast;2;2;6;summon two 2/4 tentacles
+45;kraken;beast;3;2;6;summon two 2/4 tentacles
 46;raven;beast;4;2;2;+1 mana for each ghost in hand (max 8)
 47;corpse;object;4;3;6;on kill: summon corpse
 48;cryptid;beast;6;2;8;on kill: deal 1 damage to opponent for each beast in hand
-49;familiar;beast;5;1;3;random effect
+49;familiar;beast;3;1;3;random effect
 50;yeti;elemental;3;1;6;freeze all for 2 turns
 51;sheet;ghost;3;2;4;possess all allied objects

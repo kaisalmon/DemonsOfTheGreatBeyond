@@ -11,39 +11,64 @@ function ssfx(n,c)
 	--sfx(9, 1)
 	sfx(n,c or 3)
 end
-poke(0x5f2e ,1)
+
+function rpal()
+	poke(0x5f2e ,1)
+	pal()
 pal({[0]=0,128,2,132,
 									133,141,6,7,
 										8,139,129,130,
 										12,13,137,15},1)
+										palt(14,true)
+										palt(0,false)
+end
 
 function _init()
-	cartdata("demons_of_the_great_beyond")
-	palt(14,true)
-	palt(0,false)
-	player={}
-	local resumed = load_progress()
-	if not resumed then 
-		current_enemy_index=1
-		seed=rnd() 
-	end
-	music_disabled=peek(0x5e00+73)==1
-	if not music_disabled then
-		music(17, 4000)
-	end
-	start_new_game(enemies[current_enemy_index])
-	c_game_logic=cocreate(game_logic)
-	tutorial_circles_front, tutorial_circles_back = {}, {}
-	for i=1, 45 do
-		add(tutorial_circles_front, {
-			x= rnd(128+20)-10,
-			y= 78 + 8 * 2*(rnd()-0.5),
-		})
-		add(tutorial_circles_back, {
-			x= rnd(128+20)-10,
-			y= 78 + 8 * 2*(rnd()-0.5),
-		})
-	end
+	parens8[[
+		(cartdata "demons_of_the_great_beyond")
+		(palt 14 1)
+		(palt 0 nil)
+		(set player (table))
+		(set resumed (load_progress))
+		(when (not resumed)
+			(seq
+				(set current_enemy_index 1)
+				(set seed (rnd 1000))
+			)
+		)
+		(set music_disabled (== (peek (+ 0x5e00 73)) 1))
+		(when (not music_disabled)
+			(music 17 4000)
+		)
+		(set new_game_plus nil)
+		(when (>= current_enemy_index (rawlen enemies))
+			(set new_game_plus 1)
+		)
+		(when (not new_game_plus)
+			(set player.hp 16)
+		)
+		(start_new_game current_enemy_index)
+		(set c_game_logic (cocreate game_logic))
+		(set message_circles_front (table))
+		(set message_circles_back (table))
+		(for (i 1 45)
+			(seq
+				(add message_circles_front (table
+					(x (+ -10 (rnd 148))) 
+					(y 
+						(+ 78 (* 16 (- (rnd) 0.5)))
+					)
+				))
+				(add message_circles_back (table
+					
+					(x (+ -10 (rnd 148))) (y 
+						(+ 78 (* 16 (- (rnd) 0.5)))
+					)
+				))
+			)	
+		)
+		
+	]]
 end
 function _draw_game()
 	camera()
@@ -76,44 +101,46 @@ function _draw_game()
 
 	local y = nil
 	local t=time()-game_started_at
-	t/=2.5
-	if t < 2 then
-		y = 64*((t-1)*(t-1)*(t-1)+0.8)
-	elseif summary_y < 90 then
-		y= (80-summary_y)  
+	t/=3
+	if t < 2.5 then
+		y = 64*((t-1)*(t-1)*(t-1)+0.8)+10
+	else  
+		y= 188-2*summary_y
 	end
-	if y then
-		rectfill(0,y,128,8+y,8)
-		print("opponent "..tostr(current_enemy_index).."/"..tostr(#enemies)..": the "..enemies[current_enemy_index].name, 2, y+2, 7)
+	if y and current_enemy then
+		draw_enemy(current_enemy, y+10, y-32)
+		rectfill(0,y,128,8+y,1)
+		print("opponent "..tostr((current_enemy_index - 1) % #enemies + 1).."/"..tostr(#enemies)..": the "..current_enemy.name, 2, y+2, 7)
+		
 	end
-	local clear_t = time()-tutorial_cleared_at
+	local clear_t = time()-message_cleared_at
 	clear_t *= 1.5
-	if(tutorial_text or clear_t < 1 )then
+	if(message_text or clear_t < 1 )then
 		local y=70
-		local tut_t = time()-tutorial_at
+		local tut_t = time()-message_at
 		tut_t *= 1.5
-		local t = tutorial_text and  tut_t or (1-clear_t)
+		local t = message_text and  tut_t or (1-clear_t)
 		t=min(t,1)
-		for i, c in ipairs(tutorial_circles_back) do
+		for i, c in ipairs(message_circles_back) do
 			local r=t*12 + 1
 			r+=2*sin(time()/3 + i*0.1)
 			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
 		end
-		for i, c in ipairs(tutorial_circles_front) do
+		for i, c in ipairs(message_circles_front) do
 			local r=t*(t-1)*-4*12 + 1
 			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,13)
 		end
-		for i, c in ipairs(tutorial_circles_back) do
+		for i, c in ipairs(message_circles_back) do
 			local r=t*12 
 			r+=2*sin(time()/3+ i*0.1)
 			ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
 		end
-		if t>0.5 and tutorial_text then
-			print(tutorial_text,2,y,7)
+		if t>0.5 and message_text then
+			print(message_text,2,y,7)
 			color(5)
 			print("❎ to continue")
 		end
-		for i, c in ipairs(tutorial_circles_front) do
+		for i, c in ipairs(message_circles_front) do
 			local r=t*(t-1)*-4*12 
 			if r>1 then
 				ovalfill(c.x-r,c.y-r,c.x+r,c.y+r,0)
@@ -146,18 +173,21 @@ function _update_game()
 		end
 	end
 
-	update_hands(tutorial_text!=nil)
-	if tutorial_text  then
-		local t= time()-tutorial_at
+	update_hands(message_text!=nil)
+	if message_text  then
+		local t= time()-message_at
 		if btnp(❎)and t>0.8 then
-			tutorial_ok()
+			message_ok()
 		end
 		return
 	end
 
 	player.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 60 or 89
-	opp.h_manager.y_base = (btn(⬇️) and player_input=="hand") and 22 or 12
 	
+	if time() > 4 and new_game_plus then
+		message("in new game plus you no longer\nheal between rounds")
+	end
+
 	if player_input == "hand" then
 		local playable_cards = {}
 		for i, hc in ipairs(player.h_manager.cards) do
@@ -175,7 +205,7 @@ function _update_game()
 		end
 	end
 	if player_input == "view_board" and current_enemy_index != 1 then
-		tutorial("hold ❎ to view the demons' stats") 
+		tutorial("hold ❎ to view the demons'\nattack and health") 
 	end
 	if current_enemy_index >= 3 then
 		tutorial("you can view your deck from\nthe pause menu at any time") 
@@ -203,6 +233,27 @@ function _update_game()
 end
 function draw_sprite(s,x,y)
 	spr(s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+end
+function draw_deinterlaced(x,y,sx,sy,primary)
+    if primary then
+        pal(split"5,5,8,8,8,7,7,7,8,8,8,14,14,14,8") -- Only 9 colors should be used, the rest are set to 8 (bright red)    
+        palt(12,true)
+        palt(13,true)
+        palt(14,true)
+    else
+        pal(split"7,14,8,8,8,5,7,14,8,8,8,5,7,14,8")-- Only 9 colors should be used, the rest are set to 8 (bright red)
+        palt(2,true)
+        palt(8,true)
+        palt(14,true)
+    end    
+    palt(0,false)
+    pal(0,5)
+
+	sspr(sx,sy,32,32,x,y)
+	rpal()
+end
+function draw_enemy(e,x,y)
+	draw_deinterlaced(x,y,e.facex,e.facey,e.facealt!=1)
 end
 function draw_card(hc,actor)
 	local c,x,y=hc.c,hc.x,hc.y
@@ -248,10 +299,10 @@ function draw_player_hand()
 end
 
 function draw_summary(c_or_c_wrapper,y,full)
-	mark_card_seen(c_or_c_wrapper.c)
 	local c=c_or_c_wrapper.c or c_or_c_wrapper
 	local rc= c_or_c_wrapper.hp and c_or_c_wrapper or nil
 	local str = c.type
+	mark_card_seen(c)
 	rectfill(64-2*#str,y,64+2*#str,y+4,0)
 	print(str,64-2*#str,y,types[c.type])
 	y+=7
@@ -290,32 +341,36 @@ function draw_summary(c_or_c_wrapper,y,full)
 	end
 end
 
-shown_tutorials={}
-tutorial_stack={}
-tutorial_at=0
-tutorial_cleared_at=0
+shown_messages={}
+message_stack={}
+message_at=0
+message_cleared_at=0
 function tutorial(key, string)
 	string = string or key
 	if disable_tutorials then
 		return
 	end
-	tutorial_at=time()
-	if not shown_tutorials[key] then
-		shown_tutorials[key]=true
+	message(key, string)
+end
+function message(key, string)
+	string = string or key
+	if not shown_messages[key] then
+		shown_messages[key]=true
 
-		if tutorial_text == nil then
-			tutorial_text=string
+		if message_text == nil then
+			message_at=time()
+			message_text=string
 		else
-			add(tutorial_stack,string)
+			add(message_stack,string)
 		end
 	end
 end
-function tutorial_ok()
-	if #tutorial_stack > 0 then
-		tutorial_text=deli(tutorial_stack,1)
+function message_ok()
+	if #message_stack > 0 then
+		message_text=deli(message_stack,1)
 	else
-		tutorial_text=nil
-		tutorial_cleared_at=time()
+		message_text=nil
+		message_cleared_at=time()
 	end
 end
 
@@ -494,7 +549,7 @@ function draw_rows(rows,flip)
 					end
 					local x = print(rc.c.atk <= 9 and rc.c.atk or "+",x,y,col)
 					x=print("/",x-1,y+2,col)
-					x = print(rc.hp,x-1,y+4, rc.hp < rc.c.def and 8 or col)
+					x = print(rc.hp <= 9 and rc.hp or "+",x-1,y+4, rc.hp < rc.c.def and 8 or col)
 					
 				else
 					palt(0,true)
@@ -507,15 +562,19 @@ function draw_rows(rows,flip)
 					or rc.frozen then
 						idle=0
 					end
-					pal(7,0)
-					spr(rc.c.s+idle,x,y+1,1,1,flip)
-					spr(rc.c.s+idle,x,y-1,1,1,flip)
-					spr(rc.c.s+idle,x+1,y,1,1,flip)
-					spr(rc.c.s+idle,x-1,y,1,1,flip)
-					pal(7,rc.frozen and 12 or 7)
-					spr(rc.c.s+idle,x,y,1,1,flip)
-					palt(0,false)
-					pal(7,7)
+					local f = parens8[[
+						(fn (rc x y idle flip )
+							(pal 7 0) 
+							(spr (+ rc.c.s idle) (+ x 1) y 1 1 flip)
+							(spr (+ rc.c.s idle) (- x 1) y 1 1 flip)
+							(spr (+ rc.c.s idle) x (+ y 1) 1 1 flip)
+							(spr (+ rc.c.s idle) x (- y 1) 1 1 flip)
+							(pal 7 (when rc.frozen 12 7))
+							(spr (+ rc.c.s idle) x y 1 1 flip)
+							(palt 0 0)
+							(pal 7 7)
+						)
+					]](rc,x,y,idle,flip)
 				end
 			end
 			if t and t > 2 then
@@ -628,7 +687,7 @@ function ease(t,p)
 	return 1-t^p*p*2
 end
 function wait(s)
-	while tutorial_text != nil do
+	while message_text != nil do
 		yield()
 	end
 	if no_wait then
@@ -1029,7 +1088,7 @@ deck_scene={
 		self.h_manager:get_hc().dy -= 1
 		self.h_manager:get_hc().y += self.h_manager:get_hc().dy
 		if time() - self.removed_card_at > 1 then
-			start_new_game(enemies[current_enemy_index])
+			start_new_game(current_enemy_index + 1)
 			c_game_logic = cocreate(game_logic)
 			pop_scene() -- back to rewards
 			pop_scene() -- back to game
@@ -1111,7 +1170,7 @@ function gl_new_game()
 	end
 	player.h_manager:add_to_hand("endturn")
 	-- DEBUGGING THE LATEST CARD
-	-- player.h_manager:add_to_hand(cards[#cards])
+	-- player.h_manager:add_to_hand(cards[12])
 	-- player.h_manager:add_to_hand(cards[#cards -2])
 	-- player.h_manager:add_to_hand(cards[#cards -3])
 	-- player.mana =  100
@@ -1146,7 +1205,9 @@ function new_player_deck()
 	return result
 end
 
-function start_new_game(enemy)
+function start_new_game(index)
+	current_enemy_index = index
+	current_enemy = enemies[(index-1) % #enemies + 1]
 	srand(seed)
 	save_progress()
 	game_started_at = time()
@@ -1154,6 +1215,8 @@ player={
 	hand={},
 	rows={},
 	og_deck=player and player.og_deck or new_player_deck(),
+	hp=new_game_plus and player.hp or 16,
+	max_hp=16,
 	pick_card=function()
 			player_input="hand"
 			yield()
@@ -1197,7 +1260,7 @@ player={
 opp={
 	hand={},
 	rows={},
-	og_deck=map_to_cards(enemy.deck),
+	og_deck=map_to_cards(current_enemy.deck),
 	pick_card=function(self)
 			wait(.3)
 			local value,opts=knapsack(opp, opp.h_manager.cards, opp.mana)
@@ -1211,10 +1274,18 @@ opp={
 			preview_changed_at = time()
 		end,
 		on_up=function()
+			player_input="view_board"
 			preview_i=1
 			row_i=4
 			move_view_board_cursor(0,-1)
-			player_input="view_board"
+			if preview_c_wrapper == nil then
+				preview_i=-1
+				row_i=4
+				move_view_board_cursor(0,-1)
+				if preview_c_wrapper == nil then
+					player_input="hand"
+				end
+			end
 		end,
 		actor=player
 	})
@@ -1228,10 +1299,8 @@ opp={
 	player.rows={{},{},{}}
 	opp.rows={{},{},{}}
 
-	player.hp=16
-	opp.hp=enemy.max_hp
-	player.max_hp=16
-	opp.max_hp=enemy.max_hp
+	opp.hp=ceil(current_enemy.max_hp * (new_game_plus and 1.5 or 1))
+	opp.max_hp=opp.hp
 	player.v_hp=player.hp
 	opp.v_hp=opp.hp
 	opp.mana=0
@@ -1384,21 +1453,20 @@ function check_game_end()
 		return true
 	end
 	if opp.hp<=0 then
-		if current_enemy_index < #enemies then
-			-- Progress to next enemy
-			current_enemy_index += 1
-			game_over = "victory!"
-			save_progress()
-			seed=rnd() --global, used for sync
-			wait(1)
-			push_scene(reward_scene)
-			return true
-		else
+		seed=rnd() --global, used for sync
+		if current_enemy == enemies[9] then
 			-- Player has defeated all enemies
+			current_enemy_index+=1
+			save_progress()
 			game_over = "you won the game!"
-			clear_save()
 			wait(4)
 			load("#demons_wrapper")
+			return true
+		else-- Progress to next enemy
+			save_progress()
+			game_over = "victory!"
+			wait(1)
+			push_scene(reward_scene)
 			return true
 		end
 	end
@@ -1697,45 +1765,53 @@ parens8[[
 (add enemies (table 
 	(max_hp 8) 
 	(name "bug catcher")
+	(facex 0) (facey 96) (facealt 0)
 	(deck (split "30,30,30,8,8,18,18,13,41,41"))
 ))
 (add enemies (table 
 	(max_hp 12) 
 	(name "mystic")
+	(facex 0) (facey 96) (facealt 1)
 	(deck (split "11,11,1,1,4,4,22,7,17,10"))
 ))
 (add enemies (table
 	(max_hp 15)
 	(name "necromancer")
+	(facex 32) (facey 96) (facealt 0)
 	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47"))
 ))
 
 (add enemies (table
 	(max_hp 18)
 	(name "elementalist")
+	(facex 32) (facey 96) (facealt 1)
 	(deck (split "18,18,13,13,24,42,9,9,27,27,26,26,25,23,23,34,21,50"))
 ))
 
 (add enemies (table
 	(max_hp 20)
 	(name "wizard")
+	(facex 64) (facey 96) (facealt 0)
 	(deck (split "3,3,16,16,14,28,28,19,29,10,33,20,12,15,2,49"))
 ))
 (add enemies (table 
   (max_hp 22) 
   (name "beast master")
+	(facex 64) (facey 96) (facealt 1)
   (deck (split "8,8,13,13,28,19,9,9,35,40,34,21,45,48"))
 ))
 
 (add enemies (table
 	(max_hp 24)
 	(name "void caster")
+	(facex 96) (facey 96) (facealt 0)
 	(deck (split "18,18,43,43,43,7,37,44,20"))
 ))
 
 (add enemies (table 
   (max_hp 25) 
   (name "artificer")
+	(facex 96) (facey 96) (facealt 1)
   (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51"))
 ))
 
@@ -1743,6 +1819,7 @@ parens8[[
 (add enemies (table 
   (max_hp 26) 
   (name "archmage")
+	(facex 96) (facey 64) (facealt 0)
   (deck (split "8,8,16,16,36,35,29,27,24,31,37,25,33,40,15,2,21,34,46"))
 ))
 
@@ -1809,8 +1886,23 @@ parens8[[
   (add cards (table (name "bat") (s 19) (atk 3) (def 5) (cost 3) (type "beast") (start_count 2)))
   (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost") (start_count 2)))
   (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object") (start_count 2)))
-  (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost") (start_count 2)))
-  (add cards(table (name "snake") (s 39) (atk 2) (def 2) (cost 2) (type "beast") (start_count 1)
+  (add cards(table (name "'geist") (s 27) (atk 3) (def 8) (cost 5) (type "ghost") 
+	(desc "kill unpossessed objects")
+	(on_summon (fn (actor rc row_i)
+		(foreach_rc (fn (target_rc owner row)
+			(when (and (== target_rc.c.type "object") (not target_rc.possessed))
+				(seq 
+					(set target_rc.hp 0)
+					(set target_rc.damaged_at (time))
+					(ssfx 37)
+					(wait 0.6)
+					(clear_dead)
+				)
+			)
+		))
+	))
+  (start_count 1)))
+  (add cards(table (name "viper") (s 39) (atk 2) (def 2) (cost 3) (type "beast") (start_count 1)
 	(desc "hits to opponent deal double damage")
 	(double_damage_to_opponent 1)
   ))
@@ -1829,7 +1921,7 @@ parens8[[
 
 	(add cards (table
 		(name "wand") (s 72) (atk 1) (def 8) (cost 5) (type "object")
-		(desc "abilities trigger twice")
+		(desc "ally's abilities trigger twice")
 		(double_abilites_for (fn (card) 1))
 	))
 	(add cards (table
@@ -2018,7 +2110,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "mimic") (s 102) (atk 3) (def 19) (cost 3) (type "beast")
+		(name "mimic") (s 102) (atk 3) (def 8) (cost 3) (type "beast")
 		(desc "can't attack unless hurt")
 		(can_attack (fn (rc)
 			(< rc.hp rc.c.def)
@@ -2035,7 +2127,7 @@ parens8[[
 
 	(add cards (table
 		(name "storm") (s 104) (atk 2) (def 8) (cost 4) (type "elemental")
-		(desc "elemental's abilities trigger twice")
+		(desc "allied elemental's abilities trigger twice")
 		(double_abilites_for (fn (card) (== card.type "elemental")))
 	))	
 
@@ -2120,7 +2212,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "kraken") (s 122) (atk 2) (def 6) (cost 2) (type "beast")
+		(name "kraken") (s 122) (atk 2) (def 6) (cost 3) (type "beast")
 		(desc "summon two 2/4 tentacles")
 		(on_summon (fn (actor _rc i)
 			(gl_summon actor tentacle (* -1 i) 1)
@@ -2174,7 +2266,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "familiar") (s 126) (atk 1) (def 3) (cost 5) (type "beast")
+		(name "familiar") (s 126) (atk 1) (def 3) (cost 3) (type "beast")
 		(desc "random effect")
 		(on_summon (fn (actor rc i)
 			(let ((opts (table)) (og_c rc.c))
@@ -2570,7 +2662,7 @@ reward_scene = {
 			ssfx(40)
 		end
 		-- start next battle
-		start_new_game(enemies[current_enemy_index])
+		start_new_game(current_enemy_index + 1)
 		c_game_logic = cocreate(game_logic)
 		pop_scene()
 	  end
@@ -2625,17 +2717,20 @@ function save_progress()
 	end
 	poke(0x5e00+33, current_enemy_index)
 	poke4(0x5e00+34, seed)
+	local read_seed = peek4(0x5e00+34)
+	poke(0x5e00+38, player.hp)
 	poke(0x5e00+64, disable_tutorials and 1 or 0)
 	-- poke(0x5e00+73) is for music
 end
 function load_progress()
 	current_enemy_index = peek(0x5e00+33)
-	seed = peek4(0x5e00+73)
+    seed = peek4(0x5e00+34)
 	disable_tutorials = peek(0x5e00+64) == 1
 	if current_enemy_index <= 1 then
 		return false
 	end
 	load_deck()
+	player.hp = peek(0x5e00+38)
 	return true
 end
 function clear_save()
@@ -2757,14 +2852,70 @@ eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000
 00000000000000000000000000000000000000077700000007777770770000070077777000000000777777777770077007777000077700070707770007077700
 00000000000000000000000000000000070070700000070007777770077777700000000000070700077777707777777700777700077770000777777007777770
 00000000000000000000000000000000007770000007770077777770777777770007070000000000777007777777777700777700007777000070707000707070
-07000007000000000077700000000000000777000007770000077700000000000000000000000000000000000000000000000000000000000000000000000000
-07700077070000070707000000777000077070000070707000707000000777000000000000000000000000000000000000000000000000000000000000000000
-00777770077000770777700007070000077777700777777000777700007070000000000000000000000000000000000000000000000000000000000000000000
-07707707007777700000000007777000077777700777777000770700007777000000000000000000000000000000000000000000000000000000000000000000
-00770070077077070777770700000000077777700777770007777770007707000000000000000000000000000000000000000000000000000000000000000000
-07777770077700700770070707777707007777000777770007770770077777700000000000000000000000000000000000000000000000000000000000000000
-77777770777777700000000007700707707770007077700007777770077707700000000000000000000000000000000000000000000000000000000000000000
-70700070707000700707000070007000077770000777700000777700777777770000000000000000000000000000000000000000000000000000000000000000
+070000070000000000777000000000000007770000077700000777000000000000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077000770700000707070000007770000770700000707070007070000007770000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+007777700770007707777000070700000777777007777770007777000070700000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077077070077777000000000077770000777777007777770007707000077770000000000000000000000000000000000eeeeeeeeeeee00000000eeeeeeeeeeee
+007700700770770707777707000000000777777007777700077777700077070000000000000000000000000000000000eeeeeeeeeee0700777770eeeeeeeeeee
+077777700777007007700707077777070077770007777700077707700777777000000000000000000000000000000000eeeeeeeeee070777777770eeeeeeeeee
+777777707777777000000000077007077077700070777000077777700777077000000000000000000000000000000000eeeeeeeee07007777700770eeeeeeeee
+707000707070007007070000700070000777700007777000007777007777777700000000000000000000000000000000eeeeeeeee07077777770770eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07707777777070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07000777700070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07077077077700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee00077077077700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee00777777777700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0000007777000700eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777707707777070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070700077770007070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777707707707070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777077770707070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0077070770707700eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07707700770070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707770000777070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707707777077070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707077007707070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0770770000770770eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee077777707707777770eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeee00770777700777770700eeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeee0707007777777770707070eeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee077070770777707707770770eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee070070770777707707700070eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee000007707707770770700000eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eee00000077077070707707000000eee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ee0000000770770707077070000000ee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecccceeeeeeeeeeeeeeeeeeeeeeeeecccccccccceeeeeeeeeeeeeeee222eeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeecccceeeeeeeeeeeeeeeeeeeeeeeeeeecddddceeeeeeeeeeeeeeeeeeeeeecccccccccccccceeeeeeeeeeeeeee2222eee222222222eeeee2eee
+eeeeeeeeeeeeeecccccceeeeeeeeeeeeeeeeeeeeeeeeecdddccdceeeeeeeeeeeeeeeeeeeeccc00000000cccceeeeeeeeeeeeeee222222000000002222222eeee
+eeeeeeeeeeeeecccccccceeeeeeeeeeeeeeeeeeeeeee01011001dceeeeeeeeeeeeeeeeeeccc0666006660cccceeeeeeeeeeeeee22222077777771022222eeeee
+eeeeeeeeeeeec000000ccceeeeeeeeeeeeeeeeeeeee0777777761dceeeeeeeeeeeeeeeeccc066660066660cccceeeeeeeeeeeee222207767777777022eeeeeee
+eeeeeeeeeee2060767600ceeeeeeeeeeeeeeeeeeee001777777111cceeeeeeeeeeeeeeecc06666600666660cccceeeeeeeeeeeee2207777777767710eeeeeeee
+eeeeeeeeee266667676060ceeeeeeeeeeeeeeeeee06777777777760cceeeeeeeeeeeeeccc06660177006660cccceeeeeeeeeeeee2201017777771110eeeeeeee
+eeeeeeeee28606666076660eeeeeeeeeeeeeeeee2607177777716070ceeeeeeeeeeeeecc0666077777706660cccceeeeeeeeeeee2207777711777770222eeeee
+eeeeeeee2826666766666062eeeeeeeeeeeeeeee2667777777766770ceeeeeeeeeeeeecc0660777777771660cccceeeeeeeeeeee2267111777711176222222ee
+eeeeeee288666666666666662eeeeeeeeeeeeeee0677777677667771cceeeeeeeeeeeccc0607777777777170ccccceeeeeeeeeee220111007700111022222eee
+eeeeeee288666667676666662eeeeeeeeeeeeee266110667766000770ceeeeeeeeeeecc066177777777771770cccceeeeeeeeeee220111117711111022eeeeee
+eeeeee28880006766670006682eeeeeeeeeeeee260011177661111170ceeeeeeeeeeecc167166677777760671cdcceeeeeeeeeee220100007700001022eeeeee
+eeeeee28886666667767666682eeeeeeeeeeeee070000066670000170dceeeeeeeeeccc167000067771000661cdccceeeeeeeeee220110017710011022eeeeee
+eeeeee28820000677710000682eeeeeeeeeeeee076100660176111670dceeeeeeeeecc07617000067100060770dccceeeeeeeee2206101107701101602eeeeee
+eeeeee28886666777777666682eeeeeeeeeeeee076776600117606770dceeeeeeeeecc06617111667700171770cccceeeeeeeee2016710677776017610eeeeee
+eeee228888000677777100668822eeeeeeeeeee266771601117777770ceeeeeeeeeeec06607666767767660760ccceeeeeeeeee20107777177177770102eeeee
+eee28288886666777777666688282eeeeeeeeeee2001777117771110ceeeeeeeeeeeec06607777767767771760ccceeeeeeeee220101777011077710102eeeee
+eee28282826066667766060628282eeeeeeeeeeee00777767767711cceeeeeeeeeeee2666007770771767116660ceeeeeeeeee222c01777100177710c22eeeee
+eeee228888666606716666768822eeeeeeeeeeeee00770110017711cceeeeeeeeeeee2666066777017677706660ceeeeeeeee22eee01777111171710ee22eeee
+eeeee2888667666117766676682eeeeeeeeeeeeee00617171711710cceeeeeeeeeeee2860606770000667160660eeeeeeeee2eeeee01777711777710eee2eeee
+eeeee2888666667677676666682eeeeeeeeeeeeeec067100000671ccceeeeeeeeeeee2880606706666066160662eeeeeeeeeeeeeee06777666677760eeeeeeee
+eeeee2888667666777766666682eeeeeeeeeeeeeecc0666666660cccceeeeeeeeeeee2880606166006606160662eeeeeeeeeeeeeeec071777777170ceeeeeeee
+eeeee2888667661111776666682eeeeeeeeeeeeeecc0666117760cccceeeeeeeeeeee2880660660111760660662eeeeeeeeeeeeeeec077111111770ceeeeeeee
+eeeeee28866660110017666662eeeeeeeeeeeeeeeccc06676670ccccceeeeeeeeeeee2826666660671666666062eeeeeeeeeeeeeeee067667766760eeeeeeeee
+eeeeee28866666676676667662eeeeeeeeeeeeeeeccc00611710ccccceeeeeeeeeeee2828606666006666666082eeeeeeeeeeeeeeeec0666006660ceeeeeeeee
+eeeeee22866666601766667602eeeeeeeeeeeeeeeecc00001100cccceeeeeeeeeeeee2828606666666660666082eeeeeeeeeeeeeeeecc06666660cceeeeeeeee
+eeeee2220666667666676660002eeeeeeeeeeeeeeeec06001160ccceeeeeeeeeeeee288280660666606606660882eeeeeeeeeeeeeeecd00666600dceeeeeeeee
+eee22222000766676676600000222eeeeeeeeeeeeeec06666660ccceeeeeeeeeeeee282261660666606606601082eeeeeeeeeeeeeeecd11111111dceeeeeeeee
+ee2222226101001000010016102222eeeeeeeeeeeeec07711771dcceeeeeeeeeeeee200007606606660660601000ceeeeeeeeeeeeecdd17100171ddceeeeeeee
+e222222067600010110106661002222eeeeeeeeeccc1667777770cdccceeeeeeeec00110067066060606606100011ccceeeeeeeeccddc17777771cddcceeeeee
+02222201076666767767666010102222eeeeecccc00610077110610cccccceeeec1111110671760606066171001111ddeeeeeecccccd1677117761dccccceeee
 __label__
 00000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000000
 77000000000000000000000007070000000000707000000000077070000000000707000000000077070000000000707000000000070700000000000000000077

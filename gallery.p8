@@ -600,45 +600,53 @@ parens8[[
 (add enemies (table 
 	(max_hp 8) 
 	(name "bug catcher")
+	(facex 0) (facey 96) (facealt 0)
 	(deck (split "30,30,30,8,8,18,18,13,41,41"))
 ))
 (add enemies (table 
 	(max_hp 12) 
 	(name "mystic")
+	(facex 0) (facey 96) (facealt 1)
 	(deck (split "11,11,1,1,4,4,22,7,17,10"))
 ))
 (add enemies (table
 	(max_hp 15)
 	(name "necromancer")
+	(facex 32) (facey 96) (facealt 0)
 	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47"))
 ))
 
 (add enemies (table
 	(max_hp 18)
 	(name "elementalist")
+	(facex 32) (facey 96) (facealt 1)
 	(deck (split "18,18,13,13,24,42,9,9,27,27,26,26,25,23,23,34,21,50"))
 ))
 
 (add enemies (table
 	(max_hp 20)
 	(name "wizard")
+	(facex 64) (facey 96) (facealt 0)
 	(deck (split "3,3,16,16,14,28,28,19,29,10,33,20,12,15,2,49"))
 ))
 (add enemies (table 
   (max_hp 22) 
   (name "beast master")
+	(facex 64) (facey 96) (facealt 1)
   (deck (split "8,8,13,13,28,19,9,9,35,40,34,21,45,48"))
 ))
 
 (add enemies (table
 	(max_hp 24)
 	(name "void caster")
+	(facex 96) (facey 96) (facealt 0)
 	(deck (split "18,18,43,43,43,7,37,44,20"))
 ))
 
 (add enemies (table 
   (max_hp 25) 
   (name "artificer")
+	(facex 96) (facey 96) (facealt 1)
   (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51"))
 ))
 
@@ -646,6 +654,7 @@ parens8[[
 (add enemies (table 
   (max_hp 26) 
   (name "archmage")
+	(facex 96) (facey 64) (facealt 0)
   (deck (split "8,8,16,16,36,35,29,27,24,31,37,25,33,40,15,2,21,34,46"))
 ))
 
@@ -684,7 +693,7 @@ parens8[[
 						)
 					)
 				))
-				(sfx 11)
+				(ssfx 37)
 				(wait 0.5)
 				(clear_dead)
 			)
@@ -712,7 +721,23 @@ parens8[[
   (add cards (table (name "bat") (s 19) (atk 3) (def 5) (cost 3) (type "beast") (start_count 2)))
   (add cards (table (name "wil'o") (s 21) (atk 3) (def 8) (cost 4) (type "ghost") (start_count 2)))
   (add cards(table (name "furniture") (s 25) (atk 1) (def 6) (cost 0) (type "object") (start_count 2)))
-  (add cards(table (name "'geist") (s 27) (atk 3) (def 10) (cost 5) (type "ghost") (start_count 2)))
+  (add cards(table (name "'geist") (s 27) (atk 3) (def 8) (cost 5) (type "ghost") 
+	(desc "kill unpossessed objects")
+	(on_summon (fn (actor rc row_i)
+		(foreach_rc (fn (target_rc owner row)
+			(when (and (== target_rc.c.type "object") (not target_rc.possessed))
+				(seq 
+					(set target_rc.hp 0)
+					(set target_rc.damaged_at (time))
+					(ssfx 37)
+					(wait 0.6)
+					(clear_dead)
+				)
+			)
+		))
+	))
+  (start_count 1))
+  )
   (add cards(table (name "snake") (s 39) (atk 2) (def 2) (cost 2) (type "beast") (start_count 1)
 	(desc "hits to opponent deal double damage")
 	(double_damage_to_opponent 1)
@@ -732,7 +757,7 @@ parens8[[
 
 	(add cards (table
 		(name "wand") (s 72) (atk 1) (def 8) (cost 5) (type "object")
-		(desc "abilities trigger twice")
+		(desc "ally's abilities trigger twice")
 		(double_abilites_for (fn (card) 1))
 	))
 	(add cards (table
@@ -749,7 +774,7 @@ parens8[[
 					)
 				)
 			))
-			(sfx 11)
+			(ssfx 37)
 			(wait 0.6)
 			(clear_dead)
 		))
@@ -775,7 +800,7 @@ parens8[[
 					)
 				)
 			))
-			(sfx 11)
+			(ssfx 37)
 			(wait 0.6)
 			(clear_dead)
 		))
@@ -813,7 +838,7 @@ parens8[[
 					(seq
 						(set rc.hp 0)
 						(set rc.damaged_at (time))
-						(sfx 11)
+						(ssfx 37)
 						(wait 0.6)
 						(clear_dead)
 					)
@@ -903,7 +928,7 @@ parens8[[
 					(seq
 						(set rc.hp 0)
 						(set rc.damaged_at (time))
-						(sfx 11)
+						(ssfx 37)
 						(wait 0.25)
 						(clear_dead)
 					)
@@ -938,7 +963,7 @@ parens8[[
 
 	(add cards (table
 		(name "storm") (s 104) (atk 2) (def 8) (cost 4) (type "elemental")
-		(desc "elemental's abilities trigger twice")
+		(desc "allied elemental's abilities trigger twice")
 		(double_abilites_for (fn (card) (== card.type "elemental")))
 	))	
 
@@ -1038,7 +1063,7 @@ parens8[[
 			(set actor.mana (+ actor.mana (foreach_hc actor (fn (hc)
 				(when (== hc.c.type "ghost") (seq
 					(set hc.ability_at (time))
-					(sfx 17)
+					(ssfx 41)
 					(wait 0.25)
 					1
 				) 0)
@@ -1067,7 +1092,7 @@ parens8[[
 		(on_kill (fn (actor rc dead_rc row)
 			(foreach_hc actor (fn (hc)
 				(when (== hc.c.type "beast") (seq
-					(sfx 17)
+					(ssfx 41)
 					(set hc.ability_at (time))
 					(wait 0.25)
 					(gl_damage_player (when (== actor player) opp player) 1)
@@ -1088,12 +1113,14 @@ parens8[[
 					(let ((c (rnd opts)))
 						(seq 
 							(set rc.c c)
-							(sfx 15)
+							(set rc.hp c.def)
+							(ssfx 43)
 							(set rc.ability_at (time))
 							(wait .4)
 							(c.on_summon actor rc i)
 							(wait 0.3)
 							(set rc.c og_c)	
+							(set rc.hp og_c.def)
 						)
 					)
 				)
@@ -1111,7 +1138,7 @@ parens8[[
 					(set rc.frozen 2)
 				)
 			))
-			(sfx 11)
+			(ssfx 37)
 		))
 
 		(ai_will_play (fn (actor)
@@ -1134,7 +1161,7 @@ parens8[[
 					(seq 
 						(set rc.possessed 1)
 						(set rc.possessed_at (time))
-						(sfx 14)
+						(ssfx 40)
 						(wait 0.5)
 					)
 				)

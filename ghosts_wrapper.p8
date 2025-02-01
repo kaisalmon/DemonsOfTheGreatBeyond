@@ -1,13 +1,20 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
+state = "title"
 options = {
 	{	
 		text=function()
-			if can_resume then
-				return "continue (opponent "..current_enemy_index..")"
+			local new_game_plus = current_enemy_index >= 10
+			local opponent_number = (current_enemy_index-1) % 9 + 1
+			if not can_resume then
+				return "load saved run"
+			elseif current_enemy_index==10 then
+				return "new game plus"
+			elseif new_game_plus then
+				return "continue plus (opponent "..opponent_number..")"
 			else
-				return "load save"
+				return "continue (opponent "..opponent_number..")"
 			end
 		end,
 		enabled=function ()
@@ -47,6 +54,14 @@ options = {
 		end,
 		action=function ()
 			load("#demons_gallery")
+		end
+	},
+	{
+		text=function()
+			 return "credits"
+		end,
+		action=function ()
+			state = "credits"
 		end
 	}
 }
@@ -98,7 +113,14 @@ function _draw()
 
 	cls(0)
 	memcpy(0x6000,0x8000,8192)
-	--load("./ghosts.p8")
+	if state == "title" then
+		draw_title()
+	elseif state == "credits" then
+		draw_credits()
+	end
+end
+
+function draw_title()
 	pal(7,0)
 	sspr(23,51,80,31,title_x+1,title_y+1)
 	pal(7,7)
@@ -116,9 +138,41 @@ function _draw()
 		print(option.text(), 64-len/2, y,color)
 		y += 8
 	end
-	local str = "all music by extar"
-	local len = print(str, 0, -10)
-	print(str, 128-len, 140-title_y, 13)
+end
+
+function draw_credits()
+	local y,x=10,10
+	print("credits", 64-#"credits"*2, y, 7)
+	y += 10
+	print("a game by kai salmon", x, y, 7)
+	y += 10
+	print("demon art by kai salmon", x, y, 7)
+	y += 6
+	print("with inspiration from v3x3d", x, y, 7)
+	y += 6
+	print("v3x3d.itch.io/", x, y, 13)
+	y += 6
+	print("bit-bonanza (cc0)", x+40, y, 13)
+	y += 10
+
+	print("portraits by jayjay99", x, y, 7)
+	y += 6
+	print("jayjay99.itch.io/", x, y, 13)
+	y += 6
+	print("1-bit-portraits", x+50, y, 13)
+	y += 10
+	
+	print("music by extar", x, y, 7)
+	y += 6
+	print("extar.itch.io/", x, y, 13)
+	y += 6
+	print("cthulhu-calling (mit)", x+20, y, 13)
+	y += 10
+
+	print("special thanks to tobias", x, y, 7)
+	y += 6
+	print("lindell and frida nilsson", x, y, 7)
+	y += 6
 end
 
 function lerp(tar,pos,perc)
@@ -126,6 +180,12 @@ function lerp(tar,pos,perc)
 end
    
 function _update()
+	if state == "credits" then
+		if btnp(4) or btnp(5) then
+			state = "title"
+		end
+		return
+	end
 	title_x=lerp(title_x,title_tx,0.05)
 	title_y=lerp(title_y,title_ty,0.05)
 
