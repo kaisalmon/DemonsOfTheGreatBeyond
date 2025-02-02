@@ -105,14 +105,16 @@ pal({[0]=0,128,2,132,
 										8,131,129,130,
 										12,13,137,15},1)
 
-poke(0x5f55, 0x80) -- draw to shared memory
-map(0,0,0,0,16,16)
-poke(0x5f55, 0x60) -- draw to screen
+local first=true
 function _draw()
-	poke(0x5f55, 0x60) -- draw to screen
-
 	cls(0)
-	memcpy(0x6000,0x8000,8192)
+	if first then
+		map(0,0,0,0,16,16)
+		memcpy(0x8000,0x6000,8192)
+		first=false
+	else
+		memcpy(0x6000,0x8000,8192)
+	end
 	if state == "title" then
 		draw_title()
 	elseif state == "credits" then
@@ -141,7 +143,7 @@ function draw_title()
 end
 
 function draw_credits()
-	local y,x=10,10
+	local y,x=9,10
 	print("credits", 64-#"credits"*2, y, 7)
 	y += 10
 	print("a game by kai salmon", x, y, 7)
@@ -167,6 +169,11 @@ function draw_credits()
 	print("extar.itch.io/", x, y, 13)
 	y += 6
 	print("cthulhu-calling (mit)", x+20, y, 13)
+	y += 10
+
+	print("parens8 by miss mouse", x, y, 7)
+	y += 6
+	print("github.com/siapran/parens-8", x, y, 13)
 	y += 10
 
 	print("special thanks to tobias", x, y, 7)

@@ -594,6 +594,10 @@ cards={}
 void={}
 enemies={}
 --30,30,30,30,30,14,14,14,8,8,3,4,6
+cards={}
+void={}
+enemies={}
+--30,30,30,30,30,14,14,14,8,8,3,4,6
 parens8[[
 (set enemies (table))
 
@@ -736,9 +740,8 @@ parens8[[
 			)
 		))
 	))
-  (start_count 1))
-  )
-  (add cards(table (name "snake") (s 39) (atk 2) (def 2) (cost 2) (type "beast") (start_count 1)
+  (start_count 1)))
+  (add cards(table (name "viper") (s 39) (atk 2) (def 3) (cost 3) (type "beast") (start_count 1)
 	(desc "hits to opponent deal double damage")
 	(double_damage_to_opponent 1)
   ))
@@ -946,7 +949,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "mimic") (s 102) (atk 3) (def 19) (cost 3) (type "beast")
+		(name "mimic") (s 102) (atk 3) (def 8) (cost 3) (type "beast")
 		(desc "can't attack unless hurt")
 		(can_attack (fn (rc)
 			(< rc.hp rc.c.def)
@@ -1048,7 +1051,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "kraken") (s 122) (atk 2) (def 6) (cost 2) (type "beast")
+		(name "kraken") (s 122) (atk 2) (def 6) (cost 3) (type "beast")
 		(desc "summon two 2/4 tentacles")
 		(on_summon (fn (actor _rc i)
 			(gl_summon actor tentacle (* -1 i) 1)
@@ -1102,7 +1105,7 @@ parens8[[
 	))
 
 	(add cards (table
-		(name "familiar") (s 126) (atk 1) (def 3) (cost 5) (type "beast")
+		(name "familiar") (s 126) (atk 1) (def 3) (cost 3) (type "beast")
 		(desc "random effect")
 		(on_summon (fn (actor rc i)
 			(let ((opts (table)) (og_c rc.c))
