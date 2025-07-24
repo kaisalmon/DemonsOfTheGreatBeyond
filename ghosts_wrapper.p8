@@ -22,8 +22,8 @@ options = {
 		end,
 		action=function ()
 			music(-1, 2000)
+			load("ghosts_for_web.p8")
 			load("#demons")
-			-- load("ghosts.p8")
 		end
 	},
 	{
@@ -31,8 +31,8 @@ options = {
 		action=function ()
 			memset(0x5e00, 0, 64) -- First quater of memory is cleared between runs
 			music(-1, 2000)
+			load("ghosts_for_web.p8")
 			load("#demons")
-			-- load("ghosts.p8")
 		end
 	},
 	{
@@ -53,6 +53,16 @@ options = {
 			 return "card gallery ("..tostr(count_discovered()).."/51)"
 		end,
 		action=function ()
+			poke(0x8000, 0) 
+			load("#demons_gallery")
+		end
+	},
+	{
+		text=function()
+			 return "opponent gallery ("..tostr(count_defeated()).."/9)"
+		end,
+		action=function ()
+			poke(0x8000, 1) 
 			load("#demons_gallery")
 		end
 	},
@@ -227,6 +237,23 @@ function count_discovered()
 	local count = 0
 	for i=0,64 do
 		if is_card_seen(i) then
+			count += 1
+		end
+	end
+	return count
+end
+function is_enemy_defeated(index) 
+	return peek(0x5e00+73+index) >= 1
+end
+
+function is_enemy_ngp_defeated(index)
+	return peek(0x5e00+73+index) >= 2
+end
+
+function count_defeated()
+	local count = 0
+	for i=1,9 do
+		if is_enemy_defeated(i) then
 			count += 1
 		end
 	end

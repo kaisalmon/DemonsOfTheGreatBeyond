@@ -1,19 +1,28 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
+view_enemies = peek(0x8000) == 1
+enemy_index = 1
+enemy_card_index = 1
+enemy_card_y_offsets = {}
+enemy_card_x_offset=0
 card_y_offsets = {}  -- Table to store y offset for each card
 cursor_x = 1
 cursor_y = 1
 camera_y = 0
 camera_ty = 0
 desc_y = 128
-
-poke(0x5f2e ,1)
+function rpal()
+	poke(0x5f2e ,1)
+	pal()
 pal({[0]=0,128,2,132,
 									133,141,6,7,
 										8,139,129,130,
 										12,13,137,15},1)
-
+										palt(14,true)
+										palt(0,false)
+end
+rpal()
 function _init()
 	cartdata("demons_of_the_great_beyond")
 	palt(14,true)
@@ -34,6 +43,43 @@ function _init()
 end
 function draw_sprite(s,x,y)
 	spr(s+(time()%1>0.5 and 1 or 0),x+4,y+4,1,1)
+end
+function draw_deinterlaced(x,y,sx,sy,primary, hidden)
+    if not hidden then
+		if primary then
+			pal(split"5,5,8,8,8,7,7,7,8,8,8,14,14,14,8") -- Only 9 colors should be used, the rest are set to 8 (bright red)    
+			palt(12,true)
+			palt(13,true)
+			palt(14,true)
+		else
+			pal(split"7,14,8,8,8,5,7,14,8,8,8,5,7,14,8")-- Only 9 colors should be used, the rest are set to 8 (bright red)
+			palt(2,true)
+			palt(8,true)
+			palt(14,true)
+		end  
+		palt(0,false)
+		pal(0,5)
+	else
+		pal(split"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0") -- Only 9 colors should be used, the rest are set to 8 (bright red)    
+			
+		if primary then
+			palt(12,true)
+			palt(13,true)
+			palt(14,true)
+		else
+			palt(2,true)
+			palt(8,true)
+			palt(14,true)
+		end  
+		palt(0,false)
+		pal(0,0)
+	end
+
+	sspr(sx,sy,32,32,x,y)
+	rpal()
+end
+function draw_enemy(e,x,y, hidden)
+	draw_deinterlaced(x,y,e.facex,e.facey,e.facealt!=1, hidden)
 end
 function draw_card(hc,actor)
 	local c,x,y=hc.c,hc.x,hc.y
@@ -122,6 +168,13 @@ function draw_summary(c_or_c_wrapper,y,full)
 		rectfill(0,y,128,y+4,0)
 		print(str,x,y,7)
 		clip()
+		y+=7
+	end
+	if c.name=="twin" then
+		str="in honor of pentagon"
+		rectfill(64-2*#str,y,64+2*#str,y+4,0)
+		print(str,64-2*#str,y,14)
+		y+=7
 	end
 end
 -- parens-8 v3
@@ -479,7 +532,7 @@ end)
 
 
 
-function _update()
+function update_cards()
     local max_y = ceil(#cards/5)
     
 	local prev_cursor_x = cursor_x
@@ -508,6 +561,9 @@ function _update()
 		local c = cards[selected_index]
 		if is_card_seen(c) then
 			ty=73
+			if c.name == "twin" then
+				ty-=6
+			end
 		else
 			ty=110
 		end
@@ -515,9 +571,122 @@ function _update()
 	desc_y = lerp(desc_y, ty, 0.2)
 end
 
+function update_enemies()
+
+	if btnp(🅾️) then
+		load("#demons_wrapper")
+		return
+	end
+
+	local ci = enemies[enemy_index].deck[enemy_card_index]
+	local c = cards[ci]
+	if c then
+		if is_card_seen(c) and is_enemy_defeated(enemy_index) then
+			ty=73
+		else
+			ty=110
+		end
+	end
+
+	desc_y = lerp(desc_y, ty, 0.2)
+
+	for i=1,#enemies do
+		if not enemy_card_y_offsets[i] then
+			enemy_card_y_offsets[i] = {}
+		end
+		for j=1,#enemies[i].deck do
+			local target_offset = (i == enemy_index and j == enemy_card_index) and -4 or 0
+			enemy_card_y_offsets[i][j] = lerp(enemy_card_y_offsets[i][j] or 0, target_offset, 0.3)
+		end
+	end
+
+	if btnp(⬇️) then
+		enemy_index = min(#enemies, enemy_index + 1)
+		enemy_card_index = mid(1, enemy_card_index, #enemies[enemy_index].deck)
+	end
+	if btnp(⬆️) then
+		enemy_index = max(1, enemy_index - 1)
+		enemy_card_index = mid(1, enemy_card_index, #enemies[enemy_index].deck)
+	end
+	if btnp(➡️) then
+		enemy_card_index = min(#enemies[enemy_index].deck, enemy_card_index + 1)
+	end
+	if btnp(⬅️) then
+		enemy_card_index = max(1, enemy_card_index - 1)
+	end
+
+	camera_y = lerp(camera_y, 34*enemy_index - 44, 0.2)
+	enemy_card_x_offset = lerp(enemy_card_x_offset, 32-enemy_card_index * 20, 0.2)
+end
+
 function _draw()
 	cls()
 	memcpy(0x6000,0x8000,128*128/2)
+	if view_enemies then
+		draw_enemies()
+	else
+		draw_cards()
+	end
+end
+
+function _update60()
+	if view_enemies then
+		update_enemies()
+	else
+		update_cards()
+	end
+end
+
+function draw_enemies()
+	camera(0, camera_y)
+	local len = print(count_defeated().." / "..#enemies.." enemies defeated", 0, -100, 7)
+	print(count_defeated().." / "..#enemies.." enemies defeated", 64-len/2, 1, 7)
+	print("press 🅾️ to go back", 23, 12, 5)
+	local y = 24
+	for i, e in ipairs(enemies) do
+		
+		draw_enemy(e, 2, y-3, not is_enemy_defeated(i) )
+		for j, ci in ipairs(e.deck) do
+			local c = cards[ci]
+			local offset = ((enemy_card_y_offsets[i] or {})[j]) or 0
+			draw_card({
+				c=c,
+				x=14+j*20 + enemy_card_x_offset,
+				y=y+16+offset,
+				hidden=not is_card_seen(c) or not is_enemy_defeated(i)
+			})
+		end
+
+		if not is_enemy_defeated(i) then 
+			print("???", 32, y+4, 0)
+		else
+			local x = print(e.name.." - ", 32, y+4, 7)
+			if is_enemy_ngp_defeated(i) then
+				print("defeated+",  x, y+4, 14)
+			else 
+				print("defeated", x, y+4, 7)
+			end
+		end
+	
+		y += 34
+	end
+	camera(0, 0)
+	fillp(▒)
+	rectfill(0, desc_y, 128, 128, 0)
+	fillp()
+	rectfill(0, desc_y+5, 128, 128, 0)
+	local ci = enemies[enemy_index].deck[enemy_card_index]
+	local c = cards[ci]
+	if c then
+		if is_card_seen(c) and is_enemy_defeated(enemy_index) then
+			draw_summary(c, desc_y+7, true)
+		else
+			print("???", 58, desc_y+9, 7)
+		end
+	end
+end
+
+function draw_cards()
 	local str=tostr(count_discovered()).." / "..tostr(#cards).. " demons discovered"
 	local len = print(str, 0,-6)
 	camera(0, camera_y)
@@ -617,7 +786,7 @@ parens8[[
 	(max_hp 15)
 	(name "necromancer")
 	(facex 32) (facey 96) (facealt 0)
-	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47"))
+	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47,52"))
 ))
 
 (add enemies (table
@@ -644,14 +813,14 @@ parens8[[
 	(max_hp 24)
 	(name "void caster")
 	(facex 96) (facey 96) (facealt 0)
-	(deck (split "18,18,43,43,43,7,37,44,20"))
+	(deck (split "18,18,43,43,43,28,28,37,44,20,31,31"))
 ))
 
 (add enemies (table 
   (max_hp 25) 
   (name "artificer")
 	(facex 96) (facey 96) (facealt 1)
-  (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51"))
+  (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51,52"))
 ))
 
 
@@ -675,7 +844,7 @@ parens8[[
         (gl_summon actor goblin i 1 1))))))
 
 (set bones (table 
-  (name "bones") (s 23) (atk 1) (def 2) (cost 1) (type "ghost") (start_count 2) ))
+  (name "bones") (s 23) (atk 1) (def 3) (cost 1) (type "ghost") (start_count 2) ))
 (set stone (table 
   (name "stone") (s 59) (atk 1) (def 5) (cost 0) (type "object")))
 (set swarm (table 
@@ -741,7 +910,7 @@ parens8[[
 		))
 	))
   (start_count 1)))
-  (add cards(table (name "viper") (s 39) (atk 2) (def 3) (cost 3) (type "beast") (start_count 1)
+  (add cards(table (name "viper") (s 39) (atk 2) (def 2) (cost 3) (type "beast") (start_count 1)
 	(desc "hits to opponent deal double damage")
 	(double_damage_to_opponent 1)
   ))
@@ -910,7 +1079,12 @@ parens8[[
 			)
 		))
 		(ai_will_play (fn (actor)
-			(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
+			(when (== current_enemy.name "void caster")
+				(seq
+					(< (foreach_hc actor (fn (hc) (when (== hc.c.name "portal") 1 0))) 1)
+				)
+				(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
+			)
 		))
 	))
 
@@ -1061,7 +1235,7 @@ parens8[[
 
 	(add cards (table
 		(name "raven") (s 120) (atk 2) (def 2) (cost 4) (type "beast")
-		(desc "+1 mana for each ghost in hand (max 8)")
+		(desc "+1 mana for each ghost in hand")
 		(on_summon (fn (actor)
 			(set actor.mana (+ actor.mana (foreach_hc actor (fn (hc)
 				(when (== hc.c.type "ghost") (seq
@@ -1071,7 +1245,6 @@ parens8[[
 					1
 				) 0)
 			))))
-			(set actor.mana (min 8 actor.mana))
 		))
 		(ai_will_play (fn (actor)
 			(>= (foreach_hc actor (fn (hc)
@@ -1171,6 +1344,16 @@ parens8[[
 			))
 		))
 	))
+
+	
+(set twin (table 
+  (name "twin") (s 136) (atk 1) (def 1) (cost 1) (type "ghost") (start_count 1) 
+	  (desc "summon twin to back of middle row")
+	  (on_summon (fn (actor)
+		(gl_summon actor twin -2 1 1)
+	  ))
+  ))
+  (add cards twin)
 ]]
 -->
 function mark_card_seen(card)
@@ -1217,6 +1400,25 @@ function is_card_seen(card)
 	
 	return (current & (1 << bit_position)) > 0
 end
+
+function is_enemy_defeated(index) 
+	return peek(0x5e00+73+index) >= 1
+end
+
+function is_enemy_ngp_defeated(index)
+	return peek(0x5e00+73+index) >= 2
+end
+
+function count_defeated()
+	local count = 0
+	for i=1,9 do
+		if is_enemy_defeated(i) then
+			count += 1
+		end
+	end
+	return count
+end
+
 function count_discovered()
 	local count = 0
 	for i,c in ipairs(cards) do
@@ -1294,14 +1496,70 @@ eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000
 00000000000000000000000000000000000000077700000007777770778888870077777000080800777777777778877807777000077700070707770007077700
 00000000000000000000000000000000070070700000070007777770077777700008080000070700077777707777777700777700077770000777777007777770
 00000000000000000000000000000000007770000007770077777770777777770007070000000000777007777777777700777700007777000070707000707070
-07000007000000000077700000000000000777000007770000077700000000000000000000000000000000000000000000000000000000000000000000000000
-07700077070000070787800000777000077878000078787000787800000777000000000000000000000000000000000000000000000000000000000000000000
-00777770077000770777700007878000077777700777777000777700007878000000000000000000000000000000000000000000000000000000000000000000
-07787787007777700088000007777000077777700777777000778700007777000000000000000000000000000000000000000000000000000000000000000000
-00778870077877870777770700880000077777700777770007777770007787000000000000000000000000000000000000000000000000000000000000000000
-07777770077788700770070707777707007777000777770007778770077777700000000000000000000000000000000000000000000000000000000000000000
-77777770777777700808000007700707707770007077700007777770077787700000000000000000000000000000000000000000000000000000000000000000
-70700070707000700707000070007000077770000777700000777700777777770000000000000000000000000000000000000000000000000000000000000000
+070000070000000000777000000000000007770000077700000777000000000007077700070777000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077000770700000707878000007770000778780000787870007878000007770070787800707878000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+007777700770007707777000078780000777777007777770007777000078780000777700007777070000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077877870077777000880000077770000777777007777770007787000077770007088007000880000000000000000000eeeeeeeeeeee00000000eeeeeeeeeeee
+007788700778778707777707008800000777777007777700077777700077870000778700707787000000000000000000eeeeeeeeeee0700777770eeeeeeeeeee
+077777700777887007700707077777070077770007777700077787700777777007777770077777700000000000000000eeeeeeeeee070777777770eeeeeeeeee
+777777707777777008080000077007077077700070777000077777700777877000800800080080000000000000000000eeeeeeeee07007777700770eeeeeeeee
+707000707070007007070000700070000777700007777000007777007777777700700700070070000000000000000000eeeeeeeee07077777770770eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07707777777070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07000777700070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07077077077700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee00077077077700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee00777777777700eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0000007777000700eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777707707777070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070700077770007070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777707707707070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee070777077770707070eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0077070770707700eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07707700770070eeeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707770000777070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707707777077070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0707077007707070eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeee0770770000770770eeeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeee077777707707777770eeeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeee00770777700777770700eeeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeee0707007777777770707070eeeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee077070770777707707770770eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee070070770777707707700070eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeee000007707707770770700000eeee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eee00000077077070707707000000eee
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ee0000000770770707077070000000ee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecccceeeeeeeeeeeeeeeeeeeeeeeeecccccccccceeeeeeeeeeeeeeee222eeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeecccceeeeeeeeeeeeeeeeeeeeeeeeeeecddddceeeeeeeeeeeeeeeeeeeeeecccccccccccccceeeeeeeeeeeeeee2222eee222222222eeeee2eee
+eeeeeeeeeeeeeecccccceeeeeeeeeeeeeeeeeeeeeeeeecdddccdceeeeeeeeeeeeeeeeeeeeccc00000000cccceeeeeeeeeeeeeee222222000000002222222eeee
+eeeeeeeeeeeeecccccccceeeeeeeeeeeeeeeeeeeeeee01011001dceeeeeeeeeeeeeeeeeeccc0666006660cccceeeeeeeeeeeeee22222077777771022222eeeee
+eeeeeeeeeeeec000000ccceeeeeeeeeeeeeeeeeeeee0777777761dceeeeeeeeeeeeeeeeccc066660066660cccceeeeeeeeeeeee222207767777777022eeeeeee
+eeeeeeeeeee2060767600ceeeeeeeeeeeeeeeeeeee001777777111cceeeeeeeeeeeeeeecc06666600666660cccceeeeeeeeeeeee2207777777767710eeeeeeee
+eeeeeeeeee266667676060ceeeeeeeeeeeeeeeeee06777777777760cceeeeeeeeeeeeeccc06660177006660cccceeeeeeeeeeeee2201017777771110eeeeeeee
+eeeeeeeee28606666076660eeeeeeeeeeeeeeeee2607177777716070ceeeeeeeeeeeeecc0666077777706660cccceeeeeeeeeeee2207777711777770222eeeee
+eeeeeeee2826666766666062eeeeeeeeeeeeeeee2667777777766770ceeeeeeeeeeeeecc0660777777771660cccceeeeeeeeeeee2267111777711176222222ee
+eeeeeee288666666666666662eeeeeeeeeeeeeee0677777677667771cceeeeeeeeeeeccc0607777777777170ccccceeeeeeeeeee220111007700111022222eee
+eeeeeee288666667676666662eeeeeeeeeeeeee266110667766000770ceeeeeeeeeeecc066177777777771770cccceeeeeeeeeee220111117711111022eeeeee
+eeeeee28880006766670006682eeeeeeeeeeeee260011177661111170ceeeeeeeeeeecc167166677777760671cdcceeeeeeeeeee220100007700001022eeeeee
+eeeeee28886666667767666682eeeeeeeeeeeee070000066670000170dceeeeeeeeeccc167000067771000661cdccceeeeeeeeee220110017710011022eeeeee
+eeeeee28820000677710000682eeeeeeeeeeeee076100660176111670dceeeeeeeeecc07617000067100060770dccceeeeeeeee2206101107701101602eeeeee
+eeeeee28886666777777666682eeeeeeeeeeeee076776600117606770dceeeeeeeeecc06617111667700171770cccceeeeeeeee2016710677776017610eeeeee
+eeee228888000677777100668822eeeeeeeeeee266771601117777770ceeeeeeeeeeec06607666767767660760ccceeeeeeeeee20107777177177770102eeeee
+eee28288886666777777666688282eeeeeeeeeee2001777117771110ceeeeeeeeeeeec06607777767767771760ccceeeeeeeee220101777011077710102eeeee
+eee28282826066667766060628282eeeeeeeeeeee00777767767711cceeeeeeeeeeee2666007770771767116660ceeeeeeeeee222c01777100177710c22eeeee
+eeee228888666606716666768822eeeeeeeeeeeee00770110017711cceeeeeeeeeeee2666066777017677706660ceeeeeeeee22eee01777111171710ee22eeee
+eeeee2888667666117766676682eeeeeeeeeeeeee00617171711710cceeeeeeeeeeee2860606770000667160660eeeeeeeee2eeeee01777711777710eee2eeee
+eeeee2888666667677676666682eeeeeeeeeeeeeec067100000671ccceeeeeeeeeeee2880606706666066160662eeeeeeeeeeeeeee06777666677760eeeeeeee
+eeeee2888667666777766666682eeeeeeeeeeeeeecc0666666660cccceeeeeeeeeeee2880606166006606160662eeeeeeeeeeeeeeec071777777170ceeeeeeee
+eeeee2888667661111776666682eeeeeeeeeeeeeecc0666117760cccceeeeeeeeeeee2880660660111760660662eeeeeeeeeeeeeeec077111111770ceeeeeeee
+eeeeee28866660110017666662eeeeeeeeeeeeeeeccc06676670ccccceeeeeeeeeeee2826666660671666666062eeeeeeeeeeeeeeee067667766760eeeeeeeee
+eeeeee28866666676676667662eeeeeeeeeeeeeeeccc00611710ccccceeeeeeeeeeee2828606666006666666082eeeeeeeeeeeeeeeec0666006660ceeeeeeeee
+eeeeee22866666601766667602eeeeeeeeeeeeeeeecc00001100cccceeeeeeeeeeeee2828606666666660666082eeeeeeeeeeeeeeeecc06666660cceeeeeeeee
+eeeee2220666667666676660002eeeeeeeeeeeeeeeec06001160ccceeeeeeeeeeeee288280660666606606660882eeeeeeeeeeeeeeecd00666600dceeeeeeeee
+eee22222000766676676600000222eeeeeeeeeeeeeec06666660ccceeeeeeeeeeeee282261660666606606601082eeeeeeeeeeeeeeecd11111111dceeeeeeeee
+ee2222226101001000010016102222eeeeeeeeeeeeec07711771dcceeeeeeeeeeeee200007606606660660601000ceeeeeeeeeeeeecdd17100171ddceeeeeeee
+e222222067600010110106661002222eeeeeeeeeccc1667777770cdccceeeeeeeec00110067066060606606100011ccceeeeeeeeccddc17777771cddcceeeeee
+02222201076666767767666010102222eeeeecccc00610077110610cccccceeeec1111110671760606066171001111ddeeeeeecccccd1677117761dccccceeee
 __label__
 000000000000000000000000hhhhhh0000000000000hhh00hhhhhhh0000000000000000000h0000h000000000000000000h0000h000h0000000000h00000h000
 0000000000h666l66l666000hh0h0000h0000000000h0h0hhhh0h0h0h000000000h000000000000h000000000000h00000h000000h000000000000h000h00000

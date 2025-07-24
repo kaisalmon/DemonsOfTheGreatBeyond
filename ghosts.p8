@@ -1302,19 +1302,6 @@ opp={
 	opp.deck = shallow_copy(opp.og_deck)
 	game_over=nil
 
-	
-	-- --DEBUGGING
-	-- player.pick_card = function(self)
-	-- 	wait(.3)
-	-- 	local value,opts=knapsack(player, player.h_manager.cards, player.mana)
-	-- 	return rnd(opts)
-	-- end
-	-- player.select_row=ai_select_row
-	-- player.hp=200
-	-- opp.hp=200
-	-- player.deck = shallow_copy(cards)
-	-- opp.deck = shallow_copy(cards)
-	-- ----
 
 end
 
@@ -1391,7 +1378,7 @@ function game_logic()
 			actor.mana+=1
 		else
 			tutorial("once you have 6 mana you\nwill no longer more each turn")
-			tutorial("(some abilities can bypass\nthis limit)")
+			tutorial("(demon abilities can bypass\nthis limit)")
 		end
 
 		actor.mana+=actor.used_mana
@@ -1444,6 +1431,12 @@ function check_game_end()
 	end
 	if opp.hp<=0 then
 		seed=rnd() --global, used for sync
+		local offset = (current_enemy_index-1) % 9 + 1
+		local have_defeated = peek(0x5e00+73+offset)
+		local new_have_defeated = ceil(current_enemy_index/9)
+		if have_defeated < new_have_defeated then
+			poke(0x5e00+73+offset, new_have_defeated)
+		end
 		if current_enemy == enemies[9] then
 			-- Player has defeated all enemies
 			current_enemy_index+=1
@@ -1768,7 +1761,7 @@ parens8[[
 	(max_hp 15)
 	(name "necromancer")
 	(facex 32) (facey 96) (facealt 0)
-	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47"))
+	(deck (split "11,11,1,1,4,4,5,5,6,6,22,7,17,32,39,47,47,52"))
 ))
 
 (add enemies (table
@@ -1795,14 +1788,14 @@ parens8[[
 	(max_hp 24)
 	(name "void caster")
 	(facex 96) (facey 96) (facealt 0)
-	(deck (split "18,18,43,43,43,7,37,44,20"))
+	(deck (split "18,18,43,43,43,28,28,37,44,20,31,31"))
 ))
 
 (add enemies (table 
   (max_hp 25) 
   (name "artificer")
 	(facex 96) (facey 96) (facealt 1)
-  (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51"))
+  (deck (split "1,1,6,6,22,22,5,5,4,4,7,7,17,17,32,38,38,20,51,52"))
 ))
 
 
@@ -1826,7 +1819,7 @@ parens8[[
         (gl_summon actor goblin i 1 1))))))
 
 (set bones (table 
-  (name "bones") (s 23) (atk 1) (def 2) (cost 1) (type "ghost") (start_count 2) ))
+  (name "bones") (s 23) (atk 1) (def 3) (cost 1) (type "ghost") (start_count 2) ))
 (set stone (table 
   (name "stone") (s 59) (atk 1) (def 5) (cost 0) (type "object")))
 (set swarm (table 
@@ -2061,7 +2054,12 @@ parens8[[
 			)
 		))
 		(ai_will_play (fn (actor)
-			(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
+			(when (== current_enemy.name "void caster")
+				(seq
+					(< (foreach_hc actor (fn (hc) (when (== hc.c.name "portal") 1 0))) 1)
+				)
+				(and (<= (rawlen actor.h_manager.cards) 3) (>= (rawlen actor.deck) 5))
+			)
 		))
 	))
 
@@ -2212,7 +2210,7 @@ parens8[[
 
 	(add cards (table
 		(name "raven") (s 120) (atk 2) (def 2) (cost 4) (type "beast")
-		(desc "+1 mana for each ghost in hand (max 8)")
+		(desc "+1 mana for each ghost in hand")
 		(on_summon (fn (actor)
 			(set actor.mana (+ actor.mana (foreach_hc actor (fn (hc)
 				(when (== hc.c.type "ghost") (seq
@@ -2222,7 +2220,6 @@ parens8[[
 					1
 				) 0)
 			))))
-			(set actor.mana (min 8 actor.mana))
 		))
 		(ai_will_play (fn (actor)
 			(>= (foreach_hc actor (fn (hc)
@@ -2322,6 +2319,16 @@ parens8[[
 			))
 		))
 	))
+
+	
+(set twin (table 
+  (name "twin") (s 136) (atk 1) (def 1) (cost 1) (type "ghost") (start_count 1) 
+	  (desc "summon twin to back of middle row")
+	  (on_summon (fn (actor)
+		(gl_summon actor twin -2 1 1)
+	  ))
+  ))
+  (add cards twin)
 ]]
 function log(msg)
 	printh(msg, "_ghosts.txt")
@@ -2421,7 +2428,7 @@ function knapsack(actor, cards, mana, n)
 	 local value2, subset2 = knapsack(actor, cards, mana, n-1)
 	
 		local c=cards[n].c
-		local card_value =  c.cost + 0.1
+		local card_value =  c.cost * c.cost + 0.1
 	 	value1 = value1 + card_value
 	
 		if value1 > value2 then
@@ -2717,6 +2724,7 @@ function save_progress()
 	poke(0x5e00+38, player.hp)
 	poke(0x5e00+64, disable_tutorials and 1 or 0)
 	-- poke(0x5e00+73) is for music
+	-- 0x5e00+74 through 0x5e00+91 are for enemy stats
 end
 function load_progress()
 	current_enemy_index = peek(0x5e00+33)
@@ -2755,33 +2763,7 @@ function mark_card_seen(card)
 
     poke(addr, new_value)
 end
--->8
--- printh("id;name;type;cost;atk;def;abilities", "cards.txt",true)
 
--- for i,c in ipairs(cards) do
--- 	printh(i..";"
--- 	..c.name..";"
--- 	..c.type..";"
--- 	..c.cost..";"
--- 	..c.atk..";"
--- 	..c.def..";"
--- 	..(c.desc or "")
-	
--- 	, "cards.txt")
--- end
-
--- add(cards, stone)
--- add(cards, tentacle)
--- add(cards, void)
--- function _draw()
--- 	cls()
--- 	local cols = 7
--- 	for i, c in ipairs(cards) do
--- 		local x = flr(i/cols)*15
--- 		local y = (i%cols)*15
--- 		draw_sprite(c.s, x+6, y+10)
--- 	end
--- end
 
 __gfx__
 00000000000707000000000000007770000000000000007700000000007777000077770000000000000000000770770000000000070007000070007000000000
@@ -2848,14 +2830,14 @@ eee7777777777eeeee777777777777ee777777777777777777077077770770770000000000000000
 00000000000000000000000000000000000000077700000007777770770000070077777000000000777777777770077007777000077700070707770007077700
 00000000000000000000000000000000070070700000070007777770077777700000000000070700077777707777777700777700077770000777777007777770
 00000000000000000000000000000000007770000007770077777770777777770007070000000000777007777777777700777700007777000070707000707070
-070000070000000000777000000000000007770000077700000777000000000000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-077000770700000707070000007770000770700000707070007070000007770000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-007777700770007707777000070700000777777007777770007777000070700000000000000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-077077070077777000000000077770000777777007777770007707000077770000000000000000000000000000000000eeeeeeeeeeee00000000eeeeeeeeeeee
-007700700770770707777707000000000777777007777700077777700077070000000000000000000000000000000000eeeeeeeeeee0700777770eeeeeeeeeee
-077777700777007007700707077777070077770007777700077707700777777000000000000000000000000000000000eeeeeeeeee070777777770eeeeeeeeee
+070000070000000000777000000000000007770000077700000777000000000007077700070777000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077000770700000707070000007770000770700000707070007070000007770070707000707070000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+007777700770007707777000070700000777777007777770007777000070700000777700007777070000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+077077070077777000000000077770000777777007777770007707000077770007000007000000000000000000000000eeeeeeeeeeee00000000eeeeeeeeeeee
+007700700770770707777707000000000777777007777700077777700077070000770700707707000000000000000000eeeeeeeeeee0700777770eeeeeeeeeee
+077777700777007007700707077777070077770007777700077707700777777007777770077777700000000000000000eeeeeeeeee070777777770eeeeeeeeee
 777777707777777000000000077007077077700070777000077777700777077000000000000000000000000000000000eeeeeeeee07007777700770eeeeeeeee
-707000707070007007070000700070000777700007777000007777007777777700000000000000000000000000000000eeeeeeeee07077777770770eeeeeeeee
+707000707070007007070000700070000777700007777000007777007777777700700700070070000000000000000000eeeeeeeee07077777770770eeeeeeeee
 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07707777777070eeeeeeeee
 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07000777700070eeeeeeeee
 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000eeeeeeeee07077077077700eeeeeeeee

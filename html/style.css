@@ -1,0 +1,10 @@
+
+body {
+	background-color:#050811 !important;
+    background: url(backdrop.png) center repeat-x fixed;
+    background-size: contain;
+}
+
+#canvas {
+	box-shadow: 5px 5px 25px black;
+}
