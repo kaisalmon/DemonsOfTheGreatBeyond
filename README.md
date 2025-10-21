@@ -102,4 +102,4 @@ Released as PICO-8 cartridge under standard PICO-8 community guidelines.
 
 ---
 
-*A complete strategic card game built within the constraints of 1980s hardware limitations, demonstrating efficient algorithm design and creative problem-solving in resource-constrained environments.*
+*A complete strategic card game built within the constraints inspired by 80s-90s hardware limitations, demonstrating efficient algorithm design and creative problem-solving in resource-constrained environments.*
